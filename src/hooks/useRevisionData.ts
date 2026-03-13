@@ -28,9 +28,9 @@ export function useRecallForSpec(specId: number) {
 }
 
 export function useExamQuestionsForSpec(specId: number) {
-  return useMemo(() => db.exam_questions.filter((q) => q.spec_ids.includes(specId)), [specId]);
+  return useMemo(() => db.tab_exam.filter((q) => q.spec_ids.includes(specId)), [specId]);
 }
 
 export function useQuizQuestionsForSpec(specId: number) {
-  return useMemo(() => db.quiz_questions.filter((q) => q.spec_id === specId), [specId]);
+  return useMemo(() => db.tab_driller.filter((q) => q.spec_id === specId), [specId]);
 }

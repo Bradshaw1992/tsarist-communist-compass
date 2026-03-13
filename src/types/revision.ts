@@ -58,6 +58,6 @@ export interface RevisionDatabase {
   };
   spec_points: SpecPoint[];
   tab_recall: RecallSummary[];
-  exam_questions: ExamQuestion[];
-  quiz_questions: QuizQuestion[];
+  tab_exam: ExamQuestion[];
+  tab_driller: QuizQuestion[];
 }
