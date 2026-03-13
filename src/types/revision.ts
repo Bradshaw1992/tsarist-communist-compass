@@ -31,6 +31,7 @@ export interface ExamQuestion {
     question_paper: string;
     mark_scheme: string;
   };
+  time_period: string;
 }
 
 export interface QuizQuestion {
@@ -55,9 +56,11 @@ export interface RevisionDatabase {
     spec_point_count: number;
     exam_question_count: number;
     driller_question_count: number;
+    extract_vault_count?: number;
   };
   spec_points: SpecPoint[];
   tab_recall: RecallSummary[];
   tab_exam: ExamQuestion[];
   tab_driller: QuizQuestion[];
+  extract_vault?: unknown[];
 }
