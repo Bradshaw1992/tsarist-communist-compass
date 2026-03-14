@@ -9,9 +9,9 @@ import { useRevisionData } from "@/hooks/useRevisionData";
 import { PenLine, FileText, Crosshair } from "lucide-react";
 
 const Index = () => {
-  const [selectedSpecId, setSelectedSpecId] = useState(1);
+  const [selectedSpecId, setSelectedSpecId] = useState<number | null>(null);
   const db = useRevisionData();
-  const selectedSpec = db.spec_points.find((sp) => sp.id === selectedSpecId);
+  const selectedSpec = selectedSpecId ? db.spec_points.find((sp) => sp.id === selectedSpecId) : undefined;
 
   return (
     <SidebarProvider>
