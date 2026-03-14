@@ -16,7 +16,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { ChevronRight } from "lucide-react";
 
 interface AppSidebarProps {
-  selectedSpecId: number;
+  selectedSpecId: number | null;
   onSelectSpec: (id: number) => void;
 }
 
