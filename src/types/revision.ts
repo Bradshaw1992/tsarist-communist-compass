@@ -24,9 +24,7 @@ export interface ExamQuestion {
   marks: number;
   question_text: string;
   spec_ids: number[];
-  indicative_content: {
-    key_points: string[];
-  };
+  indicative_content: string;
   source_files: {
     question_paper: string;
     mark_scheme: string;
