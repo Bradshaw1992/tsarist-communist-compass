@@ -10,52 +10,6 @@ interface ExamArchitectProps {
   specId: number;
 }
 
-/** Filter out generic AQA level descriptors and mark scheme boilerplate */
-function filterIndicativeContent(points: string[]): string[] {
-  const boilerplatePatterns = [
-    /^level\s*\d/i,
-    /^answers will display/i,
-    /^answers will show/i,
-    /^the answer will/i,
-    /^demonstrates?\s/i,
-    /^shows?\s+(a\s+)?(very\s+)?good understanding/i,
-    /^provides? some supported/i,
-    /^well-organised/i,
-    /^step\s*\d/i,
-    /^start at the lowest/i,
-    /^before you apply/i,
-    /^when assigning a level/i,
-    /mark scheme/i,
-    /standardisation/i,
-    /^further copies/i,
-    /^copyright/i,
-    /^aqa retains/i,
-    /associates?\s+(encounter|analyse|participate)/i,
-    /^it must be stressed/i,
-    /^as preparation/i,
-    /^alternative\s+answers/i,
-    /descriptor for/i,
-    /^this mark scheme/i,
-    /^using your understanding/i,
-    /^analyse and evaluate/i,
-    /^demonstrate,?\s*organise/i,
-    /concepts,?\s*as relevant/i,
-    /well-substantiated/i,
-    /partially substantiated/i,
-    /^\d+[-–]\d+$/,
-    /^assess the validity/i,
-    /^how (significant|successful|important)/i,
-    /^'.*'\s*$/,
-    /^to what extent/i,
-  ];
-
-  return points.filter((point) => {
-    const trimmed = point.trim();
-    if (trimmed.length < 15) return false;
-    return !boilerplatePatterns.some((p) => p.test(trimmed));
-  });
-}
-
 const TIME_PERIOD_ORDER = [
   "1855-1894",
   "1855-1917",
@@ -74,6 +28,63 @@ const TIME_PERIOD_LABELS: Record<string, string> = {
   "1941-1964": "1941–1964: Stalinism & Reaction",
 };
 
+/** Parse markdown indicative content into structured sections */
+function parseIndicativeContent(markdown: string): { type: "heading" | "bullet"; text: string }[] {
+  if (!markdown || typeof markdown !== "string") return [];
+
+  const lines = markdown.split("\n").map(l => l.trim()).filter(Boolean);
+  const result: { type: "heading" | "bullet"; text: string }[] = [];
+
+  // Filter out generic AQA level descriptors
+  const boilerplatePatterns = [
+    /^level\s*\d/i,
+    /^answers will display/i,
+    /^answers will show/i,
+    /^the answer will/i,
+    /^demonstrates?\s/i,
+    /^shows?\s+(a\s+)?(very\s+)?good understanding/i,
+    /^provides? some supported/i,
+    /^well-organised/i,
+    /^step\s*\d/i,
+    /^start at the lowest/i,
+    /^before you apply/i,
+    /^when assigning a level/i,
+    /mark scheme/i,
+    /standardisation/i,
+    /^further copies/i,
+    /^copyright/i,
+    /^aqa retains/i,
+    /^it must be stressed/i,
+    /^as preparation/i,
+    /^alternative\s+answers/i,
+    /descriptor for/i,
+    /^this mark scheme/i,
+    /^\d+[-–]\d+$/,
+    /well-substantiated/i,
+    /partially substantiated/i,
+  ];
+
+  for (const line of lines) {
+    // Strip markdown bold markers for pattern matching
+    const plain = line.replace(/\*\*/g, "").trim();
+    if (plain.length < 10) continue;
+    if (boilerplatePatterns.some(p => p.test(plain))) continue;
+
+    // Detect bold headings like **Arguments Supporting the View**
+    if (/^\*\*[^*]+\*\*$/.test(line)) {
+      result.push({ type: "heading", text: plain });
+    } else {
+      // Strip leading "- " for bullets
+      const bulletText = line.replace(/^-\s*/, "").trim();
+      if (bulletText.length >= 10) {
+        result.push({ type: "bullet", text: bulletText });
+      }
+    }
+  }
+
+  return result;
+}
+
 export function ExamArchitect({ specId }: ExamArchitectProps) {
   const allQuestions = useExamQuestionsForSpec(specId);
 
@@ -91,7 +102,6 @@ export function ExamArchitect({ specId }: ExamArchitectProps) {
       if (!map.has(tp)) map.set(tp, []);
       map.get(tp)!.push(q);
     }
-    // Sort by TIME_PERIOD_ORDER
     const sorted: { period: string; label: string; items: ExamQuestion[] }[] = [];
     const keys = [...map.keys()].sort((a, b) => {
       const ai = TIME_PERIOD_ORDER.indexOf(a);
@@ -142,9 +152,9 @@ export function ExamArchitect({ specId }: ExamArchitectProps) {
 function ExamCard({ question }: { question: ExamQuestion }) {
   const [showMarkScheme, setShowMarkScheme] = useState(false);
 
-  const filteredPoints = useMemo(
-    () => filterIndicativeContent(question.indicative_content.key_points),
-    [question.indicative_content.key_points]
+  const parsedContent = useMemo(
+    () => parseIndicativeContent(question.indicative_content),
+    [question.indicative_content]
   );
 
   return (
@@ -184,24 +194,33 @@ function ExamCard({ question }: { question: ExamQuestion }) {
 
         {showMarkScheme && (
           <div className="mt-3 animate-flip-in rounded-lg border border-accent/30 bg-accent/5 p-4">
-            <h4 className="mb-2 font-serif text-sm font-semibold text-primary">
+            <h4 className="mb-3 font-serif text-sm font-semibold text-primary">
               Indicative Content
             </h4>
-            {filteredPoints.length > 0 ? (
-              <ul className="space-y-1.5">
-                {filteredPoints.map((point, i) => (
-                  <li
-                    key={i}
-                    className="flex gap-2 text-sm leading-relaxed text-foreground/80"
-                  >
-                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
-                    {point}
-                  </li>
-                ))}
-              </ul>
+            {parsedContent.length > 0 ? (
+              <div className="space-y-1">
+                {parsedContent.map((item, i) =>
+                  item.type === "heading" ? (
+                    <h5
+                      key={i}
+                      className="mt-4 mb-2 font-serif text-sm font-bold text-foreground first:mt-0"
+                    >
+                      {item.text}
+                    </h5>
+                  ) : (
+                    <div
+                      key={i}
+                      className="flex gap-2 py-0.5 text-sm leading-relaxed text-foreground/80 pl-2"
+                    >
+                      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
+                      <span>{item.text}</span>
+                    </div>
+                  )
+                )}
+              </div>
             ) : (
               <p className="text-sm text-muted-foreground italic">
-                No specific indicative content available for this question. Refer to the mark scheme for guidance.
+                No specific indicative content available for this question.
               </p>
             )}
           </div>

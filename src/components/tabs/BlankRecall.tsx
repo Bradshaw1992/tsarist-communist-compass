@@ -10,20 +10,21 @@ interface BlankRecallProps {
   specTitle: string;
 }
 
-/** Extract core noun-phrases / concepts from a sentence for fuzzy matching */
-function extractConcepts(text: string): string[] {
-  const lower = text.toLowerCase();
-  // split into meaningful chunks
-  const words = lower.match(/\b[a-z'']{3,}\b/g) || [];
-  return words;
-}
-
-/** Check if user text covers a given content bullet conceptually */
+/**
+ * Generous conceptual matching: extracts substantive multi-word concepts from a bullet,
+ * then checks if the *idea* appears in the user's text — not just specific terminology.
+ * A bullet is only "missed" if the core historical idea is entirely absent.
+ */
 function isCovered(userText: string, bullet: string): boolean {
   const userLower = userText.toLowerCase();
-  const bulletWords = extractConcepts(bullet);
-  
-  // Filter to substantive words (skip very common ones)
+  const bulletLower = bullet.toLowerCase();
+
+  // Extract meaningful noun-phrases / named entities (2+ word sequences, proper nouns, dates)
+  const namedEntities = bulletLower.match(
+    /(?:[A-Z][a-z]+(?:\s+[A-Z][a-z]+)+|(?:18|19|20)\d{2})/gi
+  ) || [];
+
+  // Extract conceptual phrases (longer sequences of substantive words)
   const common = new Set([
     "the", "and", "was", "were", "that", "this", "with", "from", "have", "been",
     "they", "their", "which", "also", "more", "than", "into", "would", "could",
@@ -32,14 +33,40 @@ function isCovered(userText: string, bullet: string): boolean {
     "these", "those", "had", "for", "not", "but", "are", "its", "his", "her",
     "who", "all", "can", "has", "did", "does", "will", "may", "each", "both",
     "any", "how", "many", "much", "own", "our", "you", "one", "two", "new",
+    "there", "where", "when", "what", "then", "led", "made", "gave", "took",
+    "used", "became", "meant", "left", "set", "put", "saw", "got", "came",
+    "went", "being", "often", "well", "rather", "while", "upon", "still",
   ]);
-  
-  const keyTerms = bulletWords.filter(w => !common.has(w) && w.length >= 4);
-  if (keyTerms.length === 0) return true; // nothing substantive to check
-  
-  // Require at least 40% of key terms present
+
+  const words = bulletLower.match(/\b[a-z'']{3,}\b/g) || [];
+  const keyTerms = words.filter(w => !common.has(w) && w.length >= 4);
+
+  // If the bullet is too short or generic, consider it covered
+  if (keyTerms.length < 3 && namedEntities.length === 0) return true;
+
+  // Strategy 1: Check if any named entity appears
+  const entityHit = namedEntities.some(entity =>
+    userLower.includes(entity.toLowerCase())
+  );
+
+  // Strategy 2: Check conceptual coverage — require only 25% of key terms
+  // (very generous: student described the idea, not the exact words)
   const matched = keyTerms.filter(t => userLower.includes(t));
-  return matched.length / keyTerms.length >= 0.4;
+  const termCoverage = keyTerms.length > 0 ? matched.length / keyTerms.length : 1;
+
+  // Strategy 3: Check for thematic overlap using bigrams from the bullet
+  const bulletBigrams: string[] = [];
+  for (let i = 0; i < keyTerms.length - 1; i++) {
+    bulletBigrams.push(`${keyTerms[i]} ${keyTerms[i + 1]}`);
+  }
+  // Even partial bigram presence suggests the concept is discussed
+  const bigramHit = bulletBigrams.some(bg => {
+    const parts = bg.split(" ");
+    return parts.every(p => userLower.includes(p));
+  });
+
+  // Covered if ANY of: named entity found, 25%+ key terms, or bigram match
+  return entityHit || termCoverage >= 0.25 || bigramHit;
 }
 
 export function BlankRecall({ specId, specTitle }: BlankRecallProps) {
@@ -131,8 +158,8 @@ export function BlankRecall({ specId, specTitle }: BlankRecallProps) {
         <div className="space-y-6">
           {/* Score summary */}
           <Card className="border-accent/30">
-            <CardContent className="flex items-center gap-3 p-4">
-              <CheckCircle2 className="h-5 w-5 text-green-600" />
+            <CardContent className="flex flex-col gap-1 p-4 sm:flex-row sm:items-center sm:gap-3">
+              <CheckCircle2 className="h-5 w-5 shrink-0 text-green-600" />
               <span className="text-sm font-medium text-foreground">
                 You covered <strong>{totalCovered}</strong> of <strong>{totalPoints}</strong> key points.
               </span>
@@ -153,7 +180,7 @@ export function BlankRecall({ specId, specTitle }: BlankRecallProps) {
                   Material Missed
                 </CardTitle>
                 <p className="text-xs text-muted-foreground">
-                  These concepts were absent or under-developed in your response.
+                  These concepts were entirely absent from your response.
                 </p>
               </CardHeader>
               <CardContent className="space-y-5">
@@ -166,7 +193,7 @@ export function BlankRecall({ specId, specTitle }: BlankRecallProps) {
                       {group.points.map((point, j) => (
                         <li key={j} className="flex gap-2 text-sm leading-relaxed text-foreground/80">
                           <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-destructive/60" />
-                          {point}
+                          <span className="break-words">{point}</span>
                         </li>
                       ))}
                     </ul>

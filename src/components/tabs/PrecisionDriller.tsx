@@ -3,7 +3,7 @@ import { useQuizQuestionsForSpec } from "@/hooks/useRevisionData";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Eye, CheckCircle2, XCircle, ArrowRight, RotateCcw, BookMarked } from "lucide-react";
+import { Eye, CheckCircle2, XCircle, RotateCcw, BookOpen, FileText } from "lucide-react";
 
 interface PrecisionDrillerProps {
   specId: number;
@@ -89,8 +89,8 @@ export function PrecisionDriller({ specId }: PrecisionDrillerProps) {
           )}
 
           {revealed && (
-            <div className="mt-6 animate-flip-in space-y-4 rounded-lg border border-border bg-muted/50 p-5">
-              <div>
+            <div className="mt-6 animate-flip-in space-y-4">
+              <div className="rounded-lg border border-border bg-muted/50 p-5">
                 <h4 className="mb-1 font-serif text-sm font-semibold text-primary">
                   Model Answer
                 </h4>
@@ -99,15 +99,15 @@ export function PrecisionDriller({ specId }: PrecisionDrillerProps) {
                 </p>
               </div>
 
-              <div className="flex flex-wrap gap-2 border-t border-border pt-3">
-                <Badge className="bg-primary/10 text-primary hover:bg-primary/20">
-                  <BookMarked className="mr-1 h-3 w-3" />
-                  {question.level_3_feedback.workpack_ref}
-                </Badge>
-                <Badge className="bg-primary/10 text-primary hover:bg-primary/20">
-                  <BookMarked className="mr-1 h-3 w-3" />
-                  {question.level_3_feedback.textbook_ref}
-                </Badge>
+              {/* Source Card */}
+              <div className="rounded-lg border border-border bg-card p-4">
+                <div className="flex items-start gap-2 text-sm text-foreground/70">
+                  <BookOpen className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                  <div className="space-y-0.5">
+                    <p>Workpack: {question.level_3_feedback.workpack_ref}</p>
+                    <p>Textbook: {question.level_3_feedback.textbook_ref}</p>
+                  </div>
+                </div>
               </div>
 
               <div className="flex gap-3 pt-2">
