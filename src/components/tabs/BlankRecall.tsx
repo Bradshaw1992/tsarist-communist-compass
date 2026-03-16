@@ -11,26 +11,53 @@ interface BlankRecallProps {
   specTitle: string;
 }
 
+interface AnalysedConcept {
+  text: string;
+  matchedWords: string[]; // the trigger words found in user text
+}
+
 function analyseKeyConcepts(userText: string, concepts: string[]) {
   const lower = userText.toLowerCase();
-  const mentioned: string[] = [];
+  const mentioned: AnalysedConcept[] = [];
   const missed: string[] = [];
 
   for (const concept of concepts) {
     const cLower = concept.toLowerCase();
-    // Check for whole concept or individual significant words (>3 chars)
+    // Extract significant words (>3 chars) as trigger keywords
     const words = cLower.split(/\s+/).filter((w) => w.length > 3);
     const directMatch = lower.includes(cLower);
     const wordMatch = words.length > 0 && words.every((w) => lower.includes(w));
 
     if (directMatch || wordMatch) {
-      mentioned.push(concept);
+      // Track which individual words were found
+      const allWords = concept.split(/\s+/);
+      const matched = allWords.filter((w) => w.length > 3 && lower.includes(w.toLowerCase()));
+      mentioned.push({ text: concept, matchedWords: matched.length > 0 ? matched : [concept] });
     } else {
       missed.push(concept);
     }
   }
 
   return { mentioned, missed };
+}
+
+function highlightKeywords(text: string, matchedWords: string[]) {
+  if (matchedWords.length === 0) return <>{text}</>;
+  // Build a regex matching any of the matched words (case-insensitive)
+  const escaped = matchedWords.map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  const regex = new RegExp(`(${escaped.join("|")})`, "gi");
+  const parts = text.split(regex);
+  return (
+    <>
+      {parts.map((part, i) =>
+        regex.test(part) ? (
+          <strong key={i} className="font-bold text-foreground">{part}</strong>
+        ) : (
+          <span key={i}>{part}</span>
+        )
+      )}
+    </>
+  );
 }
 
 export function BlankRecall({ specId, specTitle }: BlankRecallProps) {
