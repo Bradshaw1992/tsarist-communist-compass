@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PenLine, Eye, RotateCcw, AlertTriangle, CheckCircle2, Mic, MicOff } from "lucide-react";
+import { fuzzyKeywordInText } from "@/lib/fuzzyMatcher";
 import type { KeyConcept } from "@/types/revision";
 
 interface BlankRecallProps {
@@ -17,23 +18,17 @@ interface AnalysedConcept {
   matchedKeywords: string[]; // trigger_keywords found in user text
 }
 
-function cleanText(text: string): string {
-  // Lowercase and strip punctuation for matching
-  return text.toLowerCase().replace(/[^\w\s]/g, " ");
-}
-
 function analyseKeyConcepts(userText: string, concepts: KeyConcept[]) {
-  const cleaned = cleanText(userText);
   const mentioned: AnalysedConcept[] = [];
   const missed: string[] = [];
 
   for (const kc of concepts) {
-    // Find unique keyword matches (case-insensitive, punctuation-stripped)
+    // Use fuzzy matching for each keyword
     const matched = kc.trigger_keywords.filter((kw) =>
-      cleaned.includes(cleanText(kw))
+      fuzzyKeywordInText(userText, kw)
     );
-    // Threshold: require 2+ matches, unless concept has ≤2 keywords total (then 1)
-    const threshold = kc.trigger_keywords.length <= 2 ? 1 : 2;
+    // Threshold: require 2+ matches, unless concept has ≤1 keywords total
+    const threshold = kc.trigger_keywords.length <= 1 ? 1 : 2;
     if (matched.length >= threshold) {
       mentioned.push({ text: kc.concept, matchedKeywords: matched });
     } else {

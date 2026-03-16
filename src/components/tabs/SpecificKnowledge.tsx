@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CheckCircle2, XCircle, RotateCcw, Zap, ArrowRight, Trophy, AlertTriangle } from "lucide-react";
+import { fuzzyCheckAnswer } from "@/lib/fuzzyMatcher";
 import type { FactDrillerQuestion } from "@/types/revision";
 
 interface SpecificKnowledgeProps {
@@ -20,16 +21,7 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
-function checkAnswer(input: string, synonyms: string[]): boolean {
-  const trimmed = input.trim().toLowerCase();
-  if (!trimmed) return false;
-  return synonyms.some(
-    (s) =>
-      trimmed === s.toLowerCase() ||
-      trimmed.includes(s.toLowerCase()) ||
-      s.toLowerCase().includes(trimmed)
-  );
-}
+
 
 type Phase = "quiz" | "report";
 
@@ -88,7 +80,7 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
 
   const handleSubmit = useCallback(() => {
     if (status !== "idle" || !userInput.trim() || !question) return;
-    const isCorrect = checkAnswer(userInput, question.valid_synonyms);
+    const isCorrect = fuzzyCheckAnswer(userInput, question.valid_synonyms);
     setStatus(isCorrect ? "correct" : "wrong");
     if (isCorrect) {
       setCorrect((p) => p + 1);
@@ -263,8 +255,18 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
             )}
 
             {status === "correct" && (
-              <div className="flex items-center gap-2 text-sm font-medium text-success">
-                <CheckCircle2 className="h-4 w-4" /> Correct!
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-sm font-medium text-success">
+                  <CheckCircle2 className="h-4 w-4" /> Correct!
+                </div>
+                <div className="rounded-lg border border-border bg-muted/50 p-3">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Official Answer
+                  </p>
+                  <p className="mt-1 font-serif text-sm leading-relaxed text-foreground">
+                    {question.answer}
+                  </p>
+                </div>
               </div>
             )}
 
