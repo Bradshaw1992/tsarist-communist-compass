@@ -8,11 +8,13 @@ import { PrecisionDriller } from "@/components/tabs/PrecisionDriller";
 import { SpecificKnowledge } from "@/components/tabs/SpecificKnowledge";
 import { WelcomeGuide } from "@/components/WelcomeGuide";
 import { useRevisionData } from "@/hooks/useRevisionData";
+import { useHighScores } from "@/hooks/useHighScores";
 import { PenLine, FileText, Crosshair, Zap } from "lucide-react";
 
 const Index = () => {
   const [selectedSpecId, setSelectedSpecId] = useState<number | null>(null);
   const db = useRevisionData();
+  const { scores, recordScore } = useHighScores();
   const selectedSpec = selectedSpecId
     ? db.spec_points.find((sp) => sp.id === selectedSpecId)
     : undefined;
