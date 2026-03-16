@@ -21,16 +21,7 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
-function checkAnswer(input: string, synonyms: string[]): boolean {
-  const trimmed = input.trim().toLowerCase();
-  if (!trimmed) return false;
-  return synonyms.some(
-    (s) =>
-      trimmed === s.toLowerCase() ||
-      trimmed.includes(s.toLowerCase()) ||
-      s.toLowerCase().includes(trimmed)
-  );
-}
+
 
 type Phase = "quiz" | "report";
 
