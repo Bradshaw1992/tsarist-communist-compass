@@ -193,10 +193,10 @@ export function BlankRecall({ specId, specTitle }: BlankRecallProps) {
               </CardHeader>
               <CardContent>
                 <ul className="space-y-1.5 pl-1">
-                  {analysis.mentioned.map((concept, i) => (
+                  {analysis.mentioned.map((item, i) => (
                     <li key={i} className="flex gap-2 text-sm leading-relaxed text-foreground/80">
                       <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-success/60" />
-                      <span>{concept}</span>
+                      <span>{highlightKeywords(item.text, item.matchedWords)}</span>
                     </li>
                   ))}
                 </ul>
