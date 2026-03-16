@@ -80,7 +80,7 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
 
   const handleSubmit = useCallback(() => {
     if (status !== "idle" || !userInput.trim() || !question) return;
-    const isCorrect = checkAnswer(userInput, question.valid_synonyms);
+    const isCorrect = fuzzyCheckAnswer(userInput, question.valid_synonyms);
     setStatus(isCorrect ? "correct" : "wrong");
     if (isCorrect) {
       setCorrect((p) => p + 1);
