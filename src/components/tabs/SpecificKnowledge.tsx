@@ -8,6 +8,7 @@ import type { FactDrillerQuestion } from "@/types/revision";
 
 interface SpecificKnowledgeProps {
   specId: number;
+  onScoreRecord?: (specId: number, correct: number, total: number) => void;
 }
 
 function shuffle<T>(arr: T[]): T[] {
