@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PenLine, Eye, RotateCcw, AlertTriangle, CheckCircle2, Mic, MicOff } from "lucide-react";
+import type { KeyConcept } from "@/types/revision";
 
 interface BlankRecallProps {
   specId: number;
@@ -13,28 +14,20 @@ interface BlankRecallProps {
 
 interface AnalysedConcept {
   text: string;
-  matchedWords: string[]; // the trigger words found in user text
+  matchedKeywords: string[]; // trigger_keywords found in user text
 }
 
-function analyseKeyConcepts(userText: string, concepts: string[]) {
+function analyseKeyConcepts(userText: string, concepts: KeyConcept[]) {
   const lower = userText.toLowerCase();
   const mentioned: AnalysedConcept[] = [];
   const missed: string[] = [];
 
-  for (const concept of concepts) {
-    const cLower = concept.toLowerCase();
-    // Extract significant words (>3 chars) as trigger keywords
-    const words = cLower.split(/\s+/).filter((w) => w.length > 3);
-    const directMatch = lower.includes(cLower);
-    const wordMatch = words.length > 0 && words.every((w) => lower.includes(w));
-
-    if (directMatch || wordMatch) {
-      // Track which individual words were found
-      const allWords = concept.split(/\s+/);
-      const matched = allWords.filter((w) => w.length > 3 && lower.includes(w.toLowerCase()));
-      mentioned.push({ text: concept, matchedWords: matched.length > 0 ? matched : [concept] });
+  for (const kc of concepts) {
+    const matched = kc.trigger_keywords.filter((kw) => lower.includes(kw.toLowerCase()));
+    if (matched.length > 0) {
+      mentioned.push({ text: kc.concept, matchedKeywords: matched });
     } else {
-      missed.push(concept);
+      missed.push(kc.concept);
     }
   }
 
@@ -196,7 +189,7 @@ export function BlankRecall({ specId, specTitle }: BlankRecallProps) {
                   {analysis.mentioned.map((item, i) => (
                     <li key={i} className="flex gap-2 text-sm leading-relaxed text-foreground/80">
                       <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-success/60" />
-                      <span>{highlightKeywords(item.text, item.matchedWords)}</span>
+                      <span>{highlightKeywords(item.text, item.matchedKeywords)}</span>
                     </li>
                   ))}
                 </ul>
