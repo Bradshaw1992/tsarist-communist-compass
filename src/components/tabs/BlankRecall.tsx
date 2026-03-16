@@ -17,14 +17,24 @@ interface AnalysedConcept {
   matchedKeywords: string[]; // trigger_keywords found in user text
 }
 
+function cleanText(text: string): string {
+  // Lowercase and strip punctuation for matching
+  return text.toLowerCase().replace(/[^\w\s]/g, " ");
+}
+
 function analyseKeyConcepts(userText: string, concepts: KeyConcept[]) {
-  const lower = userText.toLowerCase();
+  const cleaned = cleanText(userText);
   const mentioned: AnalysedConcept[] = [];
   const missed: string[] = [];
 
   for (const kc of concepts) {
-    const matched = kc.trigger_keywords.filter((kw) => lower.includes(kw.toLowerCase()));
-    if (matched.length > 0) {
+    // Find unique keyword matches (case-insensitive, punctuation-stripped)
+    const matched = kc.trigger_keywords.filter((kw) =>
+      cleaned.includes(cleanText(kw))
+    );
+    // Threshold: require 2+ matches, unless concept has ≤2 keywords total (then 1)
+    const threshold = kc.trigger_keywords.length <= 2 ? 1 : 2;
+    if (matched.length >= threshold) {
       mentioned.push({ text: kc.concept, matchedKeywords: matched });
     } else {
       missed.push(kc.concept);
