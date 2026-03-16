@@ -77,7 +77,7 @@ const Index = () => {
                   </TabsContent>
 
                   <TabsContent value="knowledge">
-                    <SpecificKnowledge specId={selectedSpecId} />
+                    <SpecificKnowledge specId={selectedSpecId} onScoreRecord={recordScore} />
                   </TabsContent>
                 </Tabs>
               )}
