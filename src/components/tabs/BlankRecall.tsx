@@ -1,9 +1,10 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback, useRef } from "react";
 import { useRecallForSpec } from "@/hooks/useRevisionData";
+import { useSpeechToText } from "@/hooks/useSpeechToText";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PenLine, Eye, RotateCcw, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { PenLine, Eye, RotateCcw, AlertTriangle, CheckCircle2, Mic, MicOff } from "lucide-react";
 
 interface BlankRecallProps {
   specId: number;
@@ -73,6 +74,21 @@ export function BlankRecall({ specId, specTitle }: BlankRecallProps) {
   const recall = useRecallForSpec(specId);
   const [userText, setUserText] = useState("");
   const [revealed, setRevealed] = useState(false);
+  const prefixRef = useRef("");
+
+  const handleTranscript = useCallback((text: string) => {
+    setUserText(prefixRef.current + text);
+  }, []);
+
+  const { isListening, isSupported, toggle } = useSpeechToText({
+    onTranscript: handleTranscript,
+  });
+
+  const handleStartRecording = () => {
+    // Save current text so transcription appends after it
+    prefixRef.current = userText ? userText.trimEnd() + " " : "";
+    toggle();
+  };
 
   const missedPoints = useMemo(() => {
     if (!revealed || !recall) return [];
@@ -133,16 +149,39 @@ export function BlankRecall({ specId, specTitle }: BlankRecallProps) {
           <Textarea
             value={userText}
             onChange={(e) => setUserText(e.target.value)}
-            placeholder="Start writing your recall here..."
+            placeholder={isListening ? "Listening… speak now" : "Start writing your recall here…"}
             className="min-h-[200px] resize-y border-border bg-background font-sans text-sm leading-relaxed"
             disabled={revealed}
           />
+          {isSupported && !revealed && (
+            <div className="flex justify-end pt-2">
+              <Button
+                type="button"
+                variant={isListening ? "destructive" : "outline"}
+                size="lg"
+                onClick={handleStartRecording}
+                className={`min-h-[48px] min-w-[48px] gap-2 ${isListening ? "animate-pulse" : ""}`}
+              >
+                {isListening ? (
+                  <>
+                    <MicOff className="h-5 w-5" />
+                    <span className="hidden sm:inline">Stop</span>
+                  </>
+                ) : (
+                  <>
+                    <Mic className="h-5 w-5" />
+                    <span className="hidden sm:inline">Record</span>
+                  </>
+                )}
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
 
       <div className="flex gap-3">
         {!revealed ? (
-          <Button onClick={handleReveal} disabled={!userText.trim()} className="bg-primary text-primary-foreground hover:bg-primary/90">
+          <Button onClick={handleReveal} disabled={!userText.trim() || isListening} className="bg-primary text-primary-foreground hover:bg-primary/90">
             <Eye className="mr-2 h-4 w-4" />
             Reveal Gaps
           </Button>
