@@ -69,6 +69,8 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
   const goNext = useCallback(() => {
     if (currentIndex + 1 >= questions.length) {
       setPhase("report");
+      // Record score — correct count is current value; for the last question we check status
+      // This is called after the answer is processed, so correct/missed are up to date
       return;
     }
     setCurrentIndex((p) => p + 1);
