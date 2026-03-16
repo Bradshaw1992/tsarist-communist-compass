@@ -54,7 +54,7 @@ function highlightKeywords(text: string, matchedWords: string[]) {
       {parts.map((part, i) => {
         const isMatch = matchedWords.some((w) => w.toLowerCase() === part.toLowerCase());
         return isMatch ? (
-          <strong key={i} className="font-bold text-foreground">{part}</strong>
+          <mark key={i} className="rounded-sm bg-success/20 px-0.5 text-foreground">{part}</mark>
         ) : (
           <span key={i}>{part}</span>
         );
