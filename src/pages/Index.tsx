@@ -22,7 +22,7 @@ const Index = () => {
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
-        <AppSidebar selectedSpecId={selectedSpecId} onSelectSpec={setSelectedSpecId} />
+        <AppSidebar selectedSpecId={selectedSpecId} onSelectSpec={setSelectedSpecId} scores={scores} />
 
         <div className="flex min-w-0 flex-1 flex-col">
           {/* Header */}
