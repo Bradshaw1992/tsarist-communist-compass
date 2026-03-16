@@ -64,6 +64,13 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
     }
   }, [allQuestions]);
 
+  // Record score when report phase is reached
+  useEffect(() => {
+    if (phase === "report" && onScoreRecord && !isRetest) {
+      onScoreRecord(specId, correct, questions.length);
+    }
+  }, [phase, onScoreRecord, specId, correct, questions.length, isRetest]);
+
   const question = questions[currentIndex];
 
   const goNext = useCallback(() => {
