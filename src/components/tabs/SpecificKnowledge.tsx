@@ -38,7 +38,7 @@ interface MissedItem {
   answer: string;
 }
 
-export function SpecificKnowledge({ specId }: SpecificKnowledgeProps) {
+export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgeProps) {
   const allQuestions = useFactDrillerForSpec(specId);
   const [questions, setQuestions] = useState<FactDrillerQuestion[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
