@@ -1,4 +1,4 @@
-import { BookOpen, PenLine, FileText, Crosshair, Target } from "lucide-react";
+import { BookOpen, PenLine, FileText, Crosshair, Zap, Target } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
 export function WelcomeGuide() {
@@ -9,7 +9,7 @@ export function WelcomeGuide() {
           <BookOpen className="h-10 w-10 text-accent" />
         </div>
         <h1 className="font-serif text-3xl font-bold text-primary">
-          Welcome to the Russia A-Level Revision Engine
+          Russia 1855–1964: The Revision Engine
         </h1>
         <p className="text-base text-muted-foreground">
           Precision Recall for the AQA 7042/1H Specification
@@ -31,7 +31,7 @@ export function WelcomeGuide() {
             <Step
               icon={<PenLine className="h-5 w-5 text-accent" />}
               title="Tab 1: Blank Recall"
-              description="Don't look at your notes! Write a summary of the topic first. Use 'Reveal Gaps' to see the conceptual material you missed."
+              description="Don't look at your notes! Write a summary of the topic first. Use 'Reveal Gaps' to see the conceptual material you missed. (Includes local keyword detection for 'What You Mentioned')."
             />
             <Step
               icon={<FileText className="h-5 w-5 text-accent" />}
@@ -42,6 +42,11 @@ export function WelcomeGuide() {
               icon={<Crosshair className="h-5 w-5 text-accent" />}
               title="Tab 3: Precision Driller"
               description="Rapid-fire testing of your core knowledge. If you get a question wrong, note the Workpack and Textbook page and go back to your physical notes immediately."
+            />
+            <Step
+              icon={<Zap className="h-5 w-5 text-accent" />}
+              title="Tab 4: Specific Knowledge"
+              description="Sniper Facts. Randomized, rapid-fire questions on dates, names, and statistics. Tracks your errors for a 'Revision Report' at the end of the session."
             />
           </div>
         </CardContent>
