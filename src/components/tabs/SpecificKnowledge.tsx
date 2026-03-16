@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CheckCircle2, XCircle, RotateCcw, Zap, ArrowRight, Trophy, AlertTriangle } from "lucide-react";
+import { fuzzyCheckAnswer } from "@/lib/fuzzyMatcher";
 import type { FactDrillerQuestion } from "@/types/revision";
 
 interface SpecificKnowledgeProps {
