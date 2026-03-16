@@ -189,7 +189,7 @@ export function BlankRecall({ specId, specTitle }: BlankRecallProps) {
                   {analysis.mentioned.map((item, i) => (
                     <li key={i} className="flex gap-2 text-sm leading-relaxed text-foreground/80">
                       <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-success/60" />
-                      <span>{highlightKeywords(item.text, item.matchedWords)}</span>
+                      <span>{highlightKeywords(item.text, item.matchedKeywords)}</span>
                     </li>
                   ))}
                 </ul>
