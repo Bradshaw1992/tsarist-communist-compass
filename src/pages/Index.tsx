@@ -5,9 +5,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BlankRecall } from "@/components/tabs/BlankRecall";
 import { ExamArchitect } from "@/components/tabs/ExamArchitect";
 import { PrecisionDriller } from "@/components/tabs/PrecisionDriller";
+import { SpecificKnowledge } from "@/components/tabs/SpecificKnowledge";
 import { WelcomeGuide } from "@/components/WelcomeGuide";
 import { useRevisionData } from "@/hooks/useRevisionData";
-import { PenLine, FileText, Crosshair } from "lucide-react";
+import { PenLine, FileText, Crosshair, Zap } from "lucide-react";
 
 const Index = () => {
   const [selectedSpecId, setSelectedSpecId] = useState<number | null>(null);
@@ -37,12 +38,12 @@ const Index = () => {
 
           {/* Content */}
           <main className="flex-1 overflow-x-hidden px-4 py-6 sm:px-6 lg:px-8">
-            <div className="mx-auto w-full max-w-4xl">
+            <div className="mx-auto w-full max-w-5xl">
               {!selectedSpecId ? (
                 <WelcomeGuide />
               ) : (
                 <Tabs defaultValue="recall" className="space-y-6">
-                  <TabsList className="grid w-full max-w-lg grid-cols-3 bg-secondary">
+                  <TabsList className="grid w-full max-w-2xl grid-cols-4 bg-secondary">
                     <TabsTrigger value="recall" className="gap-1.5 font-sans text-xs sm:text-sm">
                       <PenLine className="h-3.5 w-3.5" />
                       <span className="hidden sm:inline">Blank</span> Recall
@@ -54,6 +55,10 @@ const Index = () => {
                     <TabsTrigger value="driller" className="gap-1.5 font-sans text-xs sm:text-sm">
                       <Crosshair className="h-3.5 w-3.5" />
                       <span className="hidden sm:inline">Precision</span> Driller
+                    </TabsTrigger>
+                    <TabsTrigger value="knowledge" className="gap-1.5 font-sans text-xs sm:text-sm">
+                      <Zap className="h-3.5 w-3.5" />
+                      <span className="hidden sm:inline">Specific</span> Knowledge
                     </TabsTrigger>
                   </TabsList>
 
@@ -67,6 +72,10 @@ const Index = () => {
 
                   <TabsContent value="driller">
                     <PrecisionDriller specId={selectedSpecId} />
+                  </TabsContent>
+
+                  <TabsContent value="knowledge">
+                    <SpecificKnowledge specId={selectedSpecId} />
                   </TabsContent>
                 </Tabs>
               )}

@@ -13,6 +13,7 @@ export interface RecallSummary {
     sections: { heading: string; content: string[] }[];
     full_text: string;
   };
+  key_concepts: string[];
 }
 
 export interface ExamQuestion {
@@ -46,6 +47,13 @@ export interface QuizQuestion {
   };
 }
 
+export interface FactDrillerQuestion {
+  spec_point_id: number;
+  question: string;
+  answer: string;
+  valid_synonyms: string[];
+}
+
 export interface RevisionDatabase {
   meta: {
     version: string;
@@ -55,10 +63,11 @@ export interface RevisionDatabase {
     exam_question_count: number;
     driller_question_count: number;
     extract_vault_count?: number;
+    fact_driller_count?: number;
   };
   spec_points: SpecPoint[];
   tab_recall: RecallSummary[];
   tab_exam: ExamQuestion[];
   tab_driller: QuizQuestion[];
-  extract_vault?: unknown[];
+  fact_driller: FactDrillerQuestion[];
 }
