@@ -8,11 +8,13 @@ import { PrecisionDriller } from "@/components/tabs/PrecisionDriller";
 import { SpecificKnowledge } from "@/components/tabs/SpecificKnowledge";
 import { WelcomeGuide } from "@/components/WelcomeGuide";
 import { useRevisionData } from "@/hooks/useRevisionData";
+import { useHighScores } from "@/hooks/useHighScores";
 import { PenLine, FileText, Crosshair, Zap } from "lucide-react";
 
 const Index = () => {
   const [selectedSpecId, setSelectedSpecId] = useState<number | null>(null);
   const db = useRevisionData();
+  const { scores, recordScore } = useHighScores();
   const selectedSpec = selectedSpecId
     ? db.spec_points.find((sp) => sp.id === selectedSpecId)
     : undefined;
@@ -20,7 +22,7 @@ const Index = () => {
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
-        <AppSidebar selectedSpecId={selectedSpecId} onSelectSpec={setSelectedSpecId} />
+        <AppSidebar selectedSpecId={selectedSpecId} onSelectSpec={setSelectedSpecId} scores={scores} />
 
         <div className="flex min-w-0 flex-1 flex-col">
           {/* Header */}
@@ -75,7 +77,7 @@ const Index = () => {
                   </TabsContent>
 
                   <TabsContent value="knowledge">
-                    <SpecificKnowledge specId={selectedSpecId} />
+                    <SpecificKnowledge specId={selectedSpecId} onScoreRecord={recordScore} />
                   </TabsContent>
                 </Tabs>
               )}

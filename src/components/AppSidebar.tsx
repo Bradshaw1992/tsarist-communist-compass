@@ -1,5 +1,6 @@
 import { BookOpen } from "lucide-react";
 import { useSpecPointSections } from "@/hooks/useRevisionData";
+import type { TopicProgress } from "@/hooks/useHighScores";
 import {
   Sidebar,
   SidebarContent,
@@ -18,9 +19,10 @@ import { ChevronRight } from "lucide-react";
 interface AppSidebarProps {
   selectedSpecId: number | null;
   onSelectSpec: (id: number) => void;
+  scores: Record<number, TopicProgress>;
 }
 
-export function AppSidebar({ selectedSpecId, onSelectSpec }: AppSidebarProps) {
+export function AppSidebar({ selectedSpecId, onSelectSpec, scores }: AppSidebarProps) {
   const sections = useSpecPointSections();
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
@@ -61,23 +63,33 @@ export function AppSidebar({ selectedSpecId, onSelectSpec }: AppSidebarProps) {
               <CollapsibleContent>
                 <SidebarGroupContent>
                   <SidebarMenu>
-                    {section.points.map((sp) => (
-                      <SidebarMenuItem key={sp.id}>
-                        <SidebarMenuButton
-                          isActive={selectedSpecId === sp.id}
-                          onClick={() => onSelectSpec(sp.id)}
-                          tooltip={sp.title}
-                          className="text-xs"
-                        >
-                          <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded bg-sidebar-accent text-[10px] font-bold text-sidebar-primary">
-                            {sp.id}
-                          </span>
-                          {!collapsed && (
-                            <span className="line-clamp-2 leading-tight">{sp.title}</span>
-                          )}
-                        </SidebarMenuButton>
-                      </SidebarMenuItem>
-                    ))}
+                    {section.points.map((sp) => {
+                      const progress = scores[sp.id];
+                      return (
+                        <SidebarMenuItem key={sp.id}>
+                          <SidebarMenuButton
+                            isActive={selectedSpecId === sp.id}
+                            onClick={() => onSelectSpec(sp.id)}
+                            tooltip={sp.title}
+                            className="text-xs"
+                          >
+                            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded bg-sidebar-accent text-[10px] font-bold text-sidebar-primary">
+                              {sp.id}
+                            </span>
+                            {!collapsed && (
+                              <span className="flex min-w-0 flex-1 flex-col">
+                                <span className="line-clamp-2 leading-tight">{sp.title}</span>
+                                {progress && (
+                                  <span className="mt-0.5 text-[10px] leading-tight text-sidebar-foreground/50">
+                                    Best: {progress.highScore}% · {new Date(progress.lastAttempted).toLocaleDateString()}
+                                  </span>
+                                )}
+                              </span>
+                            )}
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      );
+                    })}
                   </SidebarMenu>
                 </SidebarGroupContent>
               </CollapsibleContent>

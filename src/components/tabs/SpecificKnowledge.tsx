@@ -8,6 +8,7 @@ import type { FactDrillerQuestion } from "@/types/revision";
 
 interface SpecificKnowledgeProps {
   specId: number;
+  onScoreRecord?: (specId: number, correct: number, total: number) => void;
 }
 
 function shuffle<T>(arr: T[]): T[] {
@@ -37,7 +38,7 @@ interface MissedItem {
   answer: string;
 }
 
-export function SpecificKnowledge({ specId }: SpecificKnowledgeProps) {
+export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgeProps) {
   const allQuestions = useFactDrillerForSpec(specId);
   const [questions, setQuestions] = useState<FactDrillerQuestion[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -63,11 +64,20 @@ export function SpecificKnowledge({ specId }: SpecificKnowledgeProps) {
     }
   }, [allQuestions]);
 
+  // Record score when report phase is reached
+  useEffect(() => {
+    if (phase === "report" && onScoreRecord && !isRetest) {
+      onScoreRecord(specId, correct, questions.length);
+    }
+  }, [phase, onScoreRecord, specId, correct, questions.length, isRetest]);
+
   const question = questions[currentIndex];
 
   const goNext = useCallback(() => {
     if (currentIndex + 1 >= questions.length) {
       setPhase("report");
+      // Record score — correct count is current value; for the last question we check status
+      // This is called after the answer is processed, so correct/missed are up to date
       return;
     }
     setCurrentIndex((p) => p + 1);
