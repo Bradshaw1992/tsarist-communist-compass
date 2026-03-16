@@ -1,5 +1,6 @@
 import { BookOpen } from "lucide-react";
 import { useSpecPointSections } from "@/hooks/useRevisionData";
+import type { TopicProgress } from "@/hooks/useHighScores";
 import {
   Sidebar,
   SidebarContent,
@@ -18,6 +19,7 @@ import { ChevronRight } from "lucide-react";
 interface AppSidebarProps {
   selectedSpecId: number | null;
   onSelectSpec: (id: number) => void;
+  scores: Record<number, TopicProgress>;
 }
 
 export function AppSidebar({ selectedSpecId, onSelectSpec }: AppSidebarProps) {
