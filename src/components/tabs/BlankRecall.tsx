@@ -43,19 +43,19 @@ function analyseKeyConcepts(userText: string, concepts: string[]) {
 
 function highlightKeywords(text: string, matchedWords: string[]) {
   if (matchedWords.length === 0) return <>{text}</>;
-  // Build a regex matching any of the matched words (case-insensitive)
   const escaped = matchedWords.map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
   const regex = new RegExp(`(${escaped.join("|")})`, "gi");
   const parts = text.split(regex);
   return (
     <>
-      {parts.map((part, i) =>
-        regex.test(part) ? (
+      {parts.map((part, i) => {
+        const isMatch = matchedWords.some((w) => w.toLowerCase() === part.toLowerCase());
+        return isMatch ? (
           <strong key={i} className="font-bold text-foreground">{part}</strong>
         ) : (
           <span key={i}>{part}</span>
-        )
-      )}
+        );
+      })}
     </>
   );
 }
