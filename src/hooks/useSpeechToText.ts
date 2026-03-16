@@ -18,7 +18,7 @@ export function useSpeechToText({ onTranscript, continuous = true }: UseSpeechTo
   }, []);
 
   const start = useCallback(() => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) return;
 
     const recognition = new SpeechRecognition();
