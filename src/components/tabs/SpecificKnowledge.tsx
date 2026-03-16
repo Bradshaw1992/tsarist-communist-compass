@@ -255,8 +255,18 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
             )}
 
             {status === "correct" && (
-              <div className="flex items-center gap-2 text-sm font-medium text-success">
-                <CheckCircle2 className="h-4 w-4" /> Correct!
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-sm font-medium text-success">
+                  <CheckCircle2 className="h-4 w-4" /> Correct!
+                </div>
+                <div className="rounded-lg border border-border bg-muted/50 p-3">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Official Answer
+                  </p>
+                  <p className="mt-1 font-serif text-sm leading-relaxed text-foreground">
+                    {question.answer}
+                  </p>
+                </div>
               </div>
             )}
 
