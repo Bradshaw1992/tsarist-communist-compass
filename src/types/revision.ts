@@ -5,6 +5,11 @@ export interface SpecPoint {
   ko_file: string;
 }
 
+export interface KeyConcept {
+  concept: string;
+  trigger_keywords: string[];
+}
+
 export interface RecallSummary {
   spec_id: number;
   title: string;
@@ -13,7 +18,7 @@ export interface RecallSummary {
     sections: { heading: string; content: string[] }[];
     full_text: string;
   };
-  key_concepts: string[];
+  key_concepts: KeyConcept[];
 }
 
 export interface ExamQuestion {
