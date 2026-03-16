@@ -22,7 +22,7 @@ interface AppSidebarProps {
   scores: Record<number, TopicProgress>;
 }
 
-export function AppSidebar({ selectedSpecId, onSelectSpec }: AppSidebarProps) {
+export function AppSidebar({ selectedSpecId, onSelectSpec, scores }: AppSidebarProps) {
   const sections = useSpecPointSections();
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
