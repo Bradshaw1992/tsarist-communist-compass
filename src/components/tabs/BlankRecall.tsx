@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PenLine, Eye, RotateCcw, AlertTriangle, CheckCircle2, Mic, MicOff } from "lucide-react";
+import { fuzzyKeywordInText } from "@/lib/fuzzyMatcher";
 import type { KeyConcept } from "@/types/revision";
 
 interface BlankRecallProps {
