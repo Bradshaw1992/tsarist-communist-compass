@@ -11,63 +11,26 @@ interface BlankRecallProps {
   specTitle: string;
 }
 
-/**
- * Generous conceptual matching: extracts substantive multi-word concepts from a bullet,
- * then checks if the *idea* appears in the user's text — not just specific terminology.
- * A bullet is only "missed" if the core historical idea is entirely absent.
- */
-function isCovered(userText: string, bullet: string): boolean {
-  const userLower = userText.toLowerCase();
-  const bulletLower = bullet.toLowerCase();
+function analyseKeyConcepts(userText: string, concepts: string[]) {
+  const lower = userText.toLowerCase();
+  const mentioned: string[] = [];
+  const missed: string[] = [];
 
-  // Extract meaningful noun-phrases / named entities (2+ word sequences, proper nouns, dates)
-  const namedEntities = bulletLower.match(
-    /(?:[A-Z][a-z]+(?:\s+[A-Z][a-z]+)+|(?:18|19|20)\d{2})/gi
-  ) || [];
+  for (const concept of concepts) {
+    const cLower = concept.toLowerCase();
+    // Check for whole concept or individual significant words (>3 chars)
+    const words = cLower.split(/\s+/).filter((w) => w.length > 3);
+    const directMatch = lower.includes(cLower);
+    const wordMatch = words.length > 0 && words.every((w) => lower.includes(w));
 
-  // Extract conceptual phrases (longer sequences of substantive words)
-  const common = new Set([
-    "the", "and", "was", "were", "that", "this", "with", "from", "have", "been",
-    "they", "their", "which", "also", "more", "than", "into", "would", "could",
-    "about", "over", "such", "very", "some", "most", "other", "after", "before",
-    "under", "between", "through", "during", "without", "however", "because",
-    "these", "those", "had", "for", "not", "but", "are", "its", "his", "her",
-    "who", "all", "can", "has", "did", "does", "will", "may", "each", "both",
-    "any", "how", "many", "much", "own", "our", "you", "one", "two", "new",
-    "there", "where", "when", "what", "then", "led", "made", "gave", "took",
-    "used", "became", "meant", "left", "set", "put", "saw", "got", "came",
-    "went", "being", "often", "well", "rather", "while", "upon", "still",
-  ]);
-
-  const words = bulletLower.match(/\b[a-z'']{3,}\b/g) || [];
-  const keyTerms = words.filter(w => !common.has(w) && w.length >= 4);
-
-  // If the bullet is too short or generic, consider it covered
-  if (keyTerms.length < 3 && namedEntities.length === 0) return true;
-
-  // Strategy 1: Check if any named entity appears
-  const entityHit = namedEntities.some(entity =>
-    userLower.includes(entity.toLowerCase())
-  );
-
-  // Strategy 2: Check conceptual coverage — require only 25% of key terms
-  // (very generous: student described the idea, not the exact words)
-  const matched = keyTerms.filter(t => userLower.includes(t));
-  const termCoverage = keyTerms.length > 0 ? matched.length / keyTerms.length : 1;
-
-  // Strategy 3: Check for thematic overlap using bigrams from the bullet
-  const bulletBigrams: string[] = [];
-  for (let i = 0; i < keyTerms.length - 1; i++) {
-    bulletBigrams.push(`${keyTerms[i]} ${keyTerms[i + 1]}`);
+    if (directMatch || wordMatch) {
+      mentioned.push(concept);
+    } else {
+      missed.push(concept);
+    }
   }
-  // Even partial bigram presence suggests the concept is discussed
-  const bigramHit = bulletBigrams.some(bg => {
-    const parts = bg.split(" ");
-    return parts.every(p => userLower.includes(p));
-  });
 
-  // Covered if ANY of: named entity found, 25%+ key terms, or bigram match
-  return entityHit || termCoverage >= 0.25 || bigramHit;
+  return { mentioned, missed };
 }
 
 export function BlankRecall({ specId, specTitle }: BlankRecallProps) {
@@ -85,32 +48,14 @@ export function BlankRecall({ specId, specTitle }: BlankRecallProps) {
   });
 
   const handleStartRecording = () => {
-    // Save current text so transcription appends after it
     prefixRef.current = userText ? userText.trimEnd() + " " : "";
     toggle();
   };
 
-  const missedPoints = useMemo(() => {
-    if (!revealed || !recall) return [];
-    const missed: { heading: string; points: string[] }[] = [];
-
-    for (const section of recall.summary.sections) {
-      const uncovered = section.content.filter(
-        bullet => !isCovered(userText, bullet)
-      );
-      if (uncovered.length > 0) {
-        missed.push({
-          heading: section.heading || "Key Points",
-          points: uncovered,
-        });
-      }
-    }
-    return missed;
+  const analysis = useMemo(() => {
+    if (!revealed || !recall?.key_concepts) return null;
+    return analyseKeyConcepts(userText, recall.key_concepts);
   }, [revealed, userText, recall]);
-
-  const totalPoints = recall?.summary.sections.reduce((s, sec) => s + sec.content.length, 0) ?? 0;
-  const totalMissed = missedPoints.reduce((s, g) => s + g.points.length, 0);
-  const totalCovered = totalPoints - totalMissed;
 
   const handleReveal = () => setRevealed(true);
   const handleReset = () => {
@@ -183,7 +128,7 @@ export function BlankRecall({ specId, specTitle }: BlankRecallProps) {
         {!revealed ? (
           <Button onClick={handleReveal} disabled={!userText.trim() || isListening} className="bg-primary text-primary-foreground hover:bg-primary/90">
             <Eye className="mr-2 h-4 w-4" />
-            Reveal Gaps
+            Analyse
           </Button>
         ) : (
           <Button onClick={handleReset} variant="outline">
@@ -193,59 +138,77 @@ export function BlankRecall({ specId, specTitle }: BlankRecallProps) {
         )}
       </div>
 
-      {revealed && (
+      {revealed && analysis && (
         <div className="space-y-6">
           {/* Score summary */}
           <Card className="border-accent/30">
             <CardContent className="flex flex-col gap-1 p-4 sm:flex-row sm:items-center sm:gap-3">
-              <CheckCircle2 className="h-5 w-5 shrink-0 text-green-600" />
+              <CheckCircle2 className="h-5 w-5 shrink-0 text-success" />
               <span className="text-sm font-medium text-foreground">
-                You covered <strong>{totalCovered}</strong> of <strong>{totalPoints}</strong> key points.
+                You covered <strong>{analysis.mentioned.length}</strong> of <strong>{recall.key_concepts.length}</strong> key concepts.
               </span>
-              {totalMissed > 0 && (
+              {analysis.missed.length > 0 && (
                 <span className="text-sm text-muted-foreground">
-                  — {totalMissed} concept{totalMissed !== 1 ? "s" : ""} missed below.
+                  — {analysis.missed.length} concept{analysis.missed.length !== 1 ? "s" : ""} missed below.
                 </span>
               )}
             </CardContent>
           </Card>
 
-          {/* Material Missed */}
-          {totalMissed > 0 ? (
+          {/* Key Material Mentioned */}
+          {analysis.mentioned.length > 0 && (
+            <Card className="border-success/30">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 font-serif text-lg text-success">
+                  <CheckCircle2 className="h-5 w-5" />
+                  Key Material Mentioned
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-1.5 pl-1">
+                  {analysis.mentioned.map((concept, i) => (
+                    <li key={i} className="flex gap-2 text-sm leading-relaxed text-foreground/80">
+                      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-success/60" />
+                      <span>{concept}</span>
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-3 text-xs italic text-muted-foreground">
+                  Note: This is based on keyword detection. Please verify your own explanations to ensure accuracy.
+                </p>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Key Material Missed */}
+          {analysis.missed.length > 0 ? (
             <Card className="border-destructive/30">
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2 font-serif text-lg text-destructive">
                   <AlertTriangle className="h-5 w-5" />
-                  Material Missed
+                  Key Material Missed
                 </CardTitle>
                 <p className="text-xs text-muted-foreground">
-                  These concepts were entirely absent from your response.
+                  These concepts were not detected in your response.
                 </p>
               </CardHeader>
-              <CardContent className="space-y-5">
-                {missedPoints.map((group, i) => (
-                  <div key={i}>
-                    <h4 className="mb-2 font-serif text-sm font-semibold text-primary">
-                      {group.heading}
-                    </h4>
-                    <ul className="space-y-2 pl-1">
-                      {group.points.map((point, j) => (
-                        <li key={j} className="flex gap-2 text-sm leading-relaxed text-foreground/80">
-                          <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-destructive/60" />
-                          <span className="break-words">{point}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
+              <CardContent>
+                <ul className="space-y-1.5 pl-1">
+                  {analysis.missed.map((concept, i) => (
+                    <li key={i} className="flex gap-2 text-sm leading-relaxed text-foreground/80">
+                      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-destructive/60" />
+                      <span>{concept}</span>
+                    </li>
+                  ))}
+                </ul>
               </CardContent>
             </Card>
           ) : (
-            <Card className="border-green-500/30">
+            <Card className="border-success/30">
               <CardContent className="flex items-center gap-3 p-6">
-                <CheckCircle2 className="h-6 w-6 text-green-600" />
+                <CheckCircle2 className="h-6 w-6 text-success" />
                 <p className="font-serif text-base font-medium text-foreground">
-                  Excellent — you covered all the key material!
+                  Excellent — you covered all the key concepts!
                 </p>
               </CardContent>
             </Card>

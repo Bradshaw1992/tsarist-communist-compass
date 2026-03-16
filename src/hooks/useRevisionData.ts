@@ -34,3 +34,7 @@ export function useExamQuestionsForSpec(specId: number) {
 export function useQuizQuestionsForSpec(specId: number) {
   return useMemo(() => db.tab_driller.filter((q) => q.spec_id === specId), [specId]);
 }
+
+export function useFactDrillerForSpec(specId: number) {
+  return useMemo(() => db.fact_driller.filter((q) => q.spec_point_id === specId), [specId]);
+}
