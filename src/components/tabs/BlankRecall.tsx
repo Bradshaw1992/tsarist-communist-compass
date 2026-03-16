@@ -74,6 +74,21 @@ export function BlankRecall({ specId, specTitle }: BlankRecallProps) {
   const recall = useRecallForSpec(specId);
   const [userText, setUserText] = useState("");
   const [revealed, setRevealed] = useState(false);
+  const prefixRef = useRef("");
+
+  const handleTranscript = useCallback((text: string) => {
+    setUserText(prefixRef.current + text);
+  }, []);
+
+  const { isListening, isSupported, toggle } = useSpeechToText({
+    onTranscript: handleTranscript,
+  });
+
+  const handleStartRecording = () => {
+    // Save current text so transcription appends after it
+    prefixRef.current = userText ? userText.trimEnd() + " " : "";
+    toggle();
+  };
 
   const missedPoints = useMemo(() => {
     if (!revealed || !recall) return [];
