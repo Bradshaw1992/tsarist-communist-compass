@@ -79,7 +79,7 @@ Analyse the student's text against ONLY the provided key concepts. Return the JS
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "claude-3-5-haiku-20241022",
+        model: "claude-3-haiku-20240307",
         max_tokens: 4096,
         messages: [
           { role: "user", content: userPrompt },
