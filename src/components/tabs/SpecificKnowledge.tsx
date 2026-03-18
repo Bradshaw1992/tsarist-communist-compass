@@ -131,6 +131,7 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
     setIsRetest(false);
     setHistory({});
     setUserAnswers({});
+    try { localStorage.removeItem(storageKey); } catch {}
   };
 
   const handleRetestWrong = () => {
@@ -146,6 +147,8 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
     setIsRetest(true);
     setHistory({});
     setUserAnswers({});
+    try { localStorage.removeItem(storageKey); } catch {}
+  };
   };
 
   if (allQuestions.length === 0) {
