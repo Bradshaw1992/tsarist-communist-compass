@@ -126,7 +126,6 @@ export function PrecisionDriller({ specId }: PrecisionDrillerProps) {
           <p className="text-sm text-muted-foreground">
             {questions.length} of {allQuestions.length} questions · shuffled each session
           </p>
-          </p>
         </div>
         <div className="flex items-center gap-3 text-xs">
           <span className="flex items-center gap-1 text-primary">
