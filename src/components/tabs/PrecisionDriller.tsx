@@ -19,15 +19,26 @@ interface HistoryEntry {
 
 export function PrecisionDriller({ specId }: PrecisionDrillerProps) {
   const questions = useQuizQuestionsForSpec(specId);
+  const storageKey = `driller-answers-${specId}`;
   const [currentIndex, setCurrentIndex] = useState(0);
   const [revealed, setRevealed] = useState(false);
   const [stats, setStats] = useState({ knew: 0, missed: 0 });
   const [history, setHistory] = useState<Record<number, HistoryEntry>>({});
-  const [userAnswers, setUserAnswers] = useState<Record<number, string>>({});
+  const [userAnswers, setUserAnswers] = useState<Record<number, string>>(() => {
+    try {
+      const saved = localStorage.getItem(storageKey);
+      return saved ? JSON.parse(saved) : {};
+    } catch { return {}; }
+  });
 
   const question = useMemo(() => questions[currentIndex], [questions, currentIndex]);
 
   const currentUserAnswer = userAnswers[currentIndex] ?? "";
+
+  // Persist answers to localStorage
+  useEffect(() => {
+    try { localStorage.setItem(storageKey, JSON.stringify(userAnswers)); } catch {}
+  }, [userAnswers, storageKey]);
 
   const handleReveal = () => setRevealed(true);
 
