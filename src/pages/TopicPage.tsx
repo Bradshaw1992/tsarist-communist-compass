@@ -8,7 +8,8 @@ const TopicPage = () => {
 
   if (!spec) return <Navigate to="/" replace />;
 
-  return <Index initialSpecId={spec.id} />;
+  // Redirect to home — the topic routes exist for SEO/sitemap purposes
+  return <Navigate to={`/?topic=${spec.id}`} replace />;
 };
 
 export default TopicPage;
