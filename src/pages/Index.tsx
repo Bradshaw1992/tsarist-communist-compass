@@ -26,6 +26,7 @@ const Index = () => {
   );
   const [search, setSearch] = useState("");
   const [scrolled, setScrolled] = useState(false);
+  const [mobileTab, setMobileTab] = useState<"home" | "driller" | "scribe" | "stats">("home");
   const db = useRevisionData();
   const sections = useSpecPointSections();
   const { scores, recordScore } = useHighScores();
