@@ -5,7 +5,7 @@
 import fs from "fs";
 import path from "path";
 
-const DOMAIN = "https://tsarist-communist-russia-1h.co.uk";
+const DOMAIN = "https://www.tsarist-communist-russia-1h.co.uk";
 
 interface SpecPoint {
   id: number;
