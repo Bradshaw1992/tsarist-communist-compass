@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { useQuizQuestionsForSpec } from "@/hooks/useRevisionData";
 import { Card, CardContent } from "@/components/ui/card";
