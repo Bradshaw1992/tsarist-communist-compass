@@ -82,7 +82,8 @@ export function PrecisionDriller({ specId }: PrecisionDrillerProps) {
     setStats({ knew: 0, missed: 0 });
     setHistory({});
     setUserAnswers({});
-  }, []);
+    try { localStorage.removeItem(storageKey); } catch {}
+  }, [storageKey]);
 
   if (questions.length === 0) {
     return (
