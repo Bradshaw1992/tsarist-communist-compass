@@ -22,10 +22,24 @@ export function PrecisionDriller({ specId }: PrecisionDrillerProps) {
   const [revealed, setRevealed] = useState(false);
   const [stats, setStats] = useState({ knew: 0, missed: 0 });
   const [history, setHistory] = useState<Record<number, HistoryEntry>>({});
+  const [userAnswers, setUserAnswers] = useState<Record<number, string>>({});
 
   const question = useMemo(() => questions[currentIndex], [questions, currentIndex]);
 
+  const currentUserAnswer = userAnswers[currentIndex] ?? "";
+
   const handleReveal = () => setRevealed(true);
+
+  const handleAnswerChange = (value: string) => {
+    setUserAnswers((prev) => ({ ...prev, [currentIndex]: value }));
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleReveal();
+    }
+  };
 
   const handleSelfAssess = useCallback((knew: boolean) => {
     setHistory((prev) => ({

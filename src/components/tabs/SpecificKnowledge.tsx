@@ -42,6 +42,20 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
   const [phase, setPhase] = useState<Phase>("quiz");
   const [isRetest, setIsRetest] = useState(false);
   const [history, setHistory] = useState<Record<number, HistoryEntry>>({});
+  const [userAnswers, setUserAnswers] = useState<Record<number, string>>({});
+
+  const currentUserAnswer = userAnswers[currentIndex] ?? "";
+
+  const handleAnswerChange = (value: string) => {
+    setUserAnswers((prev) => ({ ...prev, [currentIndex]: value }));
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleReveal();
+    }
+  };
 
   useEffect(() => {
     if (allQuestions.length > 0) {
