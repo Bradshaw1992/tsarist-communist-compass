@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from "react";
+import confetti from "canvas-confetti";
 import { useRecallForSpec } from "@/hooks/useRevisionData";
 import { useSpeechToText } from "@/hooks/useSpeechToText";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,7 @@ import type { KeyConcept } from "@/types/revision";
 interface BlankRecallProps {
   specId: number;
   specTitle: string;
+  onScoreRecord?: (specId: number, correct: number, total: number) => void;
 }
 
 interface AnalysedConcept {
@@ -111,7 +113,7 @@ function highlightKeywords(text: string, matchedWords: string[]) {
 
 // ─── Component ─────────────────────────────────────────────────────────────
 
-export function BlankRecall({ specId, specTitle }: BlankRecallProps) {
+export function BlankRecall({ specId, specTitle, onScoreRecord }: BlankRecallProps) {
   const recall = useRecallForSpec(specId);
   const storageKey = `blank-recall-${specId}`;
 
@@ -152,6 +154,22 @@ export function BlankRecall({ specId, specTitle }: BlankRecallProps) {
     toggle();
   };
 
+  const fireConfetti = () => {
+    confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+    setTimeout(() => confetti({ particleCount: 80, spread: 100, origin: { y: 0.5 } }), 300);
+  };
+
+  const handleScoreRecord = (mentioned: number, total: number) => {
+    if (onScoreRecord && total > 0) {
+      onScoreRecord(specId, mentioned, total);
+      const pct = Math.round((mentioned / total) * 100);
+      if (pct >= 90) {
+        fireConfetti();
+        toast.success(`🌟 Topic Mastered! You scored ${pct}%`, { duration: 5000 });
+      }
+    }
+  };
+
   const handleReveal = async () => {
     if (!recall?.key_concepts) return;
     trackEvent("analyse_recall", { mode: useAI ? "ai" : "local", spec_id: specId });
@@ -162,6 +180,7 @@ export function BlankRecall({ specId, specTitle }: BlankRecallProps) {
         const result = await analyseKeyConceptsAI(userText, recall.key_concepts);
         setAnalysis(result);
         setRevealed(true);
+        handleScoreRecord(result.mentioned.length, result.mentioned.length + result.missed.length);
       } catch (err) {
         console.error("AI analysis error:", err);
         toast.error(
@@ -175,6 +194,7 @@ export function BlankRecall({ specId, specTitle }: BlankRecallProps) {
       const result = analyseKeyConceptsLocal(userText, recall.key_concepts);
       setAnalysis(result);
       setRevealed(true);
+      handleScoreRecord(result.mentioned.length, result.mentioned.length + result.missed.length);
     }
   };
 

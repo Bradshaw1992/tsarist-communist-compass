@@ -11,9 +11,10 @@ import { SpecificKnowledge } from "@/components/tabs/SpecificKnowledge";
 import { useRevisionData, useSpecPointSections } from "@/hooks/useRevisionData";
 import { useHighScores } from "@/hooks/useHighScores";
 import {
-  PenLine, FileText, Crosshair, Zap, Search, X, BookOpen,
+  PenLine, FileText, Crosshair, Zap, Search, X, BookOpen, Star,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 
 const Index = () => {
   const [searchParams] = useSearchParams();
@@ -124,26 +125,43 @@ const Index = () => {
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {section.points.map((sp) => {
                   const progress = scores[sp.id];
+                  const isMastered = progress && progress.highScore >= 90;
                   return (
                     <button
                       key={sp.id}
                       onClick={() => handleSelect(sp.id)}
-                      className="group flex items-start gap-3 rounded-lg border border-border bg-card p-4 text-left shadow-sm transition-all hover:border-accent/50 hover:shadow-md"
+                      className={`group flex flex-col gap-2 rounded-lg border p-4 text-left shadow-sm transition-all hover:shadow-md ${
+                        isMastered
+                          ? "border-amber-400/60 bg-amber-50/40 hover:border-amber-400 dark:border-amber-500/40 dark:bg-amber-950/20"
+                          : "border-border bg-card hover:border-accent/50"
+                      }`}
                     >
-                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-primary text-xs font-bold text-primary-foreground">
-                        {sp.id}
-                      </span>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium leading-snug text-foreground group-hover:text-primary">
-                          {sp.title}
-                        </p>
-                        {progress && (
-                          <p className="mt-1 text-[11px] text-muted-foreground">
-                            Best: {progress.highScore}% ·{" "}
-                            {new Date(progress.lastAttempted).toLocaleDateString()}
+                      <div className="flex items-start gap-3">
+                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-primary text-xs font-bold text-primary-foreground">
+                          {sp.id}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-medium leading-snug text-foreground group-hover:text-primary">
+                            {sp.title}
                           </p>
+                        </div>
+                        {isMastered && (
+                          <Star className="h-4 w-4 shrink-0 fill-amber-400 text-amber-400" />
                         )}
                       </div>
+                      {progress && (
+                        <div className="flex items-center gap-2">
+                          <Progress
+                            value={progress.highScore}
+                            className="h-1.5 flex-1"
+                          />
+                          <span className={`text-[11px] font-semibold tabular-nums ${
+                            isMastered ? "text-amber-600 dark:text-amber-400" : "text-muted-foreground"
+                          }`}>
+                            {progress.highScore}%
+                          </span>
+                        </div>
+                      )}
                     </button>
                   );
                 })}
@@ -256,7 +274,7 @@ const Index = () => {
                 </TabsList>
 
                 <TabsContent value="recall">
-                  <BlankRecall specId={selectedSpecId} specTitle={selectedSpec?.title || ""} />
+                  <BlankRecall specId={selectedSpecId} specTitle={selectedSpec?.title || ""} onScoreRecord={recordScore} />
                 </TabsContent>
                 <TabsContent value="exam">
                   <ExamArchitect specId={selectedSpecId} />
