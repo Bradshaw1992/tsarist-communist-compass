@@ -11,9 +11,10 @@ import { SpecificKnowledge } from "@/components/tabs/SpecificKnowledge";
 import { useRevisionData, useSpecPointSections } from "@/hooks/useRevisionData";
 import { useHighScores } from "@/hooks/useHighScores";
 import {
-  PenLine, FileText, Crosshair, Zap, Search, X, BookOpen,
+  PenLine, FileText, Crosshair, Zap, Search, X, BookOpen, Star,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 
 const Index = () => {
   const [searchParams] = useSearchParams();
