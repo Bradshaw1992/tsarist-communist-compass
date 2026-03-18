@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from "react";
+import { Textarea } from "@/components/ui/textarea";
 import { useFactDrillerForSpec } from "@/hooks/useRevisionData";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -42,6 +43,20 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
   const [phase, setPhase] = useState<Phase>("quiz");
   const [isRetest, setIsRetest] = useState(false);
   const [history, setHistory] = useState<Record<number, HistoryEntry>>({});
+  const [userAnswers, setUserAnswers] = useState<Record<number, string>>({});
+
+  const currentUserAnswer = userAnswers[currentIndex] ?? "";
+
+  const handleAnswerChange = (value: string) => {
+    setUserAnswers((prev) => ({ ...prev, [currentIndex]: value }));
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleReveal();
+    }
+  };
 
   useEffect(() => {
     if (allQuestions.length > 0) {
@@ -53,6 +68,7 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
       setPhase("quiz");
       setIsRetest(false);
       setHistory({});
+      setUserAnswers({});
     }
   }, [allQuestions]);
 
@@ -103,6 +119,7 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
     setPhase("quiz");
     setIsRetest(false);
     setHistory({});
+    setUserAnswers({});
   };
 
   const handleRetestWrong = () => {
@@ -117,6 +134,7 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
     setPhase("quiz");
     setIsRetest(true);
     setHistory({});
+    setUserAnswers({});
   };
 
   if (allQuestions.length === 0) {
@@ -219,9 +237,29 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
             </p>
           </div>
 
+          {/* Optional answer input — only before reveal */}
+          {!alreadyAssessed && !revealed && (
+            <div className="mb-4">
+              <Textarea
+                value={currentUserAnswer}
+                onChange={(e) => handleAnswerChange(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Type your answer here (optional)..."
+                className="resize-none text-sm"
+                rows={3}
+              />
+            </div>
+          )}
+
           {/* Already assessed — show result */}
           {alreadyAssessed && (
             <div className="space-y-4">
+              {currentUserAnswer.trim() && (
+                <div className="rounded-lg border border-border bg-card p-4">
+                  <h4 className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Your Answer</h4>
+                  <p className="text-sm leading-relaxed text-foreground/80">{currentUserAnswer}</p>
+                </div>
+              )}
               <div className="rounded-lg border-2 border-primary/30 bg-muted/50 p-5">
                 <h4 className="mb-2 font-serif text-sm font-semibold uppercase tracking-wider text-primary">
                   Official Answer
@@ -257,6 +295,12 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
           {/* Revealed, awaiting self-assessment */}
           {!alreadyAssessed && revealed && (
             <div className="animate-flip-in space-y-4">
+              {currentUserAnswer.trim() && (
+                <div className="rounded-lg border border-border bg-card p-4">
+                  <h4 className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Your Answer</h4>
+                  <p className="text-sm leading-relaxed text-foreground/80">{currentUserAnswer}</p>
+                </div>
+              )}
               <div className="rounded-lg border-2 border-primary/30 bg-muted/50 p-5">
                 <h4 className="mb-2 font-serif text-sm font-semibold uppercase tracking-wider text-primary">
                   Official Answer
