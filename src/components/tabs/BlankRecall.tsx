@@ -111,12 +111,31 @@ function highlightKeywords(text: string, matchedWords: string[]) {
 
 export function BlankRecall({ specId, specTitle }: BlankRecallProps) {
   const recall = useRecallForSpec(specId);
-  const [userText, setUserText] = useState("");
+  const storageKey = `blank-recall-${specId}`;
+
+  const [userText, setUserText] = useState(() => {
+    try { return localStorage.getItem(storageKey) ?? ""; } catch { return ""; }
+  });
   const [revealed, setRevealed] = useState(false);
   const [isAnalysing, setIsAnalysing] = useState(false);
   const [useAI, setUseAI] = useState(true);
   const [analysis, setAnalysis] = useState<{ mentioned: AnalysedConcept[]; missed: string[] } | null>(null);
   const prefixRef = useRef("");
+
+  // Persist text to localStorage
+  useEffect(() => {
+    try { localStorage.setItem(storageKey, userText); } catch {}
+  }, [userText, storageKey]);
+
+  // Reload saved text when specId changes
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(storageKey) ?? "";
+      setUserText(saved);
+    } catch { setUserText(""); }
+    setRevealed(false);
+    setAnalysis(null);
+  }, [storageKey]);
 
   const handleTranscript = useCallback((text: string) => {
     setUserText(prefixRef.current + text);
@@ -160,6 +179,13 @@ export function BlankRecall({ specId, specTitle }: BlankRecallProps) {
     setUserText("");
     setRevealed(false);
     setAnalysis(null);
+  };
+
+  const handleClearAndNew = () => {
+    setUserText("");
+    setRevealed(false);
+    setAnalysis(null);
+    try { localStorage.removeItem(storageKey); } catch {}
   };
 
   if (!recall) {
