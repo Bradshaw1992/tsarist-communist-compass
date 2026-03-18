@@ -9,9 +9,11 @@ interface PrecisionDrillerProps {
   specId: number;
 }
 
+type Assessment = "knew" | "missed";
+
 interface HistoryEntry {
   revealed: boolean;
-  assessment?: "knew" | "missed";
+  assessment?: Assessment;
 }
 
 export function PrecisionDriller({ specId }: PrecisionDrillerProps) {
@@ -34,12 +36,13 @@ export function PrecisionDriller({ specId }: PrecisionDrillerProps) {
       knew: prev.knew + (knew ? 1 : 0),
       missed: prev.missed + (knew ? 0 : 1),
     }));
-    // Auto-advance
     if (currentIndex + 1 < questions.length) {
-      setCurrentIndex((p) => p + 1);
-      setRevealed(false);
+      const nextIdx = currentIndex + 1;
+      setCurrentIndex(nextIdx);
+      const next = history[nextIdx];
+      setRevealed(next?.revealed ?? false);
     }
-  }, [currentIndex, questions.length]);
+  }, [currentIndex, questions.length, history]);
 
   const navigateTo = useCallback((index: number) => {
     setCurrentIndex(index);
@@ -99,12 +102,21 @@ export function PrecisionDriller({ specId }: PrecisionDrillerProps) {
             </p>
           </div>
 
-          {/* Previously assessed — show result */}
+          {/* Already assessed — show result */}
           {alreadyAssessed && (
             <div className="mt-6 space-y-4">
               <div className="rounded-lg border border-border bg-muted/50 p-5">
                 <h4 className="mb-1 font-serif text-sm font-semibold text-primary">Model Answer</h4>
                 <p className="text-sm leading-relaxed text-foreground/80">{question.correct_answer}</p>
+              </div>
+              <div className="rounded-lg border border-border bg-card p-4">
+                <div className="flex items-start gap-2 text-sm text-foreground/70">
+                  <BookOpen className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                  <div className="space-y-0.5">
+                    <p>Workpack: {question.level_3_feedback.workpack_ref}</p>
+                    <p>Textbook: {question.level_3_feedback.textbook_ref}</p>
+                  </div>
+                </div>
               </div>
               <div className="flex items-center gap-2 text-sm font-medium">
                 {prevEntry.assessment === "knew" ? (
@@ -120,7 +132,7 @@ export function PrecisionDriller({ specId }: PrecisionDrillerProps) {
             </div>
           )}
 
-          {/* Fresh question — not yet revealed */}
+          {/* Not yet revealed */}
           {!alreadyAssessed && !revealed && (
             <div className="mt-6">
               <Button onClick={handleReveal} className="bg-primary text-primary-foreground hover:bg-primary/90">
@@ -130,12 +142,16 @@ export function PrecisionDriller({ specId }: PrecisionDrillerProps) {
             </div>
           )}
 
-          {/* Fresh question — revealed, awaiting self-assessment */}
+          {/* Revealed, awaiting self-assessment */}
           {!alreadyAssessed && revealed && (
             <div className="mt-6 animate-flip-in space-y-4">
-              <div className="rounded-lg border border-border bg-muted/50 p-5">
-                <h4 className="mb-1 font-serif text-sm font-semibold text-primary">Model Answer</h4>
-                <p className="text-sm leading-relaxed text-foreground/80">{question.correct_answer}</p>
+              <div className="rounded-lg border-2 border-primary/30 bg-muted/50 p-5">
+                <h4 className="mb-2 font-serif text-sm font-semibold uppercase tracking-wider text-primary">
+                  Official Answer
+                </h4>
+                <p className="font-serif text-base leading-relaxed text-foreground">
+                  {question.correct_answer}
+                </p>
               </div>
               <div className="rounded-lg border border-border bg-card p-4">
                 <div className="flex items-start gap-2 text-sm text-foreground/70">
@@ -149,11 +165,11 @@ export function PrecisionDriller({ specId }: PrecisionDrillerProps) {
               <div className="flex gap-3 pt-2">
                 <Button onClick={() => handleSelfAssess(true)} className="bg-primary text-primary-foreground hover:bg-primary/90">
                   <CheckCircle2 className="mr-1.5 h-4 w-4" />
-                  I knew this
+                  I got it
                 </Button>
                 <Button onClick={() => handleSelfAssess(false)} variant="outline" className="border-destructive/30 text-destructive hover:bg-destructive/10">
                   <XCircle className="mr-1.5 h-4 w-4" />
-                  I missed this
+                  I missed it
                 </Button>
               </div>
             </div>
