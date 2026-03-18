@@ -1,9 +1,10 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useExamQuestionsForSpec } from "@/hooks/useRevisionData";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { FileText, ChevronDown, ChevronUp, BookOpen } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { FileText, ChevronDown, ChevronUp, BookOpen, Trash2 } from "lucide-react";
 import type { ExamQuestion } from "@/types/revision";
 
 interface ExamArchitectProps {
