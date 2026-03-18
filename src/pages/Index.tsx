@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { StatsPanel } from "@/components/StatsPanel";
 
 const Index = () => {
   const [searchParams] = useSearchParams();
