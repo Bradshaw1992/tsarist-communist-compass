@@ -71,26 +71,58 @@ ${userText}
 
 Analyse the student's text against ONLY the provided key concepts. Return the JSON result.`;
 
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "claude-haiku-4-5-20250515",
-        max_tokens: 4096,
-        messages: [
-          { role: "user", content: userPrompt },
-        ],
-        system: systemPrompt,
-      }),
-    });
+    const modelCandidates = [
+      "claude-3-5-haiku-latest",
+      "claude-3-5-haiku-20241022",
+      "claude-3-haiku-20240307",
+      "claude-3-5-sonnet-latest",
+    ];
+
+    let response: Response | null = null;
+    let selectedModel = "";
+    const notFoundErrors: string[] = [];
+
+    for (const model of modelCandidates) {
+      const attempt = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "x-api-key": ANTHROPIC_API_KEY,
+          "anthropic-version": "2023-06-01",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model,
+          max_tokens: 4096,
+          messages: [{ role: "user", content: userPrompt }],
+          system: systemPrompt,
+        }),
+      });
+
+      if (attempt.status === 404) {
+        const notFoundText = await attempt.text();
+        console.error("Anthropic model not found:", model, notFoundText);
+        notFoundErrors.push(`${model}: ${notFoundText}`);
+        continue;
+      }
+
+      selectedModel = model;
+      response = attempt;
+      break;
+    }
+
+    if (!response) {
+      return new Response(
+        JSON.stringify({
+          error: `AI analysis failed: no available Anthropic model found. Tried ${modelCandidates.join(", ")}.`,
+          details: notFoundErrors,
+        }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("Anthropic API error:", response.status, errorText);
+      console.error("Anthropic API error:", response.status, errorText, "model:", selectedModel);
 
       if (response.status === 429) {
         return new Response(
@@ -100,7 +132,7 @@ Analyse the student's text against ONLY the provided key concepts. Return the JS
       }
 
       return new Response(
-        JSON.stringify({ error: "AI analysis failed" }),
+        JSON.stringify({ error: `AI analysis failed (${response.status})` }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
