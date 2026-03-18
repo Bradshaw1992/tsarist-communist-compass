@@ -93,7 +93,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-16 sm:pb-0">
       {/* Sticky mini-header */}
       <div
         className={`fixed inset-x-0 top-0 z-50 border-b border-border bg-primary/95 px-4 py-2 text-center text-sm font-semibold text-primary-foreground backdrop-blur transition-transform duration-300 ${
