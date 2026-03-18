@@ -70,6 +70,7 @@ export function PrecisionDriller({ specId }: PrecisionDrillerProps) {
     setRevealed(false);
     setStats({ knew: 0, missed: 0 });
     setHistory({});
+    setUserAnswers({});
   }, []);
 
   if (questions.length === 0) {

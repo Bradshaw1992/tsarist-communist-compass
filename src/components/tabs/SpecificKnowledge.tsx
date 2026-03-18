@@ -68,6 +68,7 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
       setPhase("quiz");
       setIsRetest(false);
       setHistory({});
+      setUserAnswers({});
     }
   }, [allQuestions]);
 
