@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from "react";
+import confetti from "canvas-confetti";
 import { useRecallForSpec } from "@/hooks/useRevisionData";
 import { useSpeechToText } from "@/hooks/useSpeechToText";
 import { Button } from "@/components/ui/button";
