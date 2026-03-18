@@ -71,25 +71,56 @@ ${userText}
 
 Analyse the student's text against ONLY the provided key concepts. Return the JSON result.`;
 
-    const modelCandidates = [
-      "claude-3-5-haiku-latest",
-      "claude-3-5-haiku-20241022",
-      "claude-3-haiku-20240307",
-      "claude-3-5-sonnet-latest",
-    ];
+    const authHeaders = {
+      "x-api-key": ANTHROPIC_API_KEY,
+      "anthropic-version": "2023-06-01",
+      "Content-Type": "application/json",
+    };
+
+    const modelsResponse = await fetch("https://api.anthropic.com/v1/models", {
+      method: "GET",
+      headers: authHeaders,
+    });
+
+    if (!modelsResponse.ok) {
+      const modelListError = await modelsResponse.text();
+      console.error("Anthropic models list error:", modelsResponse.status, modelListError);
+      return new Response(
+        JSON.stringify({ error: `AI analysis failed: unable to list Anthropic models (${modelsResponse.status})` }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const modelsPayload = await modelsResponse.json() as { data?: { id?: string }[] };
+    const availableModelIds = (modelsPayload.data ?? [])
+      .map((m) => m.id)
+      .filter((id): id is string => Boolean(id));
+
+    if (availableModelIds.length === 0) {
+      return new Response(
+        JSON.stringify({ error: "AI analysis failed: no Anthropic models are available for this API key" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const modelScore = (id: string) => {
+      const lower = id.toLowerCase();
+      if (lower.includes("3-5-haiku")) return 5;
+      if (lower.includes("haiku")) return 4;
+      if (lower.includes("sonnet")) return 3;
+      if (lower.includes("claude")) return 2;
+      return 1;
+    };
+
+    const rankedModels = [...availableModelIds].sort((a, b) => modelScore(b) - modelScore(a));
 
     let response: Response | null = null;
     let selectedModel = "";
-    const notFoundErrors: string[] = [];
 
-    for (const model of modelCandidates) {
+    for (const model of rankedModels) {
       const attempt = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
-        headers: {
-          "x-api-key": ANTHROPIC_API_KEY,
-          "anthropic-version": "2023-06-01",
-          "Content-Type": "application/json",
-        },
+        headers: authHeaders,
         body: JSON.stringify({
           model,
           max_tokens: 4096,
@@ -99,9 +130,6 @@ Analyse the student's text against ONLY the provided key concepts. Return the JS
       });
 
       if (attempt.status === 404) {
-        const notFoundText = await attempt.text();
-        console.error("Anthropic model not found:", model, notFoundText);
-        notFoundErrors.push(`${model}: ${notFoundText}`);
         continue;
       }
 
@@ -112,10 +140,7 @@ Analyse the student's text against ONLY the provided key concepts. Return the JS
 
     if (!response) {
       return new Response(
-        JSON.stringify({
-          error: `AI analysis failed: no available Anthropic model found. Tried ${modelCandidates.join(", ")}.`,
-          details: notFoundErrors,
-        }),
+        JSON.stringify({ error: "AI analysis failed: all discovered Anthropic models returned not found" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
