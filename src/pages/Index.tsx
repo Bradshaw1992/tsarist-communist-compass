@@ -62,12 +62,35 @@ const Index = () => {
 
   const handleSelect = (id: number) => {
     setSelectedSpecId(id);
+    // Track last studied topic
+    try { localStorage.setItem("russia-last-studied", String(id)); } catch {}
     const spec = db.spec_points.find((sp) => sp.id === id);
     if (spec) {
       trackPageView(`/topic/${id}`, `${spec.title} | AQA 1H Russia Compass`);
     }
   };
   const handleClose = () => setSelectedSpecId(null);
+
+  const handleMobileNav = (tab: "home" | "driller" | "scribe" | "stats") => {
+    if (tab === "driller") {
+      const lastId = localStorage.getItem("russia-last-studied");
+      if (lastId) {
+        handleSelect(parseInt(lastId, 10));
+      } else {
+        // Open first topic if none studied yet
+        handleSelect(db.spec_points[0]?.id ?? 1);
+      }
+      return;
+    }
+    if (tab === "scribe") {
+      window.open(
+        "https://gemini.google.com/gem/1m9H0A3i4EGgdifGheiLlYB0ti1ZY9WO6?usp=sharing",
+        "_blank"
+      );
+      return;
+    }
+    setMobileTab(tab);
+  };
 
   return (
     <div className="min-h-screen bg-background">
