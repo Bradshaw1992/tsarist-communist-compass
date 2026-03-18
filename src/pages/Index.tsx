@@ -11,8 +11,12 @@ import { useRevisionData } from "@/hooks/useRevisionData";
 import { useHighScores } from "@/hooks/useHighScores";
 import { PenLine, FileText, Crosshair, Zap } from "lucide-react";
 
-const Index = () => {
-  const [selectedSpecId, setSelectedSpecId] = useState<number | null>(null);
+interface IndexProps {
+  initialSpecId?: number;
+}
+
+const Index = ({ initialSpecId }: IndexProps = {}) => {
+  const [selectedSpecId, setSelectedSpecId] = useState<number | null>(initialSpecId ?? null);
   const db = useRevisionData();
   const { scores, recordScore } = useHighScores();
   const selectedSpec = selectedSpecId
