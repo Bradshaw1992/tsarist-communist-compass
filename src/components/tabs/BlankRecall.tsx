@@ -294,6 +294,10 @@ export function BlankRecall({ specId, specTitle }: BlankRecallProps) {
             Try Again
           </Button>
         )}
+        <Button onClick={handleClearAndNew} variant="ghost" size="sm" className="text-destructive hover:text-destructive hover:bg-destructive/10">
+          <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+          Clear &amp; Start New
+        </Button>
         {!revealed && (
           <span className="text-xs text-muted-foreground">
             {useAI ? "Using Claude AI for semantic analysis" : "Using local keyword matching"}
