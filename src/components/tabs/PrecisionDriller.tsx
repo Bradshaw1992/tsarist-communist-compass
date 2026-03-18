@@ -124,7 +124,8 @@ export function PrecisionDriller({ specId }: PrecisionDrillerProps) {
         <div className="space-y-1">
           <h2 className="font-serif text-2xl font-bold text-primary">Precision Driller</h2>
           <p className="text-sm text-muted-foreground">
-            Think of the answer, then reveal — honest self-assessment builds stronger recall.
+            {questions.length} of {allQuestions.length} questions · shuffled each session
+          </p>
           </p>
         </div>
         <div className="flex items-center gap-3 text-xs">
