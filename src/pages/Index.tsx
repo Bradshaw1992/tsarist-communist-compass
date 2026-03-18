@@ -15,7 +15,11 @@ import {
 import { Button } from "@/components/ui/button";
 
 const Index = () => {
-  const [selectedSpecId, setSelectedSpecId] = useState<number | null>(null);
+  const [searchParams] = useSearchParams();
+  const initialTopic = searchParams.get("topic");
+  const [selectedSpecId, setSelectedSpecId] = useState<number | null>(
+    initialTopic ? parseInt(initialTopic, 10) : null
+  );
   const [search, setSearch] = useState("");
   const [scrolled, setScrolled] = useState(false);
   const db = useRevisionData();
