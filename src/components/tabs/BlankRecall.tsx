@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { PenLine, Eye, RotateCcw, AlertTriangle, CheckCircle2, Mic, MicOff, Sparkles, Cpu, Loader2 } from "lucide-react";
+import { PenLine, Eye, RotateCcw, AlertTriangle, CheckCircle2, Mic, MicOff, Sparkles, Cpu, Loader2, Trash2 } from "lucide-react";
 import { fuzzyKeywordInText } from "@/lib/fuzzyMatcher";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
