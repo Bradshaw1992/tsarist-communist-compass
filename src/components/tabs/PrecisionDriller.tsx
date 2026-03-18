@@ -3,10 +3,15 @@ import { useQuizQuestionsForSpec } from "@/hooks/useRevisionData";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Eye, CheckCircle2, XCircle, RotateCcw, BookOpen, FileText } from "lucide-react";
+import { Eye, CheckCircle2, XCircle, RotateCcw, BookOpen, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface PrecisionDrillerProps {
   specId: number;
+}
+
+interface HistoryEntry {
+  revealed: boolean;
+  assessment?: "knew" | "missed";
 }
 
 export function PrecisionDriller({ specId }: PrecisionDrillerProps) {
@@ -14,24 +19,39 @@ export function PrecisionDriller({ specId }: PrecisionDrillerProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [revealed, setRevealed] = useState(false);
   const [stats, setStats] = useState({ knew: 0, missed: 0 });
+  const [history, setHistory] = useState<Record<number, HistoryEntry>>({});
 
   const question = useMemo(() => questions[currentIndex], [questions, currentIndex]);
 
   const handleReveal = () => setRevealed(true);
 
   const handleSelfAssess = useCallback((knew: boolean) => {
+    setHistory((prev) => ({
+      ...prev,
+      [currentIndex]: { revealed: true, assessment: knew ? "knew" : "missed" },
+    }));
     setStats((prev) => ({
       knew: prev.knew + (knew ? 1 : 0),
       missed: prev.missed + (knew ? 0 : 1),
     }));
-    setRevealed(false);
-    setCurrentIndex((prev) => (prev + 1) % questions.length);
-  }, [questions.length]);
+    // Auto-advance
+    if (currentIndex + 1 < questions.length) {
+      setCurrentIndex((p) => p + 1);
+      setRevealed(false);
+    }
+  }, [currentIndex, questions.length]);
+
+  const navigateTo = useCallback((index: number) => {
+    setCurrentIndex(index);
+    const entry = history[index];
+    setRevealed(entry?.revealed ?? false);
+  }, [history]);
 
   const handleReset = useCallback(() => {
     setCurrentIndex(0);
     setRevealed(false);
     setStats({ knew: 0, missed: 0 });
+    setHistory({});
   }, []);
 
   if (questions.length === 0) {
@@ -41,6 +61,9 @@ export function PrecisionDriller({ specId }: PrecisionDrillerProps) {
       </div>
     );
   }
+
+  const prevEntry = history[currentIndex];
+  const alreadyAssessed = !!prevEntry?.assessment;
 
   return (
     <div className="space-y-6">
@@ -76,30 +99,44 @@ export function PrecisionDriller({ specId }: PrecisionDrillerProps) {
             </p>
           </div>
 
-          {!revealed && (
+          {/* Previously assessed — show result */}
+          {alreadyAssessed && (
+            <div className="mt-6 space-y-4">
+              <div className="rounded-lg border border-border bg-muted/50 p-5">
+                <h4 className="mb-1 font-serif text-sm font-semibold text-primary">Model Answer</h4>
+                <p className="text-sm leading-relaxed text-foreground/80">{question.correct_answer}</p>
+              </div>
+              <div className="flex items-center gap-2 text-sm font-medium">
+                {prevEntry.assessment === "knew" ? (
+                  <span className="flex items-center gap-1.5 text-primary">
+                    <CheckCircle2 className="h-4 w-4" /> You knew this
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1.5 text-destructive">
+                    <XCircle className="h-4 w-4" /> You missed this
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Fresh question — not yet revealed */}
+          {!alreadyAssessed && !revealed && (
             <div className="mt-6">
-              <Button
-                onClick={handleReveal}
-                className="bg-primary text-primary-foreground hover:bg-primary/90"
-              >
+              <Button onClick={handleReveal} className="bg-primary text-primary-foreground hover:bg-primary/90">
                 <Eye className="mr-1.5 h-4 w-4" />
                 Reveal Answer
               </Button>
             </div>
           )}
 
-          {revealed && (
+          {/* Fresh question — revealed, awaiting self-assessment */}
+          {!alreadyAssessed && revealed && (
             <div className="mt-6 animate-flip-in space-y-4">
               <div className="rounded-lg border border-border bg-muted/50 p-5">
-                <h4 className="mb-1 font-serif text-sm font-semibold text-primary">
-                  Model Answer
-                </h4>
-                <p className="text-sm leading-relaxed text-foreground/80">
-                  {question.correct_answer}
-                </p>
+                <h4 className="mb-1 font-serif text-sm font-semibold text-primary">Model Answer</h4>
+                <p className="text-sm leading-relaxed text-foreground/80">{question.correct_answer}</p>
               </div>
-
-              {/* Source Card */}
               <div className="rounded-lg border border-border bg-card p-4">
                 <div className="flex items-start gap-2 text-sm text-foreground/70">
                   <BookOpen className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
@@ -109,20 +146,12 @@ export function PrecisionDriller({ specId }: PrecisionDrillerProps) {
                   </div>
                 </div>
               </div>
-
               <div className="flex gap-3 pt-2">
-                <Button
-                  onClick={() => handleSelfAssess(true)}
-                  className="bg-primary text-primary-foreground hover:bg-primary/90"
-                >
+                <Button onClick={() => handleSelfAssess(true)} className="bg-primary text-primary-foreground hover:bg-primary/90">
                   <CheckCircle2 className="mr-1.5 h-4 w-4" />
                   I knew this
                 </Button>
-                <Button
-                  onClick={() => handleSelfAssess(false)}
-                  variant="outline"
-                  className="border-destructive/30 text-destructive hover:bg-destructive/10"
-                >
+                <Button onClick={() => handleSelfAssess(false)} variant="outline" className="border-destructive/30 text-destructive hover:bg-destructive/10">
                   <XCircle className="mr-1.5 h-4 w-4" />
                   I missed this
                 </Button>
@@ -130,7 +159,30 @@ export function PrecisionDriller({ specId }: PrecisionDrillerProps) {
             </div>
           )}
 
-          <div className="mt-4 flex justify-end">
+          {/* Navigation + Restart */}
+          <div className="mt-6 flex items-center justify-between">
+            <div className="flex gap-2">
+              <Button
+                onClick={() => navigateTo(currentIndex - 1)}
+                disabled={currentIndex === 0}
+                variant="outline"
+                size="lg"
+                className="min-h-[44px] min-w-[44px] gap-1.5"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                <span className="hidden sm:inline">Previous</span>
+              </Button>
+              <Button
+                onClick={() => navigateTo(currentIndex + 1)}
+                disabled={currentIndex >= questions.length - 1}
+                variant="outline"
+                size="lg"
+                className="min-h-[44px] min-w-[44px] gap-1.5"
+              >
+                <span className="hidden sm:inline">Next</span>
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
             <Button onClick={handleReset} variant="ghost" size="sm">
               <RotateCcw className="mr-1.5 h-3.5 w-3.5" />
               Restart
