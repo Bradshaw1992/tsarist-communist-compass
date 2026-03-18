@@ -35,6 +35,7 @@ interface MissedItem {
 
 export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgeProps) {
   const allQuestions = useFactDrillerForSpec(specId);
+  const storageKey = `sk-answers-${specId}`;
   const [questions, setQuestions] = useState<FactDrillerQuestion[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [revealed, setRevealed] = useState(false);
@@ -43,9 +44,19 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
   const [phase, setPhase] = useState<Phase>("quiz");
   const [isRetest, setIsRetest] = useState(false);
   const [history, setHistory] = useState<Record<number, HistoryEntry>>({});
-  const [userAnswers, setUserAnswers] = useState<Record<number, string>>({});
+  const [userAnswers, setUserAnswers] = useState<Record<number, string>>(() => {
+    try {
+      const saved = localStorage.getItem(storageKey);
+      return saved ? JSON.parse(saved) : {};
+    } catch { return {}; }
+  });
 
   const currentUserAnswer = userAnswers[currentIndex] ?? "";
+
+  // Persist answers to localStorage
+  useEffect(() => {
+    try { localStorage.setItem(storageKey, JSON.stringify(userAnswers)); } catch {}
+  }, [userAnswers, storageKey]);
 
   const handleAnswerChange = (value: string) => {
     setUserAnswers((prev) => ({ ...prev, [currentIndex]: value }));
@@ -120,6 +131,7 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
     setIsRetest(false);
     setHistory({});
     setUserAnswers({});
+    try { localStorage.removeItem(storageKey); } catch {}
   };
 
   const handleRetestWrong = () => {
@@ -135,6 +147,7 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
     setIsRetest(true);
     setHistory({});
     setUserAnswers({});
+    try { localStorage.removeItem(storageKey); } catch {}
   };
 
   if (allQuestions.length === 0) {
