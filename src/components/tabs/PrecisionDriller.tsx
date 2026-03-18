@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { useQuizQuestionsForSpec } from "@/hooks/useRevisionData";
 import { Card, CardContent } from "@/components/ui/card";
@@ -18,9 +18,29 @@ interface HistoryEntry {
   assessment?: Assessment;
 }
 
+const SESSION_SIZE = 15;
+
+function shuffleArray<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 export function PrecisionDriller({ specId }: PrecisionDrillerProps) {
-  const questions = useQuizQuestionsForSpec(specId);
+  const allQuestions = useQuizQuestionsForSpec(specId);
   const storageKey = `driller-answers-${specId}`;
+
+  // Shuffle and pick SESSION_SIZE questions once per mount / specId change
+  const sessionQuestions = useMemo(
+    () => shuffleArray(allQuestions).slice(0, SESSION_SIZE),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [specId]
+  );
+  const questions = sessionQuestions;
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [revealed, setRevealed] = useState(false);
   const [stats, setStats] = useState({ knew: 0, missed: 0 });
@@ -104,7 +124,7 @@ export function PrecisionDriller({ specId }: PrecisionDrillerProps) {
         <div className="space-y-1">
           <h2 className="font-serif text-2xl font-bold text-primary">Precision Driller</h2>
           <p className="text-sm text-muted-foreground">
-            Think of the answer, then reveal — honest self-assessment builds stronger recall.
+            {questions.length} of {allQuestions.length} questions · shuffled each session
           </p>
         </div>
         <div className="flex items-center gap-3 text-xs">

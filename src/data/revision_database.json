@@ -1,13 +1,13 @@
 {
   "meta": {
-    "version": "1.2.1",
-    "generated": "2026-03-16",
+    "version": "1.3.0",
+    "generated": "2026-03-18",
     "syllabus": "AQA 7042/1H - Tsarist and Communist Russia, 1855-1964",
     "spec_point_count": 24,
     "exam_question_count": 25,
     "driller_question_count": 379,
     "extract_vault_count": 11,
-    "fact_driller_count": 360
+    "fact_driller_count": 720
   },
   "spec_points": [
     {
@@ -17110,6 +17110,3861 @@
         "roughly doubled",
         "about doubled",
         "significantly increased"
+      ]
+    },
+    {
+      "spec_point_id": 1,
+      "question": "What belief justified the Tsar's absolute power?",
+      "answer": "Divine Right — the belief that the Tsar was appointed by God",
+      "valid_synonyms": [
+        "divine right",
+        "God",
+        "appointed by God",
+        "Divine Right"
+      ]
+    },
+    {
+      "spec_point_id": 1,
+      "question": "What institution taught the Russian population that obedience to the Tsar was a religious duty?",
+      "answer": "The Russian Orthodox Church",
+      "valid_synonyms": [
+        "Russian Orthodox Church",
+        "the Church",
+        "Orthodox Church"
+      ]
+    },
+    {
+      "spec_point_id": 1,
+      "question": "What was the key naval fortress whose fall sealed Russia's defeat in the Crimean War?",
+      "answer": "Sebastopol (Sevastopol)",
+      "valid_synonyms": [
+        "Sebastopol",
+        "Sevastopol"
+      ]
+    },
+    {
+      "spec_point_id": 1,
+      "question": "Why did Russia struggle to deploy troops to the Crimea during the war?",
+      "answer": "There was no railway network south of Moscow",
+      "valid_synonyms": [
+        "no railway",
+        "no railway south of Moscow",
+        "lack of railways",
+        "no rail network"
+      ]
+    },
+    {
+      "spec_point_id": 1,
+      "question": "What percentage of private serfs were mortgaged to the state by 1860?",
+      "answer": "Around 60%",
+      "valid_synonyms": [
+        "60%",
+        "about 60%",
+        "roughly 60%"
+      ]
+    },
+    {
+      "spec_point_id": 1,
+      "question": "Which Western powers defeated Russia in the Crimean War?",
+      "answer": "Britain, France, and the Ottoman Empire",
+      "valid_synonyms": [
+        "Britain France Ottoman",
+        "Britain and France",
+        "France and Britain"
+      ]
+    },
+    {
+      "spec_point_id": 1,
+      "question": "What type of ships did the Russian navy still rely on during the Crimean War?",
+      "answer": "Wooden sailing ships",
+      "valid_synonyms": [
+        "wooden sailing ships",
+        "wooden ships",
+        "sail ships"
+      ]
+    },
+    {
+      "spec_point_id": 1,
+      "question": "What was the serf's legal status under serfdom?",
+      "answer": "Serfs were legally bound to the land and effectively the property of their noble landlords",
+      "valid_synonyms": [
+        "bound to the land",
+        "property of landlords",
+        "tied to the land"
+      ]
+    },
+    {
+      "spec_point_id": 1,
+      "question": "What key social class was absent in Russia compared to Western Europe in 1855?",
+      "answer": "A coherent, entrepreneurial middle class",
+      "valid_synonyms": [
+        "middle class",
+        "bourgeoisie",
+        "entrepreneurial middle class"
+      ]
+    },
+    {
+      "spec_point_id": 1,
+      "question": "What type of indirect taxes burdened peasants while nobles were exempt?",
+      "answer": "Poll tax and taxes on vodka and salt",
+      "valid_synonyms": [
+        "poll tax",
+        "vodka and salt taxes",
+        "vodka tax",
+        "indirect taxes"
+      ]
+    },
+    {
+      "spec_point_id": 1,
+      "question": "What did Alexander II tell the Moscow nobility in 1856 about the future of serfdom?",
+      "answer": "It is better to abolish serfdom from above than to wait for it to abolish itself from below",
+      "valid_synonyms": [
+        "abolish from above",
+        "better from above than below",
+        "reform from above"
+      ]
+    },
+    {
+      "spec_point_id": 1,
+      "question": "What was the Crimean War's most important impact on Russian domestic policy?",
+      "answer": "It convinced Alexander II that modernisation and reform (especially emancipation) were essential",
+      "valid_synonyms": [
+        "convinced reform necessary",
+        "modernisation",
+        "emancipation essential",
+        "reform inevitable"
+      ]
+    },
+    {
+      "spec_point_id": 1,
+      "question": "What type of weapons advantage did Britain and France have over Russia?",
+      "answer": "Longer-range rifles vs Russia's outdated muskets",
+      "valid_synonyms": [
+        "rifles",
+        "longer-range rifles",
+        "superior rifles",
+        "modern rifles"
+      ]
+    },
+    {
+      "spec_point_id": 1,
+      "question": "What was the role of the bureaucracy in governing the Russian Empire?",
+      "answer": "Appointed civil servants and provincial nobles ran government — it was complex and highly corrupt",
+      "valid_synonyms": [
+        "corrupt bureaucracy",
+        "civil servants",
+        "appointed officials",
+        "corrupt"
+      ]
+    },
+    {
+      "spec_point_id": 1,
+      "question": "What powers did the Third Section have?",
+      "answer": "Unlimited powers to arrest or exile suspected political dissidents, enforce censorship, and conduct surveillance",
+      "valid_synonyms": [
+        "arrest",
+        "exile",
+        "censorship",
+        "surveillance",
+        "unlimited powers"
+      ]
+    },
+    {
+      "spec_point_id": 2,
+      "question": "What was the key limitation of emancipation regarding land quality?",
+      "answer": "Peasants often received smaller, less productive plots while landlords kept the best land",
+      "valid_synonyms": [
+        "less productive plots",
+        "landlords kept best land",
+        "smaller plots",
+        "poor quality land"
+      ]
+    },
+    {
+      "spec_point_id": 2,
+      "question": "How did the mir restrict peasant freedom after emancipation?",
+      "answer": "It controlled land distribution, required internal passports for travel, and restricted movement",
+      "valid_synonyms": [
+        "internal passports",
+        "restricted movement",
+        "controlled land",
+        "couldn't leave"
+      ]
+    },
+    {
+      "spec_point_id": 2,
+      "question": "What was the main criticism of the redemption payments system?",
+      "answer": "Payments were set above market value, trapping peasants in long-term debt to the state",
+      "valid_synonyms": [
+        "above market value",
+        "long-term debt",
+        "too expensive",
+        "trapped in debt"
+      ]
+    },
+    {
+      "spec_point_id": 2,
+      "question": "What areas of local life did the zemstva manage?",
+      "answer": "Roads, schools, hospitals, poor relief, and local infrastructure",
+      "valid_synonyms": [
+        "roads schools hospitals",
+        "local infrastructure",
+        "schools and hospitals",
+        "education and health"
+      ]
+    },
+    {
+      "spec_point_id": 2,
+      "question": "What was introduced in 1865 that relaxed government control over publications?",
+      "answer": "Censorship reform (relaxation of press censorship)",
+      "valid_synonyms": [
+        "censorship reform",
+        "press relaxation",
+        "relaxed censorship",
+        "1865 censorship reform"
+      ]
+    },
+    {
+      "spec_point_id": 2,
+      "question": "What principle did the 1864 judicial reforms introduce to Russian courts?",
+      "answer": "Equality before the law, open courts, and an independent judiciary",
+      "valid_synonyms": [
+        "equality before the law",
+        "open courts",
+        "independent judiciary",
+        "rule of law"
+      ]
+    },
+    {
+      "spec_point_id": 2,
+      "question": "Why is emancipation considered a catalyst for further reforms?",
+      "answer": "Freeing the serfs required new systems of local government, justice, and military recruitment",
+      "valid_synonyms": [
+        "required new systems",
+        "triggered further reforms",
+        "needed new institutions"
+      ]
+    },
+    {
+      "spec_point_id": 2,
+      "question": "What conservative backlash followed Karakozov's assassination attempt in 1866?",
+      "answer": "Alexander II scaled back reforms, tightened censorship, and increased police powers",
+      "valid_synonyms": [
+        "scaled back reforms",
+        "tightened censorship",
+        "police powers increased"
+      ]
+    },
+    {
+      "spec_point_id": 2,
+      "question": "What was the impact of military reform on the old noble-dominated officer class?",
+      "answer": "Promotion was opened to all ranks based on merit, undermining noble privilege",
+      "valid_synonyms": [
+        "merit-based promotion",
+        "open to all ranks",
+        "undermined noble privilege"
+      ]
+    },
+    {
+      "spec_point_id": 2,
+      "question": "How did emancipation affect the development of a free labour force?",
+      "answer": "It freed peasants to potentially move to cities, creating the beginnings of an industrial workforce",
+      "valid_synonyms": [
+        "free labour",
+        "move to cities",
+        "industrial workforce",
+        "mobile workforce"
+      ]
+    },
+    {
+      "spec_point_id": 2,
+      "question": "What structural weakness remained in the zemstva system?",
+      "answer": "They had no national body, limited funding, and were dominated by the nobility",
+      "valid_synonyms": [
+        "no national body",
+        "noble dominated",
+        "limited funding",
+        "local only"
+      ]
+    },
+    {
+      "spec_point_id": 2,
+      "question": "How were former serfs organised for taxation after emancipation?",
+      "answer": "Through the mir, which was collectively responsible for collecting redemption payments",
+      "valid_synonyms": [
+        "mir",
+        "collective responsibility",
+        "mir collected payments"
+      ]
+    },
+    {
+      "spec_point_id": 2,
+      "question": "What was the peasant response to emancipation overall?",
+      "answer": "Widespread disappointment — many felt cheated by the amount and quality of land received",
+      "valid_synonyms": [
+        "disappointment",
+        "felt cheated",
+        "not enough land",
+        "land hunger"
+      ]
+    },
+    {
+      "spec_point_id": 2,
+      "question": "What specific right did university autonomy in 1863 grant?",
+      "answer": "Universities could elect their own rectors and determine their curricula",
+      "valid_synonyms": [
+        "elect rectors",
+        "determine curricula",
+        "self-governance",
+        "academic freedom"
+      ]
+    },
+    {
+      "spec_point_id": 2,
+      "question": "What impact did the volost courts have on peasant equality after emancipation?",
+      "answer": "Peasants were tried in separate courts, meaning they were not equal to other classes in the legal system",
+      "valid_synonyms": [
+        "separate courts",
+        "not equal",
+        "volost courts",
+        "peasant courts"
+      ]
+    },
+    {
+      "spec_point_id": 3,
+      "question": "How many newspapers were shut down under Alexander III's censorship laws?",
+      "answer": "14 newspapers were closed",
+      "valid_synonyms": [
+        "14",
+        "fourteen",
+        "14 newspapers"
+      ]
+    },
+    {
+      "spec_point_id": 3,
+      "question": "What did the Okhrana use to infiltrate revolutionary groups?",
+      "answer": "Agents provocateurs — spies who joined and sometimes led revolutionary organisations",
+      "valid_synonyms": [
+        "agents provocateurs",
+        "spies",
+        "infiltrators",
+        "undercover agents"
+      ]
+    },
+    {
+      "spec_point_id": 3,
+      "question": "What was the Loris-Melikov proposal that Alexander III rejected?",
+      "answer": "A plan for a consultative assembly with elected representatives — a step towards a constitution",
+      "valid_synonyms": [
+        "consultative assembly",
+        "elected representatives",
+        "constitution",
+        "representative body"
+      ]
+    },
+    {
+      "spec_point_id": 3,
+      "question": "What happened on the very day Alexander II was due to approve the Loris-Melikov proposal?",
+      "answer": "He was assassinated by the People's Will",
+      "valid_synonyms": [
+        "assassinated",
+        "killed",
+        "People's Will bomb",
+        "murdered"
+      ]
+    },
+    {
+      "spec_point_id": 3,
+      "question": "How did Alexander III's counter-reforms affect the judicial system?",
+      "answer": "Political cases were removed from jury courts and tried by special tribunals",
+      "valid_synonyms": [
+        "political cases",
+        "no jury",
+        "special tribunals",
+        "removed from courts"
+      ]
+    },
+    {
+      "spec_point_id": 3,
+      "question": "What role did Land Captains play in rural Russia?",
+      "answer": "They were appointed nobles who oversaw peasant affairs, replacing elected Justices of the Peace",
+      "valid_synonyms": [
+        "oversaw peasant affairs",
+        "appointed nobles",
+        "replaced JPs",
+        "local authority"
+      ]
+    },
+    {
+      "spec_point_id": 3,
+      "question": "What happened to university fees under Alexander III's education counter-reforms?",
+      "answer": "Fees were increased, effectively excluding students from lower social classes",
+      "valid_synonyms": [
+        "fees increased",
+        "excluded lower classes",
+        "more expensive",
+        "restricted access"
+      ]
+    },
+    {
+      "spec_point_id": 3,
+      "question": "What was Alexander III's attitude towards the reforms of his father?",
+      "answer": "He believed they had weakened autocracy and needed to be reversed",
+      "valid_synonyms": [
+        "weakened autocracy",
+        "reversed",
+        "opposed reforms",
+        "rolled back"
+      ]
+    },
+    {
+      "spec_point_id": 3,
+      "question": "How many attempts were made on Alexander II's life before the successful assassination?",
+      "answer": "Several — including Karakozov (1866) and multiple People's Will attempts from 1879",
+      "valid_synonyms": [
+        "several",
+        "multiple",
+        "Karakozov 1866",
+        "many attempts"
+      ]
+    },
+    {
+      "spec_point_id": 3,
+      "question": "What was the relationship between Alexander III's political repression and economic policy?",
+      "answer": "He combined harsh political repression with support for industrial modernisation under Witte",
+      "valid_synonyms": [
+        "repression plus modernisation",
+        "political repression and economic growth",
+        "Witte modernisation"
+      ]
+    },
+    {
+      "spec_point_id": 3,
+      "question": "What ideology united Alexander III's approach to government?",
+      "answer": "Autocracy, Orthodoxy, and Nationality — the belief that these three pillars upheld Russia",
+      "valid_synonyms": [
+        "Autocracy Orthodoxy Nationality",
+        "three pillars",
+        "official ideology"
+      ]
+    },
+    {
+      "spec_point_id": 3,
+      "question": "How did the assassination of Alexander II affect the People's Will?",
+      "answer": "The group was effectively destroyed by the Okhrana's response — most leaders were arrested or executed",
+      "valid_synonyms": [
+        "destroyed",
+        "leaders arrested",
+        "group crushed",
+        "Okhrana response"
+      ]
+    },
+    {
+      "spec_point_id": 3,
+      "question": "What type of emergency measures could be imposed under the Statute of State Security?",
+      "answer": "Provinces could be placed under martial law, with rights to arrest, ban meetings, and close institutions",
+      "valid_synonyms": [
+        "martial law",
+        "ban meetings",
+        "arrest without trial",
+        "close institutions"
+      ]
+    },
+    {
+      "spec_point_id": 3,
+      "question": "Did Alexander III face any serious revolutionary threats during his reign?",
+      "answer": "Very few — his repression was effective at suppressing opposition, though it drove it underground",
+      "valid_synonyms": [
+        "very few",
+        "repression effective",
+        "opposition underground",
+        "no major threats"
+      ]
+    },
+    {
+      "spec_point_id": 3,
+      "question": "What economic achievement occurred under Alexander III despite political reaction?",
+      "answer": "Significant industrial growth began, particularly under Finance Ministers Vyshnegradsky and Witte",
+      "valid_synonyms": [
+        "industrial growth",
+        "Vyshnegradsky",
+        "Witte",
+        "economic modernisation"
+      ]
+    },
+    {
+      "spec_point_id": 4,
+      "question": "How many Jews emigrated from Russia between 1881 and 1914?",
+      "answer": "Around 1.5 million (mostly to America)",
+      "valid_synonyms": [
+        "1.5 million",
+        "about 1.5 million",
+        "over a million"
+      ]
+    },
+    {
+      "spec_point_id": 4,
+      "question": "What was the Ems Decree of 1876?",
+      "answer": "A decree banning Ukrainian language publications, theatre performances, and educational materials",
+      "valid_synonyms": [
+        "banned Ukrainian language",
+        "Ukrainian publications banned",
+        "banned Ukrainian culture"
+      ]
+    },
+    {
+      "spec_point_id": 4,
+      "question": "How did Russification affect education in Poland?",
+      "answer": "All school subjects had to be taught in Russian, even in areas where no one spoke Russian natively",
+      "valid_synonyms": [
+        "taught in Russian",
+        "Russian language instruction",
+        "schools forced to use Russian"
+      ]
+    },
+    {
+      "spec_point_id": 4,
+      "question": "Why was the Orthodox Church useful as a tool of Russification?",
+      "answer": "It promoted loyalty to the Tsar and could be used to enforce cultural conformity through conversion",
+      "valid_synonyms": [
+        "loyalty to Tsar",
+        "cultural conformity",
+        "conversion",
+        "enforce obedience"
+      ]
+    },
+    {
+      "spec_point_id": 4,
+      "question": "What happened to Jewish access to higher education under Alexander III?",
+      "answer": "Strict quotas were imposed limiting Jewish students to 3-10% of university places",
+      "valid_synonyms": [
+        "quotas",
+        "3-10%",
+        "limited university places",
+        "education quotas"
+      ]
+    },
+    {
+      "spec_point_id": 4,
+      "question": "What long-term consequence did Russification have on minority nationalism?",
+      "answer": "It strengthened, rather than weakened, national identities and fuelled resentment towards Russian rule",
+      "valid_synonyms": [
+        "strengthened nationalism",
+        "fuelled resentment",
+        "backfired",
+        "counterproductive"
+      ]
+    },
+    {
+      "spec_point_id": 4,
+      "question": "What professions were Jews restricted from entering under the May Laws?",
+      "answer": "Law, medicine, local government, and the civil service had strict quotas or bans",
+      "valid_synonyms": [
+        "law medicine government",
+        "professions restricted",
+        "quotas on professions"
+      ]
+    },
+    {
+      "spec_point_id": 4,
+      "question": "How were the pogroms of 1881-82 linked to government policy?",
+      "answer": "The government tacitly encouraged or did nothing to stop the violence, then blamed Jews with the May Laws",
+      "valid_synonyms": [
+        "government encouraged",
+        "tacitly allowed",
+        "did nothing to stop",
+        "blamed Jews"
+      ]
+    },
+    {
+      "spec_point_id": 4,
+      "question": "What was the stated aim of Russification in the Baltic provinces?",
+      "answer": "To replace German-speaking institutions with Russian language courts, schools, and local government",
+      "valid_synonyms": [
+        "replace German institutions",
+        "Russian language",
+        "courts and schools",
+        "Russian administration"
+      ]
+    },
+    {
+      "spec_point_id": 4,
+      "question": "How did Russification affect the Finnish military?",
+      "answer": "Finns were required to serve in the Russian army, undermining Finnish autonomy",
+      "valid_synonyms": [
+        "serve in Russian army",
+        "Finnish conscription",
+        "undermined autonomy"
+      ]
+    },
+    {
+      "spec_point_id": 4,
+      "question": "What was the scale of pogroms in terms of cities affected?",
+      "answer": "Over 100 towns were affected in the waves of pogroms in 1881-82",
+      "valid_synonyms": [
+        "over 100 towns",
+        "100 towns",
+        "widespread",
+        "many cities"
+      ]
+    },
+    {
+      "spec_point_id": 4,
+      "question": "How did Polish identity survive despite Russification?",
+      "answer": "Through underground schools, the Catholic Church, and secret cultural organisations",
+      "valid_synonyms": [
+        "underground schools",
+        "Catholic Church",
+        "secret organisations",
+        "cultural resistance"
+      ]
+    },
+    {
+      "spec_point_id": 4,
+      "question": "What economic restrictions did the May Laws impose on Jews?",
+      "answer": "Jews were banned from buying or renting land outside towns within the Pale of Settlement",
+      "valid_synonyms": [
+        "banned from buying land",
+        "no land outside towns",
+        "property restrictions"
+      ]
+    },
+    {
+      "spec_point_id": 4,
+      "question": "What proportion of the Russian Empire's total population were ethnic Russians?",
+      "answer": "Only around 44% — less than half",
+      "valid_synonyms": [
+        "44%",
+        "about 44%",
+        "less than half",
+        "under half"
+      ]
+    },
+    {
+      "spec_point_id": 4,
+      "question": "Why did Alexander II shift to a harsher policy after the 1863 Polish Revolt?",
+      "answer": "The revolt convinced him that concessions to national minorities encouraged disloyalty and separatism",
+      "valid_synonyms": [
+        "concessions encourage disloyalty",
+        "separatism",
+        "hardened policy",
+        "revolt showed danger"
+      ]
+    },
+    {
+      "spec_point_id": 5,
+      "question": "What was the central belief of the Populist (Narodnik) movement?",
+      "answer": "That Russia could bypass capitalism and build socialism based on the peasant commune (mir)",
+      "valid_synonyms": [
+        "bypass capitalism",
+        "socialism through peasants",
+        "peasant commune",
+        "mir-based socialism"
+      ]
+    },
+    {
+      "spec_point_id": 5,
+      "question": "What did the People's Will demand from the Tsar?",
+      "answer": "A national parliament (constituent assembly), civil liberties, and land reform",
+      "valid_synonyms": [
+        "parliament",
+        "constituent assembly",
+        "civil liberties",
+        "land reform"
+      ]
+    },
+    {
+      "spec_point_id": 5,
+      "question": "How did the government respond to the 'Going to the People' movement?",
+      "answer": "Mass arrests — around 1,600 students were arrested in what became the 'Trial of the 193'",
+      "valid_synonyms": [
+        "mass arrests",
+        "Trial of the 193",
+        "1600 arrested",
+        "students arrested"
+      ]
+    },
+    {
+      "spec_point_id": 5,
+      "question": "Why did peasants reject the students who 'went to the people'?",
+      "answer": "Peasants were deeply conservative, loyal to the Tsar, and suspicious of outsiders with radical ideas",
+      "valid_synonyms": [
+        "conservative",
+        "loyal to Tsar",
+        "suspicious",
+        "distrustful of outsiders"
+      ]
+    },
+    {
+      "spec_point_id": 5,
+      "question": "What was the significance of Vera Zasulich's acquittal?",
+      "answer": "It humiliated the government and showed that even a jury sympathised with revolutionary violence against authority",
+      "valid_synonyms": [
+        "humiliated government",
+        "jury sympathised",
+        "embarrassment",
+        "showed public sympathy"
+      ]
+    },
+    {
+      "spec_point_id": 5,
+      "question": "What was the difference between People's Will and Black Redistribution?",
+      "answer": "People's Will favoured terrorism and assassination; Black Redistribution favoured propaganda and gradual change",
+      "valid_synonyms": [
+        "terrorism vs propaganda",
+        "assassination vs education",
+        "violence vs gradual change"
+      ]
+    },
+    {
+      "spec_point_id": 5,
+      "question": "What did Plekhanov argue was the key to revolution after founding the Emancipation of Labour?",
+      "answer": "That revolution would come from the industrial working class (proletariat), not the peasantry",
+      "valid_synonyms": [
+        "industrial workers",
+        "proletariat",
+        "not peasants",
+        "working class revolution"
+      ]
+    },
+    {
+      "spec_point_id": 5,
+      "question": "What was the 'Trial of the 50' in 1877?",
+      "answer": "A political trial of revolutionaries that backfired when defendants used it as a platform for propaganda",
+      "valid_synonyms": [
+        "political trial",
+        "propaganda platform",
+        "revolutionaries on trial",
+        "backfired"
+      ]
+    },
+    {
+      "spec_point_id": 5,
+      "question": "How effective were the zemstva as a channel for liberal opposition?",
+      "answer": "Limited — they could petition for reform but had no real political power and were dominated by nobles",
+      "valid_synonyms": [
+        "limited",
+        "no real power",
+        "petition only",
+        "noble dominated"
+      ]
+    },
+    {
+      "spec_point_id": 5,
+      "question": "What methods did the Okhrana use to combat revolutionary movements?",
+      "answer": "Infiltration, agents provocateurs, surveillance, interception of mail, and exile to Siberia",
+      "valid_synonyms": [
+        "infiltration",
+        "agents provocateurs",
+        "surveillance",
+        "exile to Siberia"
+      ]
+    },
+    {
+      "spec_point_id": 5,
+      "question": "What was the impact of Marx's ideas on Russian opposition by the 1880s?",
+      "answer": "They shifted focus from peasant-based revolution to the industrial proletariat as the revolutionary class",
+      "valid_synonyms": [
+        "shifted to proletariat",
+        "industrial workers",
+        "moved away from peasants"
+      ]
+    },
+    {
+      "spec_point_id": 5,
+      "question": "How many attempts did the People's Will make on Alexander II before succeeding?",
+      "answer": "At least seven failed attempts before the successful bombing in 1881",
+      "valid_synonyms": [
+        "seven attempts",
+        "multiple",
+        "at least seven",
+        "many failed attempts"
+      ]
+    },
+    {
+      "spec_point_id": 5,
+      "question": "What was the Westerniser position in the intellectual debates of this period?",
+      "answer": "That Russia should modernise by adopting Western European political, legal, and economic systems",
+      "valid_synonyms": [
+        "adopt Western systems",
+        "modernise like Europe",
+        "follow Western model"
+      ]
+    },
+    {
+      "spec_point_id": 5,
+      "question": "What was the Slavophile position?",
+      "answer": "That Russia had a unique spiritual and communal destiny and should not copy the West",
+      "valid_synonyms": [
+        "unique destiny",
+        "not copy West",
+        "spiritual path",
+        "Russian exceptionalism"
+      ]
+    },
+    {
+      "spec_point_id": 5,
+      "question": "What long-term legacy did the Populist movement leave for Russian revolutionary politics?",
+      "answer": "It inspired the Socialist Revolutionary Party (SRs), which became the largest revolutionary party by 1905",
+      "valid_synonyms": [
+        "inspired SRs",
+        "Social Revolutionaries",
+        "largest revolutionary party"
+      ]
+    },
+    {
+      "spec_point_id": 6,
+      "question": "What was the main purpose of Witte's gold standard policy?",
+      "answer": "To attract foreign investment by making the rouble a stable, convertible currency",
+      "valid_synonyms": [
+        "attract foreign investment",
+        "stable currency",
+        "convertible rouble"
+      ]
+    },
+    {
+      "spec_point_id": 6,
+      "question": "What sector of industry grew most rapidly during the 'Great Spurt'?",
+      "answer": "Heavy industry — particularly coal, iron, steel, and oil production",
+      "valid_synonyms": [
+        "heavy industry",
+        "coal iron steel",
+        "coal and iron",
+        "oil production"
+      ]
+    },
+    {
+      "spec_point_id": 6,
+      "question": "What was the human cost of Vyshnegradsky's grain export policy?",
+      "answer": "Peasants were left without sufficient food reserves, contributing to the catastrophic famine of 1891",
+      "valid_synonyms": [
+        "famine 1891",
+        "peasants starved",
+        "no food reserves",
+        "starvation"
+      ]
+    },
+    {
+      "spec_point_id": 6,
+      "question": "What role did French investment play in Russian industrialisation?",
+      "answer": "France was the largest single source of foreign investment, funding railways, mining, and heavy industry",
+      "valid_synonyms": [
+        "largest investor",
+        "French capital",
+        "funded railways and mining"
+      ]
+    },
+    {
+      "spec_point_id": 6,
+      "question": "How did the government fund industrialisation at the expense of ordinary people?",
+      "answer": "Through heavy indirect taxation on basic goods like vodka and salt, which hit peasants hardest",
+      "valid_synonyms": [
+        "indirect taxation",
+        "vodka salt taxes",
+        "peasants paid",
+        "regressive taxes"
+      ]
+    },
+    {
+      "spec_point_id": 6,
+      "question": "What was the economic impact of the Trans-Siberian Railway?",
+      "answer": "It opened up Siberia for settlement and resource exploitation and connected the empire economically",
+      "valid_synonyms": [
+        "opened Siberia",
+        "settlement",
+        "resource exploitation",
+        "connected empire"
+      ]
+    },
+    {
+      "spec_point_id": 6,
+      "question": "Why was Russia's dependence on foreign investment considered a weakness?",
+      "answer": "It made the economy vulnerable to international financial crises and foreign political pressure",
+      "valid_synonyms": [
+        "vulnerable",
+        "financial crises",
+        "foreign pressure",
+        "dependent on others"
+      ]
+    },
+    {
+      "spec_point_id": 6,
+      "question": "What happened to many nobles' estates after emancipation?",
+      "answer": "Many nobles, unable to manage without serf labour, fell into debt and were forced to sell their estates",
+      "valid_synonyms": [
+        "sold estates",
+        "debt",
+        "couldn't manage",
+        "lost land"
+      ]
+    },
+    {
+      "spec_point_id": 6,
+      "question": "What new social class began to emerge in Russian cities during the 1880s-90s?",
+      "answer": "An urban industrial proletariat (factory workers)",
+      "valid_synonyms": [
+        "proletariat",
+        "factory workers",
+        "industrial workers",
+        "urban workers"
+      ]
+    },
+    {
+      "spec_point_id": 6,
+      "question": "What was the 'scissors crisis' problem that emerged under economic modernisation?",
+      "answer": "A growing gap between high industrial prices and low agricultural prices, squeezing peasant income",
+      "valid_synonyms": [
+        "gap between prices",
+        "high industrial low agricultural",
+        "peasant income squeezed"
+      ]
+    },
+    {
+      "spec_point_id": 6,
+      "question": "What specific policy did Vyshnegradsky use to increase grain exports?",
+      "answer": "High tariffs on foreign goods (30%) combined with forced grain exports, regardless of domestic need",
+      "valid_synonyms": [
+        "high tariffs",
+        "forced exports",
+        "30% tariff",
+        "export regardless"
+      ]
+    },
+    {
+      "spec_point_id": 6,
+      "question": "Why did Russian agriculture remain backward despite economic modernisation?",
+      "answer": "The mir system, strip farming, and lack of investment meant peasant farming was inefficient",
+      "valid_synonyms": [
+        "mir system",
+        "strip farming",
+        "lack of investment",
+        "inefficient"
+      ]
+    },
+    {
+      "spec_point_id": 6,
+      "question": "What was the annual growth rate of the Russian economy under Witte's policies?",
+      "answer": "Around 8% per year during the 'Great Spurt' of the 1890s",
+      "valid_synonyms": [
+        "8%",
+        "about 8%",
+        "8 percent"
+      ]
+    },
+    {
+      "spec_point_id": 6,
+      "question": "How did the famine of 1891 damage the credibility of the Tsarist regime?",
+      "answer": "It exposed government incompetence and the failure to protect the peasantry, boosting opposition movements",
+      "valid_synonyms": [
+        "government incompetence",
+        "failure to protect",
+        "boosted opposition"
+      ]
+    },
+    {
+      "spec_point_id": 6,
+      "question": "What proportion of Russia's population still lived in the countryside by 1894?",
+      "answer": "Around 85-90%",
+      "valid_synonyms": [
+        "85%",
+        "90%",
+        "about 85-90%",
+        "vast majority"
+      ]
+    },
+    {
+      "spec_point_id": 7,
+      "question": "What military defeat in 1905 further weakened Nicholas II's authority?",
+      "answer": "Defeat in the Russo-Japanese War (including the loss of Port Arthur)",
+      "valid_synonyms": [
+        "Russo-Japanese War",
+        "Port Arthur",
+        "defeat by Japan"
+      ]
+    },
+    {
+      "spec_point_id": 7,
+      "question": "What was Stolypin's 'necktie' a nickname for?",
+      "answer": "The hangman's noose — referring to the field courts martial that executed around 3,000 people",
+      "valid_synonyms": [
+        "hangman's noose",
+        "executions",
+        "field courts martial",
+        "3000 executed"
+      ]
+    },
+    {
+      "spec_point_id": 7,
+      "question": "What did the October Manifesto promise that it ultimately failed to deliver?",
+      "answer": "Civil liberties, a legislative Duma, and genuine political participation",
+      "valid_synonyms": [
+        "civil liberties",
+        "legislative Duma",
+        "political participation",
+        "broken promises"
+      ]
+    },
+    {
+      "spec_point_id": 7,
+      "question": "What was the Vyborg Manifesto?",
+      "answer": "A call by Kadet deputies from the dissolved first Duma urging civil disobedience and refusal to pay taxes",
+      "valid_synonyms": [
+        "Kadet deputies",
+        "civil disobedience",
+        "tax refusal",
+        "first Duma protest"
+      ]
+    },
+    {
+      "spec_point_id": 7,
+      "question": "How did Nicholas II's personality contribute to political problems?",
+      "answer": "He was weak, indecisive, deeply committed to autocracy, and heavily influenced by his wife Alexandra",
+      "valid_synonyms": [
+        "weak",
+        "indecisive",
+        "committed to autocracy",
+        "influenced by Alexandra"
+      ]
+    },
+    {
+      "spec_point_id": 7,
+      "question": "What happened to Stolypin in 1911?",
+      "answer": "He was assassinated at the Kiev Opera House by a double agent (Dmitry Bogrov)",
+      "valid_synonyms": [
+        "assassinated",
+        "Kiev Opera House",
+        "Bogrov",
+        "shot"
+      ]
+    },
+    {
+      "spec_point_id": 7,
+      "question": "What made the Octobrists different from the Kadets?",
+      "answer": "Octobrists were more conservative — they accepted the October Manifesto as sufficient, while Kadets wanted a full constitution",
+      "valid_synonyms": [
+        "more conservative",
+        "accepted Manifesto",
+        "didn't want full constitution"
+      ]
+    },
+    {
+      "spec_point_id": 7,
+      "question": "How did the 1905 Revolution combine different forms of protest?",
+      "answer": "It combined worker strikes, peasant land seizures, military mutinies, and national minority revolts",
+      "valid_synonyms": [
+        "strikes peasant seizures mutinies",
+        "all classes",
+        "workers peasants soldiers"
+      ]
+    },
+    {
+      "spec_point_id": 7,
+      "question": "Why did the Tsar survive the 1905 Revolution?",
+      "answer": "The army largely stayed loyal, the opposition was divided, and the October Manifesto split moderate from radical opposition",
+      "valid_synonyms": [
+        "army loyal",
+        "opposition divided",
+        "Manifesto split opposition"
+      ]
+    },
+    {
+      "spec_point_id": 7,
+      "question": "What was Stolypin's dual strategy for governing Russia?",
+      "answer": "Repression of revolutionaries combined with agrarian reform to create a stable peasant class",
+      "valid_synonyms": [
+        "repression and reform",
+        "carrot and stick",
+        "agrarian reform plus repression"
+      ]
+    },
+    {
+      "spec_point_id": 7,
+      "question": "How long did the third Duma last compared to the first two?",
+      "answer": "The third Duma ran its full 5-year term (1907-1912), unlike the first two which were dissolved within months",
+      "valid_synonyms": [
+        "full 5 years",
+        "1907-1912",
+        "five years",
+        "full term"
+      ]
+    },
+    {
+      "spec_point_id": 7,
+      "question": "What proportion of workers in St Petersburg went on strike during the 1905 Revolution?",
+      "answer": "The majority — a general strike effectively paralysed the city in October 1905",
+      "valid_synonyms": [
+        "general strike",
+        "majority",
+        "city paralysed",
+        "most workers"
+      ]
+    },
+    {
+      "spec_point_id": 7,
+      "question": "What was the immediate trigger for the 1905 Revolution?",
+      "answer": "Bloody Sunday — the massacre of peaceful protesters outside the Winter Palace",
+      "valid_synonyms": [
+        "Bloody Sunday",
+        "massacre",
+        "Winter Palace shooting",
+        "January 1905"
+      ]
+    },
+    {
+      "spec_point_id": 7,
+      "question": "What was the role of the St Petersburg Soviet in 1905?",
+      "answer": "It coordinated the general strike and briefly acted as an alternative government in the capital",
+      "valid_synonyms": [
+        "coordinated strike",
+        "alternative government",
+        "organised workers"
+      ]
+    },
+    {
+      "spec_point_id": 7,
+      "question": "What did the Black Hundreds do during and after the 1905 Revolution?",
+      "answer": "They were violent ultra-nationalist groups that attacked revolutionaries, liberals, Jews, and strikers",
+      "valid_synonyms": [
+        "ultra-nationalist",
+        "attacked Jews",
+        "violent loyalists",
+        "counter-revolutionary"
+      ]
+    },
+    {
+      "spec_point_id": 8,
+      "question": "Why did Witte resign as Minister of Finance in 1903?",
+      "answer": "He faced opposition from conservative nobles and the Tsar, who felt industrialisation was too rapid and destabilising",
+      "valid_synonyms": [
+        "conservative opposition",
+        "too rapid",
+        "Tsar's concerns",
+        "destabilising"
+      ]
+    },
+    {
+      "spec_point_id": 8,
+      "question": "What was Stolypin's 'wager on the strong'?",
+      "answer": "His strategy to create a loyal class of prosperous independent peasant farmers who would support the Tsar",
+      "valid_synonyms": [
+        "prosperous peasants",
+        "independent farmers",
+        "loyal peasant class",
+        "wager on strong"
+      ]
+    },
+    {
+      "spec_point_id": 8,
+      "question": "What percentage of peasant households had left the commune by 1914 under Stolypin's reforms?",
+      "answer": "Around 10-15% — reform was progressing but far from complete",
+      "valid_synonyms": [
+        "10-15%",
+        "about 10%",
+        "around 15%",
+        "limited progress"
+      ]
+    },
+    {
+      "spec_point_id": 8,
+      "question": "What was the 'dual economy' problem in Russia by 1914?",
+      "answer": "A modern industrial sector existed alongside a vast, backward peasant agricultural economy",
+      "valid_synonyms": [
+        "modern industry backward agriculture",
+        "two economies",
+        "uneven development"
+      ]
+    },
+    {
+      "spec_point_id": 8,
+      "question": "How did the Lena Goldfields massacre of 1912 change the political atmosphere?",
+      "answer": "It radicalised workers and triggered a massive wave of political strikes across Russia",
+      "valid_synonyms": [
+        "radicalised workers",
+        "political strikes",
+        "strike wave",
+        "worker anger"
+      ]
+    },
+    {
+      "spec_point_id": 8,
+      "question": "What happened to the number of strikes between 1912 and 1914?",
+      "answer": "They increased dramatically — rising from hundreds to over 3,000 per year by 1914",
+      "valid_synonyms": [
+        "increased dramatically",
+        "over 3000",
+        "rising sharply",
+        "massive increase"
+      ]
+    },
+    {
+      "spec_point_id": 8,
+      "question": "What was the main source of capital for Witte's industrial programme?",
+      "answer": "Foreign investment (mainly French, Belgian, and British) and heavy taxation of the peasantry",
+      "valid_synonyms": [
+        "foreign investment",
+        "French Belgian British",
+        "peasant taxation"
+      ]
+    },
+    {
+      "spec_point_id": 8,
+      "question": "How did Russia's industrial output compare to Germany and Britain by 1914?",
+      "answer": "Russia was fourth or fifth but still produced far less per capita than Germany or Britain",
+      "valid_synonyms": [
+        "fourth or fifth",
+        "far less per capita",
+        "behind Germany and Britain"
+      ]
+    },
+    {
+      "spec_point_id": 8,
+      "question": "What impact did railway expansion have on Russian industry?",
+      "answer": "It stimulated coal, iron, and steel production and enabled goods to reach wider markets",
+      "valid_synonyms": [
+        "stimulated coal iron steel",
+        "wider markets",
+        "industrial growth",
+        "connected economy"
+      ]
+    },
+    {
+      "spec_point_id": 8,
+      "question": "What social problem did Stolypin's reforms create alongside the intended kulak class?",
+      "answer": "A growing class of landless labourers who drifted to cities, swelling the urban proletariat",
+      "valid_synonyms": [
+        "landless labourers",
+        "drifted to cities",
+        "urban proletariat grew"
+      ]
+    },
+    {
+      "spec_point_id": 8,
+      "question": "By how much did oil production increase under Witte?",
+      "answer": "Russia became the world's largest oil producer by 1900, centred on Baku",
+      "valid_synonyms": [
+        "world's largest",
+        "Baku",
+        "largest oil producer"
+      ]
+    },
+    {
+      "spec_point_id": 8,
+      "question": "What was the state of Russian trade by 1914?",
+      "answer": "Russia had a trade deficit and relied heavily on borrowing, making it financially vulnerable",
+      "valid_synonyms": [
+        "trade deficit",
+        "borrowing",
+        "financially vulnerable"
+      ]
+    },
+    {
+      "spec_point_id": 8,
+      "question": "What proportion of Russian exports were grain by 1914?",
+      "answer": "Around 40% — showing continued dependence on agriculture despite industrialisation",
+      "valid_synonyms": [
+        "40%",
+        "about 40%",
+        "grain exports",
+        "agricultural dependence"
+      ]
+    },
+    {
+      "spec_point_id": 8,
+      "question": "What urban infrastructure problem accompanied rapid industrialisation?",
+      "answer": "Overcrowding, no sanitation, disease, and appalling living conditions in factory towns",
+      "valid_synonyms": [
+        "overcrowding",
+        "no sanitation",
+        "disease",
+        "appalling conditions"
+      ]
+    },
+    {
+      "spec_point_id": 8,
+      "question": "What term did Stolypin use for the time he believed Russia needed?",
+      "answer": "'Give the state 20 years of peace and you will not recognise Russia'",
+      "valid_synonyms": [
+        "20 years of peace",
+        "twenty years",
+        "not recognise Russia"
+      ]
+    },
+    {
+      "spec_point_id": 9,
+      "question": "What was the child mortality rate in Russian cities?",
+      "answer": "Extremely high — around 25-30% of children died before age 5 in major cities",
+      "valid_synonyms": [
+        "25-30%",
+        "very high",
+        "extremely high",
+        "one in four"
+      ]
+    },
+    {
+      "spec_point_id": 9,
+      "question": "What was the main occupation of peasants who migrated to cities?",
+      "answer": "Factory work in textile mills, metalworks, and other heavy industries",
+      "valid_synonyms": [
+        "factory work",
+        "textile mills",
+        "metalworks",
+        "industrial labour"
+      ]
+    },
+    {
+      "spec_point_id": 9,
+      "question": "How did living conditions in Moscow and St Petersburg compare to Western Europe?",
+      "answer": "Far worse — extreme overcrowding, poor sanitation, and much higher disease and mortality rates",
+      "valid_synonyms": [
+        "far worse",
+        "worse than Western Europe",
+        "more overcrowded",
+        "higher mortality"
+      ]
+    },
+    {
+      "spec_point_id": 9,
+      "question": "What happened to the zemstva professionals (doctors, teachers) as a social group?",
+      "answer": "They grew in number and influence, forming part of a small but politically active liberal middle class",
+      "valid_synonyms": [
+        "grew in influence",
+        "liberal middle class",
+        "politically active",
+        "professional class"
+      ]
+    },
+    {
+      "spec_point_id": 9,
+      "question": "What was the impact of Stolypin's reforms on rural migration to cities?",
+      "answer": "They increased it — peasants who lost out in land consolidation had no choice but to move to urban areas",
+      "valid_synonyms": [
+        "increased migration",
+        "moved to cities",
+        "rural to urban",
+        "pushed to cities"
+      ]
+    },
+    {
+      "spec_point_id": 9,
+      "question": "What was the significance of the Lena Goldfields massacre for the wider labour movement?",
+      "answer": "It triggered a renewed wave of mass strikes, politicising the working class in the final years before WWI",
+      "valid_synonyms": [
+        "mass strikes",
+        "politicised workers",
+        "renewed unrest",
+        "strike wave"
+      ]
+    },
+    {
+      "spec_point_id": 9,
+      "question": "What percentage of the Russian population were still peasants by 1914?",
+      "answer": "Around 80%",
+      "valid_synonyms": [
+        "80%",
+        "about 80%",
+        "roughly 80%"
+      ]
+    },
+    {
+      "spec_point_id": 9,
+      "question": "What was the typical form of worker protest before trade unions were legalised?",
+      "answer": "Illegal strikes, walkouts, and sometimes machine-breaking",
+      "valid_synonyms": [
+        "illegal strikes",
+        "walkouts",
+        "machine-breaking",
+        "wildcat strikes"
+      ]
+    },
+    {
+      "spec_point_id": 9,
+      "question": "What restrictions limited trade unions even after they were legalised in 1906?",
+      "answer": "They could not form national organisations, were heavily policed, and could be shut down at any time",
+      "valid_synonyms": [
+        "no national organisation",
+        "heavily policed",
+        "could be shut down",
+        "restricted"
+      ]
+    },
+    {
+      "spec_point_id": 9,
+      "question": "What role did the Church play in peasant social life?",
+      "answer": "It remained the dominant cultural institution, promoting obedience, conservatism, and loyalty to the Tsar",
+      "valid_synonyms": [
+        "dominant",
+        "obedience",
+        "conservatism",
+        "loyalty to Tsar"
+      ]
+    },
+    {
+      "spec_point_id": 9,
+      "question": "How did rapid urbanisation affect political radicalism?",
+      "answer": "Concentrated workers in factories and slums made them easier to organise and more receptive to revolutionary ideas",
+      "valid_synonyms": [
+        "easier to organise",
+        "receptive to revolution",
+        "concentrated workers",
+        "radicalised"
+      ]
+    },
+    {
+      "spec_point_id": 9,
+      "question": "What was the status of women's rights by 1914?",
+      "answer": "Very limited — women had no vote, limited access to higher education, and earned far less than men",
+      "valid_synonyms": [
+        "no vote",
+        "limited education",
+        "less pay",
+        "very limited"
+      ]
+    },
+    {
+      "spec_point_id": 9,
+      "question": "What new type of cultural institution spread through Russian cities by 1914?",
+      "answer": "Workers' clubs, reading circles, and mutual aid societies",
+      "valid_synonyms": [
+        "workers' clubs",
+        "reading circles",
+        "mutual aid",
+        "self-improvement societies"
+      ]
+    },
+    {
+      "spec_point_id": 9,
+      "question": "What was the population of Moscow by 1914?",
+      "answer": "Around 1.8 million",
+      "valid_synonyms": [
+        "1.8 million",
+        "about 1.8 million",
+        "nearly 2 million"
+      ]
+    },
+    {
+      "spec_point_id": 9,
+      "question": "What did the growth of an educated professional class mean for Russian politics?",
+      "answer": "It created a base for liberal demands for constitutional reform, expressed through the zemstva and unions",
+      "valid_synonyms": [
+        "constitutional reform",
+        "liberal demands",
+        "zemstva activism",
+        "political pressure"
+      ]
+    },
+    {
+      "spec_point_id": 10,
+      "question": "What was the key difference between SR and Marxist views on the peasantry?",
+      "answer": "SRs saw peasants as the revolutionary class; Marxists believed only the industrial proletariat could lead revolution",
+      "valid_synonyms": [
+        "peasants vs proletariat",
+        "SRs peasants Marxists workers",
+        "different revolutionary class"
+      ]
+    },
+    {
+      "spec_point_id": 10,
+      "question": "What was the SR policy of 'land socialisation'?",
+      "answer": "All land would be taken from landlords and redistributed to peasants based on need",
+      "valid_synonyms": [
+        "redistribute land",
+        "land to peasants",
+        "take from landlords",
+        "land based on need"
+      ]
+    },
+    {
+      "spec_point_id": 10,
+      "question": "Who was assassinated by the SR Combat Organisation in 1904?",
+      "answer": "Interior Minister Plehve (Vyacheslav von Plehve)",
+      "valid_synonyms": [
+        "Plehve",
+        "Interior Minister",
+        "von Plehve"
+      ]
+    },
+    {
+      "spec_point_id": 10,
+      "question": "What did Lenin mean by a 'vanguard party'?",
+      "answer": "A small, disciplined elite of professional revolutionaries who would lead the workers to revolution",
+      "valid_synonyms": [
+        "disciplined elite",
+        "professional revolutionaries",
+        "small leading party",
+        "lead the workers"
+      ]
+    },
+    {
+      "spec_point_id": 10,
+      "question": "Why did the Mensheviks believe a bourgeois revolution had to come first?",
+      "answer": "Orthodox Marxism taught that capitalism must fully develop before socialism could replace it",
+      "valid_synonyms": [
+        "capitalism must develop first",
+        "Marxist stages",
+        "historical materialism"
+      ]
+    },
+    {
+      "spec_point_id": 10,
+      "question": "What type of party did the Mensheviks want to build?",
+      "answer": "A broad, open, mass-membership party modelled on Western European socialist parties",
+      "valid_synonyms": [
+        "broad mass party",
+        "open membership",
+        "Western European model",
+        "mass membership"
+      ]
+    },
+    {
+      "spec_point_id": 10,
+      "question": "What political demand united the Kadets?",
+      "answer": "A constitutional monarchy with a parliament, civil liberties, and rule of law",
+      "valid_synonyms": [
+        "constitutional monarchy",
+        "parliament",
+        "civil liberties",
+        "rule of law"
+      ]
+    },
+    {
+      "spec_point_id": 10,
+      "question": "How did the Octobrists differ from the Kadets on reform?",
+      "answer": "Octobrists were satisfied with the October Manifesto; Kadets wanted a full Western-style constitution",
+      "valid_synonyms": [
+        "satisfied with Manifesto",
+        "less radical",
+        "didn't want full constitution"
+      ]
+    },
+    {
+      "spec_point_id": 10,
+      "question": "What was the significance of Trotsky's idea of 'Permanent Revolution'?",
+      "answer": "He argued Russia could skip the bourgeois stage and move directly to socialist revolution led by workers",
+      "valid_synonyms": [
+        "skip bourgeois stage",
+        "direct to socialism",
+        "workers lead immediately"
+      ]
+    },
+    {
+      "spec_point_id": 10,
+      "question": "How many members did the RSDLP have by 1905?",
+      "answer": "Very few — around 8,000, showing how small revolutionary parties were before 1905",
+      "valid_synonyms": [
+        "8000",
+        "about 8000",
+        "very few",
+        "small party"
+      ]
+    },
+    {
+      "spec_point_id": 10,
+      "question": "What was the impact of the 1903 split on Russian Marxism?",
+      "answer": "It created two rival factions with fundamentally different strategies, weakening the socialist movement",
+      "valid_synonyms": [
+        "two rival factions",
+        "weakened movement",
+        "different strategies",
+        "divided socialists"
+      ]
+    },
+    {
+      "spec_point_id": 10,
+      "question": "What role did the Union of Liberation play in 1905?",
+      "answer": "It helped organise the professional unions that participated in the general strike",
+      "valid_synonyms": [
+        "organised unions",
+        "professional unions",
+        "general strike",
+        "liberal coordination"
+      ]
+    },
+    {
+      "spec_point_id": 10,
+      "question": "Why was the SRs' Combat Organisation so effective?",
+      "answer": "It operated in highly secretive cells and targeted high-profile officials, creating maximum political impact",
+      "valid_synonyms": [
+        "secretive cells",
+        "high-profile targets",
+        "maximum impact",
+        "effective terrorism"
+      ]
+    },
+    {
+      "spec_point_id": 10,
+      "question": "What proportion of the SR vote came from the peasantry in 1917?",
+      "answer": "The vast majority — SRs won the Constituent Assembly election with around 40% of the vote, mostly rural",
+      "valid_synonyms": [
+        "vast majority",
+        "40%",
+        "mostly rural",
+        "peasant support"
+      ]
+    },
+    {
+      "spec_point_id": 10,
+      "question": "What did 'democratic centralism' mean in Lenin's Bolshevik party?",
+      "answer": "Decisions were debated but once made, all members had to obey — in practice, the leadership decided",
+      "valid_synonyms": [
+        "debate then obey",
+        "leadership decides",
+        "top-down discipline",
+        "central control"
+      ]
+    },
+    {
+      "spec_point_id": 11,
+      "question": "What was 'Order Number 1' and why was it significant?",
+      "answer": "A Petrograd Soviet decree ordering soldiers to obey the Soviet over the Provisional Government — it gave the Soviet real power",
+      "valid_synonyms": [
+        "Soviet over Government",
+        "soldiers obey Soviet",
+        "real power to Soviet"
+      ]
+    },
+    {
+      "spec_point_id": 11,
+      "question": "Why did the Provisional Government refuse to redistribute land?",
+      "answer": "They wanted to wait for a properly elected Constituent Assembly to decide, which alienated peasants",
+      "valid_synonyms": [
+        "wait for Assembly",
+        "alienated peasants",
+        "delayed land reform"
+      ]
+    },
+    {
+      "spec_point_id": 11,
+      "question": "What was the 'April Theses' key slogan?",
+      "answer": "'All Power to the Soviets' — demanding an end to the war and redistribution of land",
+      "valid_synonyms": [
+        "All Power to Soviets",
+        "end the war",
+        "land redistribution"
+      ]
+    },
+    {
+      "spec_point_id": 11,
+      "question": "Why was the Kornilov Affair a turning point for the Bolsheviks?",
+      "answer": "Kerensky armed the Bolshevik Red Guards to defend Petrograd, giving them legitimacy and weapons",
+      "valid_synonyms": [
+        "armed Red Guards",
+        "Bolsheviks armed",
+        "legitimacy",
+        "weapons"
+      ]
+    },
+    {
+      "spec_point_id": 11,
+      "question": "What was Rasputin's influence on government during the war?",
+      "answer": "Through the Tsarina, he influenced ministerial appointments, leading to a 'dreary succession of nonentities' in cabinet",
+      "valid_synonyms": [
+        "influenced appointments",
+        "nonentities",
+        "Tsarina",
+        "bad ministers"
+      ]
+    },
+    {
+      "spec_point_id": 11,
+      "question": "What happened to Rasputin?",
+      "answer": "He was murdered by a group of nobles led by Prince Yusupov in December 1916",
+      "valid_synonyms": [
+        "murdered",
+        "Yusupov",
+        "December 1916",
+        "killed by nobles"
+      ]
+    },
+    {
+      "spec_point_id": 11,
+      "question": "What role did International Women's Day play in the February Revolution?",
+      "answer": "It was the trigger — women textile workers marched on 23 February, and it escalated into a mass uprising",
+      "valid_synonyms": [
+        "women marched",
+        "trigger",
+        "23 February",
+        "textile workers"
+      ]
+    },
+    {
+      "spec_point_id": 11,
+      "question": "Why was Nicholas II's decision to go to the front in 1915 so damaging?",
+      "answer": "It tied him personally to all military defeats and left his incompetent wife and Rasputin running government",
+      "valid_synonyms": [
+        "tied to defeats",
+        "wife ran government",
+        "Rasputin influence",
+        "personal responsibility"
+      ]
+    },
+    {
+      "spec_point_id": 11,
+      "question": "What did the Provisional Government fatally decide to continue?",
+      "answer": "The war — this was its single most unpopular decision and the main cause of its loss of support",
+      "valid_synonyms": [
+        "continued the war",
+        "kept fighting",
+        "most unpopular decision"
+      ]
+    },
+    {
+      "spec_point_id": 11,
+      "question": "How did the railway collapse affect the war effort and cities?",
+      "answer": "Food and supplies could not reach the front or urban centres, causing shortages despite adequate production",
+      "valid_synonyms": [
+        "food couldn't reach cities",
+        "supply breakdown",
+        "shortages despite production"
+      ]
+    },
+    {
+      "spec_point_id": 11,
+      "question": "What was Alexander Kerensky's role?",
+      "answer": "He became leader of the Provisional Government in July 1917, replacing Prince Lvov",
+      "valid_synonyms": [
+        "leader of Provisional Government",
+        "replaced Lvov",
+        "July 1917"
+      ]
+    },
+    {
+      "spec_point_id": 11,
+      "question": "What happened during the 'July Days'?",
+      "answer": "A spontaneous armed uprising by workers and soldiers that the Bolsheviks failed to control — key leaders were arrested",
+      "valid_synonyms": [
+        "spontaneous uprising",
+        "Bolsheviks arrested",
+        "failed uprising",
+        "chaotic"
+      ]
+    },
+    {
+      "spec_point_id": 11,
+      "question": "How many soldiers deserted the Russian army by late 1917?",
+      "answer": "Around 2 million had deserted by autumn 1917",
+      "valid_synonyms": [
+        "2 million",
+        "about 2 million",
+        "millions deserted"
+      ]
+    },
+    {
+      "spec_point_id": 11,
+      "question": "What was the significance of the army's refusal to support Nicholas II in February 1917?",
+      "answer": "It was the decisive factor — once the military high command advised abdication, the Tsar had no choice",
+      "valid_synonyms": [
+        "decisive factor",
+        "military abandoned him",
+        "high command advised abdication"
+      ]
+    },
+    {
+      "spec_point_id": 11,
+      "question": "What happened to the Bolsheviks' popularity between July and October 1917?",
+      "answer": "It surged — they won majorities in the Petrograd and Moscow Soviets by September",
+      "valid_synonyms": [
+        "surged",
+        "won Soviet majorities",
+        "popularity increased",
+        "Petrograd and Moscow Soviets"
+      ]
+    },
+    {
+      "spec_point_id": 12,
+      "question": "What was the cruiser Aurora's role in the October Revolution?",
+      "answer": "It fired a blank shell signalling the storming of the Winter Palace",
+      "valid_synonyms": [
+        "blank shell",
+        "signal to storm",
+        "Winter Palace signal",
+        "fired signal"
+      ]
+    },
+    {
+      "spec_point_id": 12,
+      "question": "How did Lenin justify dissolving the democratically elected Constituent Assembly?",
+      "answer": "He argued soviets were a higher form of democracy than bourgeois parliaments",
+      "valid_synonyms": [
+        "soviets higher than parliament",
+        "bourgeois democracy",
+        "soviets superior"
+      ]
+    },
+    {
+      "spec_point_id": 12,
+      "question": "What territory did Russia lose under the Treaty of Brest-Litovsk?",
+      "answer": "Ukraine, Finland, the Baltic states, Poland, and parts of the Caucasus — around a third of Russia's population",
+      "valid_synonyms": [
+        "Ukraine Finland Baltic Poland",
+        "one third population",
+        "massive territorial loss"
+      ]
+    },
+    {
+      "spec_point_id": 12,
+      "question": "Why did the Mensheviks and SRs walk out of the Congress of Soviets?",
+      "answer": "They opposed the Bolshevik seizure of power and refused to participate in the new government",
+      "valid_synonyms": [
+        "opposed seizure",
+        "refused to participate",
+        "rejected Bolshevik coup"
+      ]
+    },
+    {
+      "spec_point_id": 12,
+      "question": "What did the Decree on Land actually do?",
+      "answer": "It abolished private ownership of land and transferred all estates to local land committees for redistribution",
+      "valid_synonyms": [
+        "abolished private land",
+        "estates redistributed",
+        "land to committees"
+      ]
+    },
+    {
+      "spec_point_id": 12,
+      "question": "What happened to opposition newspapers after October 1917?",
+      "answer": "They were shut down — the Bolsheviks rapidly closed non-Bolshevik press within weeks",
+      "valid_synonyms": [
+        "shut down",
+        "press closed",
+        "newspapers banned",
+        "censorship imposed"
+      ]
+    },
+    {
+      "spec_point_id": 12,
+      "question": "How did the Bolsheviks describe their seizure of power?",
+      "answer": "As a workers' revolution — though in reality it was a carefully planned coup by a small group",
+      "valid_synonyms": [
+        "workers' revolution",
+        "but really a coup",
+        "small group",
+        "planned coup"
+      ]
+    },
+    {
+      "spec_point_id": 12,
+      "question": "What was the immediate purpose of the Decree on Peace?",
+      "answer": "To appeal to war-weary soldiers and workers by proposing an immediate armistice",
+      "valid_synonyms": [
+        "immediate armistice",
+        "end the war",
+        "appeal to war-weary",
+        "peace proposal"
+      ]
+    },
+    {
+      "spec_point_id": 12,
+      "question": "What powers did the Cheka have?",
+      "answer": "Virtually unlimited — arrest, imprisonment, and execution without trial of suspected counter-revolutionaries",
+      "valid_synonyms": [
+        "arrest without trial",
+        "execution",
+        "unlimited powers",
+        "no legal oversight"
+      ]
+    },
+    {
+      "spec_point_id": 12,
+      "question": "Why was the Constituent Assembly election result a problem for the Bolsheviks?",
+      "answer": "They won only 24% — the SRs won the majority, proving the Bolsheviks lacked a popular mandate",
+      "valid_synonyms": [
+        "only 24%",
+        "SRs won majority",
+        "no mandate",
+        "minority support"
+      ]
+    },
+    {
+      "spec_point_id": 12,
+      "question": "How did Lenin respond to Zinoviev and Kamenev's opposition to revolution?",
+      "answer": "He was furious — they had publicly leaked the plan, but he pressed ahead regardless",
+      "valid_synonyms": [
+        "furious",
+        "leaked plan",
+        "pressed ahead",
+        "overruled them"
+      ]
+    },
+    {
+      "spec_point_id": 12,
+      "question": "What was the strategic importance of seizing railway stations and telephone exchanges?",
+      "answer": "It gave the Bolsheviks control of communications and transport, paralysing any government response",
+      "valid_synonyms": [
+        "control communications",
+        "paralysed government",
+        "transport control"
+      ]
+    },
+    {
+      "spec_point_id": 12,
+      "question": "How many casualties occurred during the storming of the Winter Palace?",
+      "answer": "Very few — perhaps 5-6 killed, far from the heroic battle depicted in Soviet propaganda",
+      "valid_synonyms": [
+        "very few",
+        "5-6 killed",
+        "almost none",
+        "minimal"
+      ]
+    },
+    {
+      "spec_point_id": 12,
+      "question": "What role did the Red Guards play in October 1917?",
+      "answer": "They were armed workers' militias who carried out the physical seizure of buildings and infrastructure",
+      "valid_synonyms": [
+        "armed workers",
+        "seized buildings",
+        "workers' militia"
+      ]
+    },
+    {
+      "spec_point_id": 12,
+      "question": "What made Trotsky's planning of the October Revolution effective?",
+      "answer": "He timed it to coincide with the Congress of Soviets, giving the coup a veneer of Soviet legitimacy",
+      "valid_synonyms": [
+        "timed with Congress",
+        "Soviet legitimacy",
+        "strategic timing"
+      ]
+    },
+    {
+      "spec_point_id": 13,
+      "question": "What did the NEP allow that War Communism had banned?",
+      "answer": "Small-scale private trade and manufacturing — peasants could sell surplus on the open market",
+      "valid_synonyms": [
+        "private trade",
+        "sell surplus",
+        "open market",
+        "small-scale capitalism"
+      ]
+    },
+    {
+      "spec_point_id": 13,
+      "question": "Why did many Bolsheviks see the NEP as a betrayal?",
+      "answer": "It reintroduced capitalist elements and seemed to abandon the principles of communist revolution",
+      "valid_synonyms": [
+        "capitalist elements",
+        "betrayal",
+        "abandoned principles",
+        "retreat from communism"
+      ]
+    },
+    {
+      "spec_point_id": 13,
+      "question": "How did Stalin outmanoeuvre the 'Left Opposition' (Trotsky, Zinoviev, Kamenev)?",
+      "answer": "He allied with the Right (Bukharin) and used the Ban on Factions to accuse them of disloyalty",
+      "valid_synonyms": [
+        "allied with Right",
+        "Bukharin alliance",
+        "accused of factionalism"
+      ]
+    },
+    {
+      "spec_point_id": 13,
+      "question": "How did Stalin then outmanoeuvre the 'Right Opposition' (Bukharin)?",
+      "answer": "He abandoned the NEP, adopted rapid industrialisation (a Left position), and accused Bukharin of deviation",
+      "valid_synonyms": [
+        "abandoned NEP",
+        "adopted Left position",
+        "accused of deviation"
+      ]
+    },
+    {
+      "spec_point_id": 13,
+      "question": "What happened to Lenin's Testament after his death?",
+      "answer": "It was read to senior party members but suppressed — Stalin's allies ensured it was not made public",
+      "valid_synonyms": [
+        "suppressed",
+        "not made public",
+        "hidden",
+        "allies suppressed it"
+      ]
+    },
+    {
+      "spec_point_id": 13,
+      "question": "What did Lenin specifically say about Stalin in his Testament?",
+      "answer": "That Stalin was 'too rude' and should be removed from the post of General Secretary",
+      "valid_synonyms": [
+        "too rude",
+        "remove him",
+        "should be replaced",
+        "not suitable"
+      ]
+    },
+    {
+      "spec_point_id": 13,
+      "question": "Why was Trotsky at a disadvantage in the leadership struggle?",
+      "answer": "He was seen as arrogant, was a late convert to Bolshevism, and was mistrusted by many in the party",
+      "valid_synonyms": [
+        "arrogant",
+        "late convert",
+        "mistrusted",
+        "not an original Bolshevik"
+      ]
+    },
+    {
+      "spec_point_id": 13,
+      "question": "What happened at the Kronstadt naval base in March 1921?",
+      "answer": "Sailors demanded free elections, free speech, and an end to Bolshevik political monopoly — the revolt was crushed",
+      "valid_synonyms": [
+        "free elections",
+        "free speech",
+        "crushed",
+        "political demands"
+      ]
+    },
+    {
+      "spec_point_id": 13,
+      "question": "What year was Trotsky exiled from the Soviet Union?",
+      "answer": "1929",
+      "valid_synonyms": [
+        "1929"
+      ]
+    },
+    {
+      "spec_point_id": 13,
+      "question": "How did Stalin use his position as General Secretary to build power?",
+      "answer": "He controlled who got appointed to party positions, filling key posts with his own supporters",
+      "valid_synonyms": [
+        "controlled appointments",
+        "filled posts with supporters",
+        "patronage network"
+      ]
+    },
+    {
+      "spec_point_id": 13,
+      "question": "What was the significance of 'Socialism in One Country' as a political slogan?",
+      "answer": "It was practical and patriotic, appealing to party members who wanted to focus on building Russia rather than world revolution",
+      "valid_synonyms": [
+        "practical",
+        "patriotic",
+        "focus on Russia",
+        "appealed to members"
+      ]
+    },
+    {
+      "spec_point_id": 13,
+      "question": "What ultimately happened to Trotsky?",
+      "answer": "He was assassinated in Mexico in 1940 by a Soviet agent",
+      "valid_synonyms": [
+        "assassinated",
+        "Mexico",
+        "1940",
+        "Soviet agent killed him"
+      ]
+    },
+    {
+      "spec_point_id": 13,
+      "question": "What was the 'scissors crisis' of the early NEP period?",
+      "answer": "Industrial prices rose while agricultural prices fell, creating a 'scissors' gap that hurt peasant purchasing power",
+      "valid_synonyms": [
+        "industrial prices up agricultural down",
+        "price gap",
+        "peasants hurt"
+      ]
+    },
+    {
+      "spec_point_id": 13,
+      "question": "How did the ban on factions change the nature of the Communist Party?",
+      "answer": "It made internal dissent illegal, giving the leadership unchallenged authority and silencing critics",
+      "valid_synonyms": [
+        "dissent illegal",
+        "silenced critics",
+        "leadership unchallenged"
+      ]
+    },
+    {
+      "spec_point_id": 13,
+      "question": "What was the 'Right Deviation' that Stalin accused Bukharin of?",
+      "answer": "Supporting the continuation of the NEP instead of rapid industrialisation and collectivisation",
+      "valid_synonyms": [
+        "supporting NEP",
+        "opposing industrialisation",
+        "too moderate",
+        "pro-NEP"
+      ]
+    },
+    {
+      "spec_point_id": 14,
+      "question": "How large was the Red Army by the end of the Civil War?",
+      "answer": "Around 5 million soldiers",
+      "valid_synonyms": [
+        "5 million",
+        "about 5 million",
+        "5 million soldiers"
+      ]
+    },
+    {
+      "spec_point_id": 14,
+      "question": "How did Trotsky impose discipline in the Red Army?",
+      "answer": "He used former Tsarist officers with political commissars to watch them, and shot deserters",
+      "valid_synonyms": [
+        "Tsarist officers",
+        "commissars",
+        "shot deserters",
+        "harsh discipline"
+      ]
+    },
+    {
+      "spec_point_id": 14,
+      "question": "Why were the White armies ultimately unsuccessful?",
+      "answer": "They were geographically scattered, had no unified command or programme, and failed to win popular support",
+      "valid_synonyms": [
+        "scattered",
+        "no unified command",
+        "no popular support",
+        "disunited"
+      ]
+    },
+    {
+      "spec_point_id": 14,
+      "question": "What foreign powers intervened in the Russian Civil War?",
+      "answer": "14 nations including Britain, France, USA, and Japan — but their intervention was half-hearted",
+      "valid_synonyms": [
+        "14 nations",
+        "Britain France USA Japan",
+        "half-hearted",
+        "foreign intervention"
+      ]
+    },
+    {
+      "spec_point_id": 14,
+      "question": "What was the human cost of War Communism and the Civil War combined?",
+      "answer": "Around 7-10 million deaths from war, famine, and disease",
+      "valid_synonyms": [
+        "7-10 million",
+        "millions dead",
+        "mass death",
+        "famine and war"
+      ]
+    },
+    {
+      "spec_point_id": 14,
+      "question": "What triggered the Tambov Rebellion?",
+      "answer": "Harsh grain requisitioning under War Communism — peasants revolted against Bolshevik seizure of their grain",
+      "valid_synonyms": [
+        "grain requisitioning",
+        "peasant revolt",
+        "seized grain",
+        "War Communism"
+      ]
+    },
+    {
+      "spec_point_id": 14,
+      "question": "How did the Bolsheviks use propaganda during the Civil War?",
+      "answer": "They portrayed the war as a class struggle — Reds fighting for workers and peasants against White landlords and imperialists",
+      "valid_synonyms": [
+        "class struggle",
+        "workers vs landlords",
+        "propaganda",
+        "clear message"
+      ]
+    },
+    {
+      "spec_point_id": 14,
+      "question": "What happened to grain production under War Communism?",
+      "answer": "It collapsed — peasants had no incentive to produce surplus since the state seized everything",
+      "valid_synonyms": [
+        "collapsed",
+        "no incentive",
+        "state seized everything",
+        "production fell"
+      ]
+    },
+    {
+      "spec_point_id": 14,
+      "question": "What was the economic state of Russia by the end of the Civil War in 1921?",
+      "answer": "Catastrophic — industry at 20% of pre-war levels, widespread famine, millions dead or displaced",
+      "valid_synonyms": [
+        "catastrophic",
+        "20% of pre-war",
+        "famine",
+        "economic disaster"
+      ]
+    },
+    {
+      "spec_point_id": 14,
+      "question": "Why did Lenin describe the NEP as 'one step back to take two steps forward'?",
+      "answer": "He saw it as a temporary tactical retreat from full communism, necessary to rebuild the shattered economy",
+      "valid_synonyms": [
+        "temporary retreat",
+        "tactical",
+        "rebuild economy",
+        "step back"
+      ]
+    },
+    {
+      "spec_point_id": 14,
+      "question": "What was the social impact of the NEP on class divisions?",
+      "answer": "It created new inequalities — Nepmen and kulaks prospered while many workers felt communism was being betrayed",
+      "valid_synonyms": [
+        "new inequalities",
+        "Nepmen prospered",
+        "workers felt betrayed"
+      ]
+    },
+    {
+      "spec_point_id": 14,
+      "question": "What did 'commanding heights' refer to under the NEP?",
+      "answer": "The state kept control of heavy industry, banking, foreign trade, and transport — the strategic economic sectors",
+      "valid_synonyms": [
+        "heavy industry banking transport",
+        "strategic sectors",
+        "state control"
+      ]
+    },
+    {
+      "spec_point_id": 14,
+      "question": "How did the Whites' treatment of minorities undermine their cause?",
+      "answer": "White generals often pursued anti-Semitic and pro-Russian nationalist policies, alienating non-Russian populations",
+      "valid_synonyms": [
+        "anti-Semitic",
+        "nationalist",
+        "alienated minorities",
+        "lost support"
+      ]
+    },
+    {
+      "spec_point_id": 14,
+      "question": "What happened to the Romanov family?",
+      "answer": "Tsar Nicholas II, his wife, and five children were executed by Bolsheviks in Yekaterinburg in July 1918",
+      "valid_synonyms": [
+        "executed",
+        "Yekaterinburg",
+        "all killed",
+        "entire family shot"
+      ]
+    },
+    {
+      "spec_point_id": 14,
+      "question": "What strategic advantage did the Reds' central position give them?",
+      "answer": "They could move troops and supplies along interior railway lines to face threats on any front",
+      "valid_synonyms": [
+        "interior railway lines",
+        "move troops quickly",
+        "flexible deployment"
+      ]
+    },
+    {
+      "spec_point_id": 15,
+      "question": "What was the 'Dizzy with Success' article of 1930?",
+      "answer": "Stalin briefly blamed local officials for the chaos of collectivisation, allowing a temporary pause in forced measures",
+      "valid_synonyms": [
+        "blamed local officials",
+        "temporary pause",
+        "stepped back briefly"
+      ]
+    },
+    {
+      "spec_point_id": 15,
+      "question": "How did collectivisation affect livestock numbers?",
+      "answer": "Catastrophically — peasants slaughtered their animals rather than hand them over; livestock numbers halved",
+      "valid_synonyms": [
+        "slaughtered animals",
+        "numbers halved",
+        "peasants killed livestock",
+        "50% decline"
+      ]
+    },
+    {
+      "spec_point_id": 15,
+      "question": "What happened to workers who failed to meet Five-Year Plan targets?",
+      "answer": "They could be accused of sabotage or 'wrecking' and face imprisonment or worse",
+      "valid_synonyms": [
+        "sabotage",
+        "wrecking",
+        "imprisonment",
+        "accused of sabotage"
+      ]
+    },
+    {
+      "spec_point_id": 15,
+      "question": "Why was the Holodomor particularly devastating in Ukraine?",
+      "answer": "Grain was forcibly exported even as millions starved, and borders were sealed to prevent peasants fleeing",
+      "valid_synonyms": [
+        "grain exported",
+        "millions starved",
+        "borders sealed",
+        "forced starvation"
+      ]
+    },
+    {
+      "spec_point_id": 15,
+      "question": "How accurate were the official statistics of the Five-Year Plans?",
+      "answer": "Widely exaggerated — managers inflated figures to avoid punishment, and the state used them for propaganda",
+      "valid_synonyms": [
+        "exaggerated",
+        "inflated figures",
+        "propaganda",
+        "unreliable"
+      ]
+    },
+    {
+      "spec_point_id": 15,
+      "question": "What new industrial centres were built during the Five-Year Plans?",
+      "answer": "Magnitogorsk, Stalingrad tractor factory, Dneprostroi dam, and new cities in the Urals and Siberia",
+      "valid_synonyms": [
+        "Magnitogorsk",
+        "Stalingrad",
+        "Dneprostroi",
+        "Urals",
+        "Siberia"
+      ]
+    },
+    {
+      "spec_point_id": 15,
+      "question": "What incentives were offered to Stakhanovites?",
+      "answer": "Better housing, special shops, higher wages, public recognition, and elite social status",
+      "valid_synonyms": [
+        "better housing",
+        "special shops",
+        "higher wages",
+        "public recognition"
+      ]
+    },
+    {
+      "spec_point_id": 15,
+      "question": "What was the primary goal of the Second Five-Year Plan (1933-37)?",
+      "answer": "To consolidate the gains of the first plan, with more focus on transport, engineering, and quality of output",
+      "valid_synonyms": [
+        "consolidate",
+        "transport",
+        "engineering",
+        "quality"
+      ]
+    },
+    {
+      "spec_point_id": 15,
+      "question": "How was forced labour used in Stalin's economic programme?",
+      "answer": "Gulag prisoners were used as slave labour for major construction projects like canals, railways, and mines",
+      "valid_synonyms": [
+        "slave labour",
+        "canals railways mines",
+        "Gulag labour",
+        "construction projects"
+      ]
+    },
+    {
+      "spec_point_id": 15,
+      "question": "What was the impact of collectivisation on grain production?",
+      "answer": "It actually fell in the short term — it took until the late 1930s to match pre-collectivisation levels",
+      "valid_synonyms": [
+        "fell",
+        "production dropped",
+        "worse initially",
+        "took years to recover"
+      ]
+    },
+    {
+      "spec_point_id": 15,
+      "question": "What did 'dekulakisation' involve in practice?",
+      "answer": "Confiscation of property, deportation to Siberia or Central Asia, imprisonment, or execution of 'kulak' families",
+      "valid_synonyms": [
+        "confiscation",
+        "deportation",
+        "execution",
+        "Siberia"
+      ]
+    },
+    {
+      "spec_point_id": 15,
+      "question": "How did workers respond to the pressures of the Five-Year Plans?",
+      "answer": "Some were genuinely enthusiastic, but many resorted to absenteeism, job-hopping, and falsifying records",
+      "valid_synonyms": [
+        "some enthusiastic",
+        "absenteeism",
+        "falsified records",
+        "job-hopping"
+      ]
+    },
+    {
+      "spec_point_id": 15,
+      "question": "What role did the Third Five-Year Plan play in preparing for war?",
+      "answer": "It shifted production heavily towards military equipment, raising defence spending from 17% to over 33% of the budget",
+      "valid_synonyms": [
+        "military equipment",
+        "defence spending",
+        "17% to 33%",
+        "war preparation"
+      ]
+    },
+    {
+      "spec_point_id": 15,
+      "question": "What was the total number of people estimated in the Gulag system at its peak?",
+      "answer": "Around 2 million prisoners at any one time",
+      "valid_synonyms": [
+        "2 million",
+        "about 2 million",
+        "two million"
+      ]
+    },
+    {
+      "spec_point_id": 15,
+      "question": "What claim did Stalin make about the First Five-Year Plan?",
+      "answer": "That it was completed in four years — 'The Five-Year Plan in Four Years!'",
+      "valid_synonyms": [
+        "completed in four years",
+        "four years",
+        "Five-Year Plan in Four"
+      ]
+    },
+    {
+      "spec_point_id": 16,
+      "question": "What early Bolshevik laws changed women's status?",
+      "answer": "Equal rights with men, easy divorce, legalised abortion, and equal pay — revolutionary for the time",
+      "valid_synonyms": [
+        "equal rights",
+        "easy divorce",
+        "abortion legalised",
+        "equal pay"
+      ]
+    },
+    {
+      "spec_point_id": 16,
+      "question": "Why did Stalin reverse early Bolshevik social policies in the 1930s?",
+      "answer": "He wanted a stable, disciplined population — traditional family values supported social order and the birth rate",
+      "valid_synonyms": [
+        "social order",
+        "birth rate",
+        "stability",
+        "discipline"
+      ]
+    },
+    {
+      "spec_point_id": 16,
+      "question": "What were the medals awarded to women who had large families?",
+      "answer": "The 'Mother Heroine' medal (10+ children) and 'Motherhood Glory' medals",
+      "valid_synonyms": [
+        "Mother Heroine",
+        "Motherhood Glory",
+        "medals for children",
+        "10 children"
+      ]
+    },
+    {
+      "spec_point_id": 16,
+      "question": "What happened to the Zhenotdel under Stalin?",
+      "answer": "It was abolished in 1930 — Stalin declared the 'woman question' had been solved",
+      "valid_synonyms": [
+        "abolished",
+        "1930",
+        "woman question solved",
+        "shut down"
+      ]
+    },
+    {
+      "spec_point_id": 16,
+      "question": "How did Stalin's education policy differ from the early Bolshevik approach?",
+      "answer": "He reintroduced exams, uniforms, traditional subjects, and strict discipline — reversing experimental education",
+      "valid_synonyms": [
+        "exams",
+        "uniforms",
+        "discipline",
+        "traditional subjects",
+        "reversed experimental"
+      ]
+    },
+    {
+      "spec_point_id": 16,
+      "question": "What percentage of Soviet grain came from peasants' private plots?",
+      "answer": "A disproportionately high amount — around 50% of vegetables and meat came from private plots",
+      "valid_synonyms": [
+        "50%",
+        "about 50%",
+        "half",
+        "disproportionately high"
+      ]
+    },
+    {
+      "spec_point_id": 16,
+      "question": "How did the Komsomol serve the state?",
+      "answer": "It provided ideological training, organised volunteer work, and identified future party members",
+      "valid_synonyms": [
+        "ideological training",
+        "volunteer work",
+        "future party members"
+      ]
+    },
+    {
+      "spec_point_id": 16,
+      "question": "What was the purpose of Socialist Realism as an artistic policy?",
+      "answer": "To produce art glorifying the state, workers, and communist ideals — all art had to serve the party",
+      "valid_synonyms": [
+        "glorify state",
+        "serve the party",
+        "propaganda art",
+        "communist ideals"
+      ]
+    },
+    {
+      "spec_point_id": 16,
+      "question": "How many churches were closed under the Bolsheviks by the 1930s?",
+      "answer": "The vast majority — from around 60,000 to fewer than 500 functioning churches by 1939",
+      "valid_synonyms": [
+        "vast majority",
+        "60,000 to 500",
+        "almost all closed"
+      ]
+    },
+    {
+      "spec_point_id": 16,
+      "question": "What social mobility opportunities did the Stalin era create?",
+      "answer": "Workers could be promoted to managers, engineers, or party officials — creating a new Soviet elite",
+      "valid_synonyms": [
+        "workers promoted",
+        "new elite",
+        "social mobility",
+        "engineers managers"
+      ]
+    },
+    {
+      "spec_point_id": 16,
+      "question": "What was the 'kulturnost' campaign?",
+      "answer": "A campaign to promote 'culturedness' — proper manners, hygiene, education, and Soviet values in daily life",
+      "valid_synonyms": [
+        "kulturnost",
+        "culturedness",
+        "manners",
+        "hygiene",
+        "Soviet values"
+      ]
+    },
+    {
+      "spec_point_id": 16,
+      "question": "How did housing conditions change under the Five-Year Plans?",
+      "answer": "They worsened — massive urban migration outpaced construction, forcing families into overcrowded kommunalki",
+      "valid_synonyms": [
+        "worsened",
+        "overcrowded",
+        "kommunalki",
+        "outpaced construction"
+      ]
+    },
+    {
+      "spec_point_id": 16,
+      "question": "What was Lunacharsky's vision for Soviet culture?",
+      "answer": "Experimental, avant-garde art that would create a new revolutionary culture — rejected by Stalin",
+      "valid_synonyms": [
+        "avant-garde",
+        "experimental",
+        "revolutionary culture",
+        "rejected by Stalin"
+      ]
+    },
+    {
+      "spec_point_id": 16,
+      "question": "How were peasant women's lives affected by collectivisation?",
+      "answer": "They worked on collective farms for very low pay while still managing households — the double burden intensified",
+      "valid_synonyms": [
+        "low pay",
+        "double burden",
+        "collective farm work",
+        "household duties"
+      ]
+    },
+    {
+      "spec_point_id": 16,
+      "question": "What privileges did the nomenklatura enjoy?",
+      "answer": "Access to special shops, better housing, dachas (country houses), healthcare, and education for their children",
+      "valid_synonyms": [
+        "special shops",
+        "dachas",
+        "better housing",
+        "healthcare",
+        "elite privileges"
+      ]
+    },
+    {
+      "spec_point_id": 17,
+      "question": "Why is the murder of Kirov considered suspicious?",
+      "answer": "Many historians believe Stalin may have orchestrated it to create a pretext for the purges",
+      "valid_synonyms": [
+        "Stalin orchestrated",
+        "pretext",
+        "suspicious",
+        "possibly planned"
+      ]
+    },
+    {
+      "spec_point_id": 17,
+      "question": "What confession methods were used during the Show Trials?",
+      "answer": "Torture, threats to families, sleep deprivation, and psychological pressure to extract false confessions",
+      "valid_synonyms": [
+        "torture",
+        "threats to families",
+        "sleep deprivation",
+        "false confessions"
+      ]
+    },
+    {
+      "spec_point_id": 17,
+      "question": "How many people were arrested during the Yezhovshchina (1937-38)?",
+      "answer": "Around 1.5 million arrested, with approximately 680,000 executed",
+      "valid_synonyms": [
+        "1.5 million arrested",
+        "680,000 executed",
+        "over a million",
+        "hundreds of thousands shot"
+      ]
+    },
+    {
+      "spec_point_id": 17,
+      "question": "What happened to Yezhov after the Great Terror?",
+      "answer": "He was arrested, accused of the same crimes he had perpetrated, and executed in 1940",
+      "valid_synonyms": [
+        "arrested",
+        "executed 1940",
+        "replaced by Beria",
+        "same fate"
+      ]
+    },
+    {
+      "spec_point_id": 17,
+      "question": "Who replaced Yezhov as head of the NKVD?",
+      "answer": "Lavrentiy Beria",
+      "valid_synonyms": [
+        "Beria",
+        "Lavrentiy Beria"
+      ]
+    },
+    {
+      "spec_point_id": 17,
+      "question": "How did the military purge affect Soviet preparedness for WWII?",
+      "answer": "It removed experienced commanders, leaving the army led by inexperienced loyalists — contributing to early defeats",
+      "valid_synonyms": [
+        "inexperienced leaders",
+        "early defeats",
+        "unprepared",
+        "lost experienced commanders"
+      ]
+    },
+    {
+      "spec_point_id": 17,
+      "question": "What was the Gulag system used for economically?",
+      "answer": "Forced labour on major construction projects — canals, railways, mines, and logging in remote areas",
+      "valid_synonyms": [
+        "forced labour",
+        "construction",
+        "canals",
+        "mines",
+        "logging"
+      ]
+    },
+    {
+      "spec_point_id": 17,
+      "question": "How did the purges affect everyday life for ordinary Soviet citizens?",
+      "answer": "A climate of fear — people were afraid to speak freely, and neighbours reported each other to fill arrest quotas",
+      "valid_synonyms": [
+        "fear",
+        "neighbours reported",
+        "afraid to speak",
+        "climate of terror"
+      ]
+    },
+    {
+      "spec_point_id": 17,
+      "question": "What was the 'Shakhty Trial' of 1928?",
+      "answer": "An early show trial where mining engineers were accused of sabotage and wrecking — a precursor to the Great Purges",
+      "valid_synonyms": [
+        "mining engineers",
+        "sabotage",
+        "wrecking",
+        "precursor to purges"
+      ]
+    },
+    {
+      "spec_point_id": 17,
+      "question": "How many of the original Bolshevik Central Committee of 1917 survived the purges?",
+      "answer": "Very few — Stalin eliminated almost all of Lenin's original comrades",
+      "valid_synonyms": [
+        "very few",
+        "almost all eliminated",
+        "nearly none",
+        "most killed"
+      ]
+    },
+    {
+      "spec_point_id": 17,
+      "question": "What role did denunciations play during the Terror?",
+      "answer": "Citizens were encouraged to denounce 'enemies' — this was used to settle personal grudges and fill quotas",
+      "valid_synonyms": [
+        "denounce enemies",
+        "personal grudges",
+        "encouraged reporting",
+        "quotas"
+      ]
+    },
+    {
+      "spec_point_id": 17,
+      "question": "What was the overall death toll of Stalin's purges and terror?",
+      "answer": "Estimates range from 750,000 executed to over 1 million, with millions more imprisoned in Gulags",
+      "valid_synonyms": [
+        "750,000 to 1 million",
+        "millions imprisoned",
+        "over a million killed"
+      ]
+    },
+    {
+      "spec_point_id": 17,
+      "question": "How did the purges strengthen Stalin's personal power?",
+      "answer": "By eliminating anyone who might challenge him, he created absolute personal dictatorship with no rivals",
+      "valid_synonyms": [
+        "eliminated rivals",
+        "absolute dictatorship",
+        "no challengers",
+        "personal power"
+      ]
+    },
+    {
+      "spec_point_id": 17,
+      "question": "What charges were typically brought against purge victims?",
+      "answer": "Espionage, sabotage, wrecking, Trotskyism, and 'counter-revolutionary activity' — usually fabricated",
+      "valid_synonyms": [
+        "espionage",
+        "sabotage",
+        "Trotskyism",
+        "fabricated charges"
+      ]
+    },
+    {
+      "spec_point_id": 17,
+      "question": "What was unique about the third Show Trial of 1938?",
+      "answer": "It targeted Bukharin, who was the most prominent 'Right Opposition' leader — completing Stalin's elimination of all rivals",
+      "valid_synonyms": [
+        "Bukharin",
+        "Right Opposition",
+        "completed elimination",
+        "last major rival"
+      ]
+    },
+    {
+      "spec_point_id": 18,
+      "question": "What was the secret protocol of the Nazi-Soviet Pact?",
+      "answer": "It divided Eastern Europe into Soviet and German spheres of influence — Poland would be partitioned",
+      "valid_synonyms": [
+        "divided Eastern Europe",
+        "spheres of influence",
+        "partition Poland"
+      ]
+    },
+    {
+      "spec_point_id": 18,
+      "question": "How did the Soviet Union gain territory through the Nazi-Soviet Pact?",
+      "answer": "It invaded and annexed eastern Poland, the Baltic states, and parts of Finland and Romania",
+      "valid_synonyms": [
+        "invaded Poland",
+        "Baltic states",
+        "Finland",
+        "annexed territory"
+      ]
+    },
+    {
+      "spec_point_id": 18,
+      "question": "What was the state of Soviet agriculture by 1941 despite full collectivisation?",
+      "answer": "Productivity was lower than under the NEP — collectivisation had failed to improve output",
+      "valid_synonyms": [
+        "lower than NEP",
+        "failed",
+        "productivity down",
+        "worse output"
+      ]
+    },
+    {
+      "spec_point_id": 18,
+      "question": "How did the cult of personality manifest by 1941?",
+      "answer": "Stalin's image was everywhere — in schools, offices, factories, and homes; history was rewritten to glorify him",
+      "valid_synonyms": [
+        "image everywhere",
+        "history rewritten",
+        "glorified",
+        "portraits"
+      ]
+    },
+    {
+      "spec_point_id": 18,
+      "question": "What were the living conditions in a typical kommunalka by 1941?",
+      "answer": "Multiple families shared one apartment with a single kitchen and bathroom — privacy was non-existent",
+      "valid_synonyms": [
+        "multiple families",
+        "shared kitchen",
+        "no privacy",
+        "overcrowded"
+      ]
+    },
+    {
+      "spec_point_id": 18,
+      "question": "What advantage did Soviet industrialisation give by 1941?",
+      "answer": "A massive heavy industrial base capable of producing tanks, aircraft, and munitions on a huge scale",
+      "valid_synonyms": [
+        "heavy industrial base",
+        "tanks aircraft munitions",
+        "war production capacity"
+      ]
+    },
+    {
+      "spec_point_id": 18,
+      "question": "What was the main contradiction of the Soviet system by 1941?",
+      "answer": "It was a military-industrial superpower but its people lived in poverty with poor consumer goods and housing",
+      "valid_synonyms": [
+        "superpower but poverty",
+        "military power poor people",
+        "guns not butter"
+      ]
+    },
+    {
+      "spec_point_id": 18,
+      "question": "How many intelligence warnings about the German invasion did Stalin receive?",
+      "answer": "Numerous warnings from multiple sources — but he dismissed them all as provocations",
+      "valid_synonyms": [
+        "numerous",
+        "dismissed",
+        "ignored warnings",
+        "many sources"
+      ]
+    },
+    {
+      "spec_point_id": 18,
+      "question": "What happened to the Soviet military chain of command after the purges?",
+      "answer": "Junior, inexperienced officers were promoted too quickly and feared making independent decisions",
+      "valid_synonyms": [
+        "junior officers",
+        "inexperienced",
+        "feared decisions",
+        "rapid promotion"
+      ]
+    },
+    {
+      "spec_point_id": 18,
+      "question": "What was the literacy rate achievement a sign of?",
+      "answer": "The success of mass education — from about 40% in 1914 to around 90% by 1941",
+      "valid_synonyms": [
+        "40% to 90%",
+        "mass education success",
+        "huge improvement"
+      ]
+    },
+    {
+      "spec_point_id": 18,
+      "question": "How did the nomenklatura system create social inequality?",
+      "answer": "Party officials and their families enjoyed privileges (shops, housing, education) that ordinary citizens could not access",
+      "valid_synonyms": [
+        "privileges",
+        "special shops",
+        "inequality",
+        "party elite"
+      ]
+    },
+    {
+      "spec_point_id": 18,
+      "question": "What happened during the Soviet invasion of Finland (Winter War)?",
+      "answer": "Finland resisted effectively, exposing Soviet military weakness — it took months to achieve limited gains",
+      "valid_synonyms": [
+        "Finnish resistance",
+        "exposed weakness",
+        "limited gains",
+        "embarrassing"
+      ]
+    },
+    {
+      "spec_point_id": 18,
+      "question": "What type of education dominated Soviet schools by 1941?",
+      "answer": "Heavily ideological — Marxism-Leninism was central, with history rewritten to glorify Stalin and the party",
+      "valid_synonyms": [
+        "ideological",
+        "Marxism-Leninism",
+        "history rewritten",
+        "glorify Stalin"
+      ]
+    },
+    {
+      "spec_point_id": 18,
+      "question": "What was the total industrial growth between 1928 and 1941?",
+      "answer": "Massive — steel production increased fivefold, coal fourfold, and electricity sixfold",
+      "valid_synonyms": [
+        "steel fivefold",
+        "coal fourfold",
+        "electricity sixfold",
+        "massive growth"
+      ]
+    },
+    {
+      "spec_point_id": 18,
+      "question": "Why was the Nazi-Soviet Pact considered shocking?",
+      "answer": "Because Fascism and Communism were ideological enemies — the pact was a cynical act of mutual self-interest",
+      "valid_synonyms": [
+        "ideological enemies",
+        "shocking",
+        "cynical",
+        "mutual self-interest"
+      ]
+    },
+    {
+      "spec_point_id": 19,
+      "question": "What was Stalin's initial reaction to Operation Barbarossa?",
+      "answer": "He was reportedly paralysed with shock and retreated from public life for several days",
+      "valid_synonyms": [
+        "paralysed",
+        "shock",
+        "retreated",
+        "disappeared for days"
+      ]
+    },
+    {
+      "spec_point_id": 19,
+      "question": "How many Soviet soldiers were captured in the first months of Barbarossa?",
+      "answer": "Around 3.5 million in the first six months",
+      "valid_synonyms": [
+        "3.5 million",
+        "about 3.5 million",
+        "millions"
+      ]
+    },
+    {
+      "spec_point_id": 19,
+      "question": "What was the significance of the factory relocation programme?",
+      "answer": "It was one of the most remarkable logistical feats of the war — saving Soviet industrial capacity from German capture",
+      "valid_synonyms": [
+        "saved industrial capacity",
+        "remarkable",
+        "prevented German capture"
+      ]
+    },
+    {
+      "spec_point_id": 19,
+      "question": "Who were the 'Night Witches'?",
+      "answer": "The 588th Night Bomber Regiment — an all-female Soviet air unit that flew dangerous night missions",
+      "valid_synonyms": [
+        "588th Night Bomber",
+        "all-female air unit",
+        "women pilots",
+        "night bomber regiment"
+      ]
+    },
+    {
+      "spec_point_id": 19,
+      "question": "How many women served in the Soviet armed forces during WWII?",
+      "answer": "Around 800,000",
+      "valid_synonyms": [
+        "800,000",
+        "about 800,000",
+        "800000"
+      ]
+    },
+    {
+      "spec_point_id": 19,
+      "question": "What percentage of Lend-Lease supplies came in the form of trucks and vehicles?",
+      "answer": "A very large proportion — around 400,000 trucks, vital for Soviet logistics",
+      "valid_synonyms": [
+        "400,000 trucks",
+        "large proportion",
+        "vital for logistics"
+      ]
+    },
+    {
+      "spec_point_id": 19,
+      "question": "What happened at the Battle of Stalingrad?",
+      "answer": "The German 6th Army was encircled and forced to surrender — it was the first major German defeat on the Eastern Front",
+      "valid_synonyms": [
+        "6th Army encircled",
+        "surrendered",
+        "first major German defeat"
+      ]
+    },
+    {
+      "spec_point_id": 19,
+      "question": "What was the role of partisans behind German lines?",
+      "answer": "They disrupted supply lines, sabotaged infrastructure, and tied down significant German forces",
+      "valid_synonyms": [
+        "disrupted supply lines",
+        "sabotage",
+        "tied down forces",
+        "guerrilla warfare"
+      ]
+    },
+    {
+      "spec_point_id": 19,
+      "question": "How did the war affect the Communist Party's membership?",
+      "answer": "Membership surged — 5 million new members joined, drawn by patriotism and the party's wartime leadership",
+      "valid_synonyms": [
+        "surged",
+        "5 million new",
+        "patriotism",
+        "wartime membership"
+      ]
+    },
+    {
+      "spec_point_id": 19,
+      "question": "What did Stalin famously say in his radio address of 3 July 1941?",
+      "answer": "'Brothers and sisters' — a personal, patriotic appeal that rallied the nation beyond communist ideology",
+      "valid_synonyms": [
+        "brothers and sisters",
+        "patriotic appeal",
+        "rallied nation"
+      ]
+    },
+    {
+      "spec_point_id": 19,
+      "question": "What happened to entire ethnic groups suspected of disloyalty during the war?",
+      "answer": "They were deported en masse — including Chechens, Crimean Tatars, and Volga Germans",
+      "valid_synonyms": [
+        "deported",
+        "Chechens",
+        "Crimean Tatars",
+        "Volga Germans",
+        "ethnic deportations"
+      ]
+    },
+    {
+      "spec_point_id": 19,
+      "question": "What was 'Defence in Depth' at the Battle of Kursk?",
+      "answer": "Zhukov's strategy of building multiple defensive lines to absorb the German attack before counter-attacking",
+      "valid_synonyms": [
+        "multiple defensive lines",
+        "absorb attack",
+        "counter-attack",
+        "Zhukov's strategy"
+      ]
+    },
+    {
+      "spec_point_id": 19,
+      "question": "How important was Lend-Lease to the Soviet war effort?",
+      "answer": "Vital but not decisive — it provided trucks, food, and materials but the USSR produced the bulk of its own weapons",
+      "valid_synonyms": [
+        "vital but not decisive",
+        "trucks food materials",
+        "supplementary"
+      ]
+    },
+    {
+      "spec_point_id": 19,
+      "question": "What was the human cost of the siege of Leningrad?",
+      "answer": "Around 1 million civilians died during the 872-day siege, mostly from starvation",
+      "valid_synonyms": [
+        "1 million",
+        "872 days",
+        "starvation",
+        "siege"
+      ]
+    },
+    {
+      "spec_point_id": 19,
+      "question": "How did Soviet propaganda frame the war?",
+      "answer": "As the 'Great Patriotic War' — appealing to Russian nationalism as much as communist ideology",
+      "valid_synonyms": [
+        "Great Patriotic War",
+        "Russian nationalism",
+        "patriotic not just communist"
+      ]
+    },
+    {
+      "spec_point_id": 20,
+      "question": "What was the Fourth Five-Year Plan focused on?",
+      "answer": "Post-war reconstruction — rebuilding heavy industry and infrastructure, prioritised over consumer goods",
+      "valid_synonyms": [
+        "reconstruction",
+        "heavy industry",
+        "rebuilding",
+        "not consumer goods"
+      ]
+    },
+    {
+      "spec_point_id": 20,
+      "question": "What happened during the famine of 1946?",
+      "answer": "Drought and wartime destruction caused mass hunger — possibly 1-2 million died while Stalin exported grain",
+      "valid_synonyms": [
+        "drought",
+        "1-2 million died",
+        "grain exported",
+        "mass hunger"
+      ]
+    },
+    {
+      "spec_point_id": 20,
+      "question": "What did the Zhdanovshchina demand of Soviet artists and writers?",
+      "answer": "Strict conformity to Socialist Realism and rejection of any Western influence — art must serve the state",
+      "valid_synonyms": [
+        "Socialist Realism",
+        "reject Western influence",
+        "art serves state",
+        "conformity"
+      ]
+    },
+    {
+      "spec_point_id": 20,
+      "question": "Why were Jewish intellectuals targeted in the Anti-Cosmopolitan Campaign?",
+      "answer": "They were accused of having 'rootless' Western sympathies and disloyalty to the Soviet state",
+      "valid_synonyms": [
+        "rootless",
+        "Western sympathies",
+        "disloyalty",
+        "cosmopolitanism"
+      ]
+    },
+    {
+      "spec_point_id": 20,
+      "question": "What was the Doctors' Plot?",
+      "answer": "A fabricated accusation that Jewish doctors were plotting to murder Soviet leaders — widely seen as preparation for an anti-Jewish purge",
+      "valid_synonyms": [
+        "Jewish doctors",
+        "murder leaders",
+        "fabricated",
+        "anti-Jewish purge"
+      ]
+    },
+    {
+      "spec_point_id": 20,
+      "question": "How did Stalin's personal rule differ from the 1930s in his final years?",
+      "answer": "He became increasingly isolated, paranoid, and erratic — ruling through fear and a tiny inner circle",
+      "valid_synonyms": [
+        "isolated",
+        "paranoid",
+        "erratic",
+        "tiny inner circle",
+        "fear"
+      ]
+    },
+    {
+      "spec_point_id": 20,
+      "question": "What nuclear achievement did the Soviet Union reach in 1949?",
+      "answer": "It successfully tested its first atomic bomb, ending America's nuclear monopoly",
+      "valid_synonyms": [
+        "atomic bomb",
+        "1949",
+        "nuclear test",
+        "ended US monopoly"
+      ]
+    },
+    {
+      "spec_point_id": 20,
+      "question": "How did returning war heroes threaten Stalin?",
+      "answer": "Their popularity and independence of mind challenged his cult — he feared any alternative sources of authority",
+      "valid_synonyms": [
+        "popularity threatened",
+        "alternative authority",
+        "independence",
+        "feared heroes"
+      ]
+    },
+    {
+      "spec_point_id": 20,
+      "question": "What happened to the Politburo under High Stalinism?",
+      "answer": "It rarely met formally — Stalin preferred to work with hand-picked committees and individuals he could control",
+      "valid_synonyms": [
+        "rarely met",
+        "hand-picked committees",
+        "Stalin controlled",
+        "bypassed"
+      ]
+    },
+    {
+      "spec_point_id": 20,
+      "question": "What was the reaction to Stalin's death in March 1953?",
+      "answer": "A mix of genuine grief, relief, and uncertainty — some mourned, many were secretly relieved",
+      "valid_synonyms": [
+        "grief and relief",
+        "mixed",
+        "genuine mourning",
+        "secretly relieved"
+      ]
+    },
+    {
+      "spec_point_id": 20,
+      "question": "How quickly did Soviet industry recover after the war?",
+      "answer": "Rapidly — by 1950, pre-war industrial output levels had been matched or exceeded, aided by reparations from Germany",
+      "valid_synonyms": [
+        "by 1950",
+        "pre-war levels",
+        "rapidly",
+        "German reparations"
+      ]
+    },
+    {
+      "spec_point_id": 20,
+      "question": "What happened to Soviet soldiers who had been prisoners of war?",
+      "answer": "They were treated as traitors — many were sent directly from German camps to Soviet Gulags",
+      "valid_synonyms": [
+        "treated as traitors",
+        "sent to Gulags",
+        "German camps to Soviet camps"
+      ]
+    },
+    {
+      "spec_point_id": 20,
+      "question": "What was Stalin's relationship with the Politburo by the early 1950s?",
+      "answer": "He dominated it completely — members lived in fear and competed for his favour",
+      "valid_synonyms": [
+        "dominated",
+        "members feared him",
+        "competed for favour",
+        "total control"
+      ]
+    },
+    {
+      "spec_point_id": 20,
+      "question": "How did the Cold War affect Soviet domestic policy?",
+      "answer": "It justified continued militarisation, repression, and ideological conformity in the name of defending against the West",
+      "valid_synonyms": [
+        "justified repression",
+        "militarisation",
+        "ideological conformity",
+        "anti-Western"
+      ]
+    },
+    {
+      "spec_point_id": 20,
+      "question": "What cultural figures were rehabilitated only after Stalin's death?",
+      "answer": "Many writers, artists, and musicians — including some posthumously — were cleared of the charges made during the Zhdanovshchina",
+      "valid_synonyms": [
+        "rehabilitated",
+        "cleared of charges",
+        "posthumously",
+        "after death"
+      ]
+    },
+    {
+      "spec_point_id": 21,
+      "question": "Why was Beria feared by other Soviet leaders?",
+      "answer": "He controlled the security apparatus and had files on everyone — the other leaders conspired to arrest him",
+      "valid_synonyms": [
+        "controlled security",
+        "files on everyone",
+        "conspired against",
+        "dangerous"
+      ]
+    },
+    {
+      "spec_point_id": 21,
+      "question": "What happened to Beria after his arrest?",
+      "answer": "He was tried in secret and executed in December 1953",
+      "valid_synonyms": [
+        "executed",
+        "December 1953",
+        "secret trial",
+        "shot"
+      ]
+    },
+    {
+      "spec_point_id": 21,
+      "question": "What was the most shocking revelation of the Secret Speech?",
+      "answer": "That Stalin had fabricated evidence to justify the purges and had personally ordered the torture of loyal communists",
+      "valid_synonyms": [
+        "fabricated evidence",
+        "ordered torture",
+        "purges unjustified",
+        "innocent victims"
+      ]
+    },
+    {
+      "spec_point_id": 21,
+      "question": "How many political prisoners were released during de-Stalinisation?",
+      "answer": "Millions — most Gulag prisoners were released and many victims of the purges were posthumously rehabilitated",
+      "valid_synonyms": [
+        "millions",
+        "Gulag released",
+        "rehabilitated",
+        "prisoners freed"
+      ]
+    },
+    {
+      "spec_point_id": 21,
+      "question": "What happened in Hungary in 1956 as a result of the Secret Speech?",
+      "answer": "A popular uprising demanding independence and democracy — brutally crushed by Soviet tanks",
+      "valid_synonyms": [
+        "uprising",
+        "crushed by tanks",
+        "Soviet invasion",
+        "independence demand"
+      ]
+    },
+    {
+      "spec_point_id": 21,
+      "question": "How did Khrushchev use the Central Committee to defeat the Anti-Party Group?",
+      "answer": "He appealed over the Politburo's head to the full Central Committee, where his supporters outnumbered his rivals",
+      "valid_synonyms": [
+        "appealed to Central Committee",
+        "supporters outnumbered",
+        "bypassed Politburo"
+      ]
+    },
+    {
+      "spec_point_id": 21,
+      "question": "What precedent did Khrushchev's treatment of defeated rivals set?",
+      "answer": "Defeated leaders were humiliated and demoted but not killed — breaking Stalin's tradition of execution",
+      "valid_synonyms": [
+        "not killed",
+        "demoted not executed",
+        "broke tradition",
+        "no executions"
+      ]
+    },
+    {
+      "spec_point_id": 21,
+      "question": "What was the Malenkov alternative to Khrushchev's leadership?",
+      "answer": "Malenkov favoured consumer goods over heavy industry and a more relaxed foreign policy",
+      "valid_synonyms": [
+        "consumer goods",
+        "less heavy industry",
+        "relaxed foreign policy"
+      ]
+    },
+    {
+      "spec_point_id": 21,
+      "question": "How did the sovnarkhozy reform aim to improve the economy?",
+      "answer": "By replacing centralised ministries with regional councils to make planning more responsive to local conditions",
+      "valid_synonyms": [
+        "regional councils",
+        "replace ministries",
+        "local planning",
+        "decentralise"
+      ]
+    },
+    {
+      "spec_point_id": 21,
+      "question": "What was the political significance of Khrushchev holding both Party and state leadership?",
+      "answer": "By becoming both First Secretary and Premier in 1958, he concentrated more power than anyone since Stalin",
+      "valid_synonyms": [
+        "both posts",
+        "First Secretary and Premier",
+        "concentrated power"
+      ]
+    },
+    {
+      "spec_point_id": 21,
+      "question": "How did de-Stalinisation affect Soviet culture?",
+      "answer": "A partial 'thaw' — some previously banned works were published and artists had slightly more freedom",
+      "valid_synonyms": [
+        "thaw",
+        "banned works published",
+        "more freedom",
+        "cultural relaxation"
+      ]
+    },
+    {
+      "spec_point_id": 21,
+      "question": "What specific criticism did Khrushchev make of Stalin's war leadership?",
+      "answer": "That Stalin had ignored warnings of the German invasion and had made catastrophic military blunders",
+      "valid_synonyms": [
+        "ignored warnings",
+        "military blunders",
+        "catastrophic errors",
+        "unprepared"
+      ]
+    },
+    {
+      "spec_point_id": 21,
+      "question": "What did Khrushchev promise about Soviet living standards?",
+      "answer": "That the USSR would overtake America in per capita production within 20 years",
+      "valid_synonyms": [
+        "overtake America",
+        "per capita",
+        "20 years",
+        "surpass USA"
+      ]
+    },
+    {
+      "spec_point_id": 21,
+      "question": "What was the impact of the Secret Speech on Khrushchev's own position?",
+      "answer": "It strengthened him by discrediting Stalin's closest associates (his rivals) but also unleashed forces he couldn't control",
+      "valid_synonyms": [
+        "discredited rivals",
+        "strengthened position",
+        "unleashed forces"
+      ]
+    },
+    {
+      "spec_point_id": 21,
+      "question": "What happened in Poland in 1956?",
+      "answer": "Workers' protests in Poznan led to political reforms — Gomulka returned to power promising a 'Polish path to socialism'",
+      "valid_synonyms": [
+        "Poznan",
+        "Gomulka",
+        "Polish path",
+        "workers' protests"
+      ]
+    },
+    {
+      "spec_point_id": 22,
+      "question": "What were 'khrushchevki'?",
+      "answer": "Cheap, prefabricated apartment blocks built en masse to address the housing crisis",
+      "valid_synonyms": [
+        "prefabricated apartments",
+        "cheap housing",
+        "mass housing",
+        "apartment blocks"
+      ]
+    },
+    {
+      "spec_point_id": 22,
+      "question": "Why did the maize campaign fail?",
+      "answer": "Khrushchev forced maize cultivation in areas with unsuitable climate and soil — yields were disastrous",
+      "valid_synonyms": [
+        "unsuitable climate",
+        "wrong soil",
+        "disastrous yields",
+        "forced cultivation"
+      ]
+    },
+    {
+      "spec_point_id": 22,
+      "question": "What was the impact of disbanding the MTS on collective farms?",
+      "answer": "Farms were forced to buy machinery they couldn't afford, plunging many into debt",
+      "valid_synonyms": [
+        "forced to buy",
+        "couldn't afford",
+        "debt",
+        "financial burden"
+      ]
+    },
+    {
+      "spec_point_id": 22,
+      "question": "How did Khrushchev's housing programme improve lives?",
+      "answer": "Millions of families moved from shared kommunalki into their own small apartments for the first time",
+      "valid_synonyms": [
+        "own apartments",
+        "moved from kommunalki",
+        "first private space"
+      ]
+    },
+    {
+      "spec_point_id": 22,
+      "question": "What caused the soil erosion problems in the Virgin Lands?",
+      "answer": "Overploughing fragile steppe grassland without proper conservation — leading to dust bowl conditions",
+      "valid_synonyms": [
+        "overploughing",
+        "steppe grassland",
+        "dust bowl",
+        "no conservation"
+      ]
+    },
+    {
+      "spec_point_id": 22,
+      "question": "How did the space programme benefit Khrushchev politically?",
+      "answer": "Sputnik and Gagarin were massive propaganda victories, proving Soviet technological superiority",
+      "valid_synonyms": [
+        "propaganda victory",
+        "technological superiority",
+        "prestige"
+      ]
+    },
+    {
+      "spec_point_id": 22,
+      "question": "What was the minimum wage reform?",
+      "answer": "Khrushchev introduced a minimum wage, reduced the working week, and improved pensions for the first time",
+      "valid_synonyms": [
+        "minimum wage",
+        "shorter working week",
+        "better pensions"
+      ]
+    },
+    {
+      "spec_point_id": 22,
+      "question": "Why did Khrushchev's 1962 Party reorganisation anger officials?",
+      "answer": "Splitting the Party into industrial and agricultural sections threatened their jobs and created chaos",
+      "valid_synonyms": [
+        "threatened jobs",
+        "created chaos",
+        "angry officials",
+        "bureaucratic opposition"
+      ]
+    },
+    {
+      "spec_point_id": 22,
+      "question": "What was the real state of the economy by the early 1960s?",
+      "answer": "Growth was slowing from 6-7% to 2-3%, agricultural failures mounted, and the consumer goods gap with the West widened",
+      "valid_synonyms": [
+        "growth slowing",
+        "agricultural failures",
+        "consumer gap widened"
+      ]
+    },
+    {
+      "spec_point_id": 22,
+      "question": "How did the Virgin Lands initially perform?",
+      "answer": "Good harvests in the first few years gave the impression of success before soil degradation set in",
+      "valid_synonyms": [
+        "initially good",
+        "early success",
+        "then degradation",
+        "first years promising"
+      ]
+    },
+    {
+      "spec_point_id": 22,
+      "question": "What happened to food prices in 1962 that caused public anger?",
+      "answer": "Khrushchev raised meat and butter prices by 25-30%, leading to worker protests (including at Novocherkassk)",
+      "valid_synonyms": [
+        "prices raised",
+        "25-30%",
+        "Novocherkassk",
+        "worker protests"
+      ]
+    },
+    {
+      "spec_point_id": 22,
+      "question": "What happened at Novocherkassk in 1962?",
+      "answer": "Workers protesting food price rises were shot by troops — at least 26 killed, the incident was covered up",
+      "valid_synonyms": [
+        "workers shot",
+        "26 killed",
+        "covered up",
+        "troops fired"
+      ]
+    },
+    {
+      "spec_point_id": 22,
+      "question": "What was the state of Soviet science and technology under Khrushchev?",
+      "answer": "Strong in space and military technology, but weak in consumer technology and computing",
+      "valid_synonyms": [
+        "strong in space",
+        "weak in consumer",
+        "military strong",
+        "computing weak"
+      ]
+    },
+    {
+      "spec_point_id": 22,
+      "question": "How much did the housing stock increase under Khrushchev?",
+      "answer": "Dramatically — more housing was built in the late 1950s and early 1960s than in the previous 30 years combined",
+      "valid_synonyms": [
+        "dramatically",
+        "more than 30 years",
+        "massive increase",
+        "housing boom"
+      ]
+    },
+    {
+      "spec_point_id": 22,
+      "question": "What was the long-term impact of Khrushchev's agricultural reforms?",
+      "answer": "Mixed — some improvement in peasant incomes but overall failure to solve the food supply problem",
+      "valid_synonyms": [
+        "mixed",
+        "some improvement",
+        "overall failure",
+        "food problem unsolved"
+      ]
+    },
+    {
+      "spec_point_id": 23,
+      "question": "What was the 'Thaw' in Soviet culture?",
+      "answer": "A period of relative cultural relaxation after Stalin's death, allowing some previously forbidden works to be published",
+      "valid_synonyms": [
+        "cultural relaxation",
+        "forbidden works",
+        "more freedom",
+        "after Stalin"
+      ]
+    },
+    {
+      "spec_point_id": 23,
+      "question": "Why was Boris Pasternak's Doctor Zhivago controversial?",
+      "answer": "It depicted the Revolution and Civil War from a personal, non-ideological perspective — published abroad without permission",
+      "valid_synonyms": [
+        "non-ideological",
+        "personal perspective",
+        "published abroad",
+        "without permission"
+      ]
+    },
+    {
+      "spec_point_id": 23,
+      "question": "What happened to Pasternak when he was awarded the Nobel Prize?",
+      "answer": "He was forced to decline it under pressure from Soviet authorities, who called him a traitor",
+      "valid_synonyms": [
+        "forced to decline",
+        "Nobel Prize",
+        "called traitor",
+        "pressured"
+      ]
+    },
+    {
+      "spec_point_id": 23,
+      "question": "Why did the Cuban Missile Crisis damage Khrushchev's reputation?",
+      "answer": "He was seen as having backed down to America, losing face both internationally and within the Soviet leadership",
+      "valid_synonyms": [
+        "backed down",
+        "lost face",
+        "humiliated",
+        "weakness"
+      ]
+    },
+    {
+      "spec_point_id": 23,
+      "question": "How did the Sino-Soviet split weaken the communist world?",
+      "answer": "It divided the communist movement into rival camps, with China challenging Soviet ideological leadership",
+      "valid_synonyms": [
+        "divided communism",
+        "rival camps",
+        "China challenged",
+        "ideological rivalry"
+      ]
+    },
+    {
+      "spec_point_id": 23,
+      "question": "Why did compulsory rotation of officials alarm the Party elite?",
+      "answer": "It threatened their job security — the nomenklatura had come to see their positions as permanent entitlements",
+      "valid_synonyms": [
+        "job security",
+        "permanent entitlements",
+        "threatened positions"
+      ]
+    },
+    {
+      "spec_point_id": 23,
+      "question": "What was Khrushchev doing when the coup against him was organised?",
+      "answer": "He was on holiday at the Black Sea when summoned back to Moscow to face the Central Committee",
+      "valid_synonyms": [
+        "holiday",
+        "Black Sea",
+        "summoned back",
+        "away from Moscow"
+      ]
+    },
+    {
+      "spec_point_id": 23,
+      "question": "What accusations were made against Khrushchev when he was removed?",
+      "answer": "Voluntarism, harebrained scheming, and creating a personality cult of his own",
+      "valid_synonyms": [
+        "voluntarism",
+        "harebrained schemes",
+        "personality cult",
+        "unpredictable"
+      ]
+    },
+    {
+      "spec_point_id": 23,
+      "question": "How did the limits of the 'Thaw' become apparent?",
+      "answer": "Khrushchev's attack on abstract art in 1962 showed cultural freedom only existed within narrow ideological limits",
+      "valid_synonyms": [
+        "narrow limits",
+        "abstract art attack",
+        "freedom limited",
+        "ideological boundaries"
+      ]
+    },
+    {
+      "spec_point_id": 23,
+      "question": "What happened to Khrushchev after his removal?",
+      "answer": "He was made an 'unperson' — forced into retirement and almost never mentioned in Soviet media again",
+      "valid_synonyms": [
+        "unperson",
+        "forced retirement",
+        "never mentioned",
+        "disappeared from media"
+      ]
+    },
+    {
+      "spec_point_id": 23,
+      "question": "What was the significance of the Manege exhibition incident?",
+      "answer": "It showed Khrushchev's personal taste could override cultural policy — he described abstract art as looking like 'a donkey's tail'",
+      "valid_synonyms": [
+        "personal taste",
+        "donkey's tail",
+        "arbitrary censorship"
+      ]
+    },
+    {
+      "spec_point_id": 23,
+      "question": "How did young people express cultural dissent?",
+      "answer": "Through underground poetry, jazz, Western fashion (stilyagi), and samizdat literature",
+      "valid_synonyms": [
+        "poetry",
+        "jazz",
+        "stilyagi",
+        "samizdat",
+        "Western fashion"
+      ]
+    },
+    {
+      "spec_point_id": 23,
+      "question": "What was the Brezhnev leadership's approach compared to Khrushchev?",
+      "answer": "Stability, caution, and consensus — no dramatic reforms or reorganisations",
+      "valid_synonyms": [
+        "stability",
+        "caution",
+        "no reforms",
+        "consensus"
+      ]
+    },
+    {
+      "spec_point_id": 23,
+      "question": "How did Khrushchev's agricultural failures contribute to his downfall?",
+      "answer": "The 1963 harvest disaster forced humiliating grain imports and proved his reforms had failed",
+      "valid_synonyms": [
+        "1963 disaster",
+        "grain imports",
+        "reforms failed",
+        "humiliation"
+      ]
+    },
+    {
+      "spec_point_id": 23,
+      "question": "What made Khrushchev's removal from power historically significant?",
+      "answer": "It was the first time a Soviet leader was removed without being killed — establishing a precedent for peaceful succession",
+      "valid_synonyms": [
+        "first peaceful removal",
+        "not killed",
+        "precedent",
+        "bloodless"
+      ]
+    },
+    {
+      "spec_point_id": 24,
+      "question": "What was the overall economic trajectory by 1964?",
+      "answer": "Growth was slowing, agricultural problems persisted, and the gap with Western living standards remained large",
+      "valid_synonyms": [
+        "slowing growth",
+        "agricultural problems",
+        "gap with West",
+        "declining"
+      ]
+    },
+    {
+      "spec_point_id": 24,
+      "question": "How did the ending of mass terror change Soviet society?",
+      "answer": "People no longer feared midnight arrests, though political dissent was still punished — just less harshly",
+      "valid_synonyms": [
+        "no midnight arrests",
+        "less harsh",
+        "still punished",
+        "fear reduced"
+      ]
+    },
+    {
+      "spec_point_id": 24,
+      "question": "What was the state of the Soviet space programme by 1964?",
+      "answer": "World-leading — Sputnik (1957), Gagarin (1961), and the first woman in space, Valentina Tereshkova (1963)",
+      "valid_synonyms": [
+        "world-leading",
+        "Sputnik Gagarin Tereshkova",
+        "space firsts"
+      ]
+    },
+    {
+      "spec_point_id": 24,
+      "question": "Who was Valentina Tereshkova?",
+      "answer": "The first woman in space, in 1963 — a propaganda triumph for Soviet equality",
+      "valid_synonyms": [
+        "first woman in space",
+        "1963",
+        "propaganda triumph"
+      ]
+    },
+    {
+      "spec_point_id": 24,
+      "question": "How did Khrushchev's anti-religious campaign affect the Church?",
+      "answer": "Thousands of churches were closed, seminaries shut down, and clergy harassed — more aggressive than Stalin's post-war approach",
+      "valid_synonyms": [
+        "churches closed",
+        "seminaries shut",
+        "clergy harassed",
+        "more aggressive"
+      ]
+    },
+    {
+      "spec_point_id": 24,
+      "question": "What was the state of Soviet housing by 1964?",
+      "answer": "Significantly improved by mass construction of khrushchevki, though quality was poor and flats were small",
+      "valid_synonyms": [
+        "improved",
+        "khrushchevki",
+        "poor quality",
+        "small flats"
+      ]
+    },
+    {
+      "spec_point_id": 24,
+      "question": "How did the standard of living in 1964 compare to Western Europe?",
+      "answer": "Still significantly lower — especially in consumer goods, housing quality, and personal freedoms",
+      "valid_synonyms": [
+        "significantly lower",
+        "behind West",
+        "less consumer goods",
+        "lower"
+      ]
+    },
+    {
+      "spec_point_id": 24,
+      "question": "What was the legacy of de-Stalinisation by 1964?",
+      "answer": "Millions freed from Gulags, cult of personality dismantled, but no genuine political democratisation",
+      "valid_synonyms": [
+        "Gulags closed",
+        "cult dismantled",
+        "no democracy",
+        "limited reform"
+      ]
+    },
+    {
+      "spec_point_id": 24,
+      "question": "What was Khrushchev's foreign policy legacy?",
+      "answer": "Mixed — peaceful coexistence but also the Cuban crisis, the Berlin Wall (1961), and the Sino-Soviet split",
+      "valid_synonyms": [
+        "mixed",
+        "peaceful coexistence",
+        "Cuban crisis",
+        "Berlin Wall",
+        "Sino-Soviet split"
+      ]
+    },
+    {
+      "spec_point_id": 24,
+      "question": "How did education change under Khrushchev?",
+      "answer": "More practical and polytechnic — students were expected to combine study with work experience",
+      "valid_synonyms": [
+        "polytechnic",
+        "practical",
+        "work experience",
+        "study and work"
+      ]
+    },
+    {
+      "spec_point_id": 24,
+      "question": "What was the political system like by 1964?",
+      "answer": "Still a one-party state with no free elections, but less arbitrary and violent than under Stalin",
+      "valid_synonyms": [
+        "one-party state",
+        "no free elections",
+        "less violent",
+        "less arbitrary"
+      ]
+    },
+    {
+      "spec_point_id": 24,
+      "question": "What was the impact of the Moscow World Festival of Youth (1957)?",
+      "answer": "It exposed Soviet young people to Western culture, music, and ideas — undermining ideological conformity",
+      "valid_synonyms": [
+        "Western culture exposure",
+        "undermined conformity",
+        "cultural contact"
+      ]
+    },
+    {
+      "spec_point_id": 24,
+      "question": "What collective leadership replaced Khrushchev?",
+      "answer": "Brezhnev as First Secretary and Kosygin as Premier — initially a genuine collective before Brezhnev dominated",
+      "valid_synonyms": [
+        "Brezhnev and Kosygin",
+        "collective leadership",
+        "Brezhnev dominated later"
+      ]
+    },
+    {
+      "spec_point_id": 24,
+      "question": "How did agricultural production compare to 1953 levels by 1964?",
+      "answer": "It had increased but was still unreliable — good years were followed by crises like 1963",
+      "valid_synonyms": [
+        "increased but unreliable",
+        "still problematic",
+        "1963 crisis"
+      ]
+    },
+    {
+      "spec_point_id": 24,
+      "question": "What was the biggest unresolved problem facing the Soviet Union in 1964?",
+      "answer": "The inability to provide both military-industrial power AND a decent standard of living for ordinary citizens",
+      "valid_synonyms": [
+        "guns vs butter",
+        "military or living standards",
+        "couldn't do both"
       ]
     }
   ]
