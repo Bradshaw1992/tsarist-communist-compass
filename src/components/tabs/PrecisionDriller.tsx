@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Eye, CheckCircle2, XCircle, RotateCcw, BookOpen, ChevronLeft, ChevronRight } from "lucide-react";
+import { trackEvent } from "@/lib/analytics";
 
 interface PrecisionDrillerProps {
   specId: number;
@@ -54,6 +55,7 @@ export function PrecisionDriller({ specId }: PrecisionDrillerProps) {
   };
 
   const handleSelfAssess = useCallback((knew: boolean) => {
+    trackEvent("driller_assess", { result: knew ? "got_it" : "missed_it", spec_id: specId, driller: "precision" });
     setHistory((prev) => ({
       ...prev,
       [currentIndex]: { revealed: true, assessment: knew ? "knew" : "missed" },

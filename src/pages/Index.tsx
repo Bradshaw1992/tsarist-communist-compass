@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react";
+import { trackPageView } from "@/lib/analytics";
 import { useSearchParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -55,7 +56,13 @@ const Index = () => {
       .filter((s) => s.points.length > 0);
   }, [sections, search]);
 
-  const handleSelect = (id: number) => setSelectedSpecId(id);
+  const handleSelect = (id: number) => {
+    setSelectedSpecId(id);
+    const spec = db.spec_points.find((sp) => sp.id === id);
+    if (spec) {
+      trackPageView(`/topic/${id}`, `${spec.title} | AQA 1H Russia Compass`);
+    }
+  };
   const handleClose = () => setSelectedSpecId(null);
 
   return (
