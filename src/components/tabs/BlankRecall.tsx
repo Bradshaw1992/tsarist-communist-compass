@@ -4,8 +4,12 @@ import { useSpeechToText } from "@/hooks/useSpeechToText";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PenLine, Eye, RotateCcw, AlertTriangle, CheckCircle2, Mic, MicOff } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { PenLine, Eye, RotateCcw, AlertTriangle, CheckCircle2, Mic, MicOff, Sparkles, Cpu, Loader2 } from "lucide-react";
 import { fuzzyKeywordInText } from "@/lib/fuzzyMatcher";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import type { KeyConcept } from "@/types/revision";
 
 interface BlankRecallProps {
@@ -15,19 +19,19 @@ interface BlankRecallProps {
 
 interface AnalysedConcept {
   text: string;
-  matchedKeywords: string[]; // trigger_keywords found in user text
+  matchedKeywords: string[]; // keywords/phrases highlighted in the concept text
 }
 
-function analyseKeyConcepts(userText: string, concepts: KeyConcept[]) {
+// ─── Local keyword matching (original logic) ───────────────────────────────
+
+function analyseKeyConceptsLocal(userText: string, concepts: KeyConcept[]) {
   const mentioned: AnalysedConcept[] = [];
   const missed: string[] = [];
 
   for (const kc of concepts) {
-    // Use fuzzy matching for each keyword
     const matched = kc.trigger_keywords.filter((kw) =>
       fuzzyKeywordInText(userText, kw)
     );
-    // Threshold: require 2+ matches, unless concept has ≤1 keywords total
     const threshold = kc.trigger_keywords.length <= 1 ? 1 : 2;
     if (matched.length >= threshold) {
       mentioned.push({ text: kc.concept, matchedKeywords: matched });
@@ -39,15 +43,60 @@ function analyseKeyConcepts(userText: string, concepts: KeyConcept[]) {
   return { mentioned, missed };
 }
 
+// ─── AI-powered analysis via edge function ─────────────────────────────────
+
+interface AIResult {
+  concept: string;
+  status: "mentioned" | "missed";
+  matched_phrases: string[];
+}
+
+async function analyseKeyConceptsAI(
+  userText: string,
+  concepts: KeyConcept[]
+): Promise<{ mentioned: AnalysedConcept[]; missed: string[] }> {
+  const { data, error } = await supabase.functions.invoke("analyse-recall", {
+    body: { userText, keyConcepts: concepts },
+  });
+
+  if (error) {
+    throw new Error(error.message || "AI analysis failed");
+  }
+
+  // Handle rate limit / payment errors surfaced from the edge function
+  if (data?.error) {
+    throw new Error(data.error);
+  }
+
+  const results: AIResult[] = data?.results ?? [];
+
+  const mentioned: AnalysedConcept[] = [];
+  const missed: string[] = [];
+
+  for (const r of results) {
+    if (r.status === "mentioned") {
+      mentioned.push({ text: r.concept, matchedKeywords: r.matched_phrases });
+    } else {
+      missed.push(r.concept);
+    }
+  }
+
+  return { mentioned, missed };
+}
+
+// ─── Highlight helper ──────────────────────────────────────────────────────
+
 function highlightKeywords(text: string, matchedWords: string[]) {
   if (matchedWords.length === 0) return <>{text}</>;
-  const escaped = matchedWords.map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  // Sort by length descending so longer phrases match first
+  const sorted = [...matchedWords].sort((a, b) => b.length - a.length);
+  const escaped = sorted.map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
   const regex = new RegExp(`(${escaped.join("|")})`, "gi");
   const parts = text.split(regex);
   return (
     <>
       {parts.map((part, i) => {
-        const isMatch = matchedWords.some((w) => w.toLowerCase() === part.toLowerCase());
+        const isMatch = sorted.some((w) => w.toLowerCase() === part.toLowerCase());
         return isMatch ? (
           <mark key={i} className="rounded-sm bg-success/20 px-0.5 text-foreground">{part}</mark>
         ) : (
@@ -58,10 +107,15 @@ function highlightKeywords(text: string, matchedWords: string[]) {
   );
 }
 
+// ─── Component ─────────────────────────────────────────────────────────────
+
 export function BlankRecall({ specId, specTitle }: BlankRecallProps) {
   const recall = useRecallForSpec(specId);
   const [userText, setUserText] = useState("");
   const [revealed, setRevealed] = useState(false);
+  const [isAnalysing, setIsAnalysing] = useState(false);
+  const [useAI, setUseAI] = useState(true);
+  const [analysis, setAnalysis] = useState<{ mentioned: AnalysedConcept[]; missed: string[] } | null>(null);
   const prefixRef = useRef("");
 
   const handleTranscript = useCallback((text: string) => {
@@ -77,15 +131,35 @@ export function BlankRecall({ specId, specTitle }: BlankRecallProps) {
     toggle();
   };
 
-  const analysis = useMemo(() => {
-    if (!revealed || !recall?.key_concepts) return null;
-    return analyseKeyConcepts(userText, recall.key_concepts);
-  }, [revealed, userText, recall]);
+  const handleReveal = async () => {
+    if (!recall?.key_concepts) return;
 
-  const handleReveal = () => setRevealed(true);
+    if (useAI) {
+      setIsAnalysing(true);
+      try {
+        const result = await analyseKeyConceptsAI(userText, recall.key_concepts);
+        setAnalysis(result);
+        setRevealed(true);
+      } catch (err) {
+        console.error("AI analysis error:", err);
+        toast.error(
+          err instanceof Error ? err.message : "AI analysis failed. Try local matching instead.",
+          { duration: 5000 }
+        );
+      } finally {
+        setIsAnalysing(false);
+      }
+    } else {
+      const result = analyseKeyConceptsLocal(userText, recall.key_concepts);
+      setAnalysis(result);
+      setRevealed(true);
+    }
+  };
+
   const handleReset = () => {
     setUserText("");
     setRevealed(false);
+    setAnalysis(null);
   };
 
   if (!recall) {
@@ -98,11 +172,31 @@ export function BlankRecall({ specId, specTitle }: BlankRecallProps) {
 
   return (
     <div className="space-y-6">
-      <div className="space-y-1">
-        <h2 className="font-serif text-2xl font-bold text-primary">Blank Recall</h2>
-        <p className="text-sm text-muted-foreground">
-          Active learning — write everything you know, then check your gaps.
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div className="space-y-1">
+          <h2 className="font-serif text-2xl font-bold text-primary">Blank Recall</h2>
+          <p className="text-sm text-muted-foreground">
+            Active learning — write everything you know, then check your gaps.
+          </p>
+        </div>
+
+        {/* AI / Local toggle */}
+        <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/50 px-3 py-2">
+          <Cpu className="h-4 w-4 text-muted-foreground" />
+          <Label htmlFor="ai-toggle" className="cursor-pointer text-xs font-medium text-muted-foreground">
+            Local
+          </Label>
+          <Switch
+            id="ai-toggle"
+            checked={useAI}
+            onCheckedChange={setUseAI}
+            disabled={revealed || isAnalysing}
+          />
+          <Label htmlFor="ai-toggle" className="cursor-pointer text-xs font-medium text-primary">
+            AI
+          </Label>
+          <Sparkles className={`h-4 w-4 ${useAI ? "text-primary" : "text-muted-foreground"}`} />
+        </div>
       </div>
 
       <Card className="border-2 border-dashed border-accent/40 bg-card">
@@ -121,9 +215,9 @@ export function BlankRecall({ specId, specTitle }: BlankRecallProps) {
             onChange={(e) => setUserText(e.target.value)}
             placeholder={isListening ? "Listening… speak now" : "Start writing your recall here…"}
             className="min-h-[200px] resize-y border-border bg-background font-sans text-sm leading-relaxed"
-            disabled={revealed}
+            disabled={revealed || isAnalysing}
           />
-          {isSupported && !revealed && (
+          {isSupported && !revealed && !isAnalysing && (
             <div className="flex justify-end pt-2">
               <Button
                 type="button"
@@ -149,17 +243,35 @@ export function BlankRecall({ specId, specTitle }: BlankRecallProps) {
         </CardContent>
       </Card>
 
-      <div className="flex gap-3">
+      <div className="flex items-center gap-3">
         {!revealed ? (
-          <Button onClick={handleReveal} disabled={!userText.trim() || isListening} className="bg-primary text-primary-foreground hover:bg-primary/90">
-            <Eye className="mr-2 h-4 w-4" />
-            Analyse
+          <Button
+            onClick={handleReveal}
+            disabled={!userText.trim() || isListening || isAnalysing}
+            className="bg-primary text-primary-foreground hover:bg-primary/90"
+          >
+            {isAnalysing ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Analysing{useAI ? " with AI…" : "…"}
+              </>
+            ) : (
+              <>
+                <Eye className="mr-2 h-4 w-4" />
+                Analyse{useAI ? " with AI" : ""}
+              </>
+            )}
           </Button>
         ) : (
           <Button onClick={handleReset} variant="outline">
             <RotateCcw className="mr-2 h-4 w-4" />
             Try Again
           </Button>
+        )}
+        {!revealed && (
+          <span className="text-xs text-muted-foreground">
+            {useAI ? "Using Claude AI for semantic analysis" : "Using local keyword matching"}
+          </span>
         )}
       </div>
 
@@ -199,7 +311,9 @@ export function BlankRecall({ specId, specTitle }: BlankRecallProps) {
                   ))}
                 </ul>
                 <p className="mt-3 text-xs italic text-muted-foreground">
-                  Note: This is based on keyword detection. Please verify your own explanations to ensure accuracy.
+                  {useAI
+                    ? "Marked by the Potemkin AI — concepts matched semantically against your response."
+                    : "Note: This is based on keyword detection. Please verify your own explanations to ensure accuracy."}
                 </p>
               </CardContent>
             </Card>
