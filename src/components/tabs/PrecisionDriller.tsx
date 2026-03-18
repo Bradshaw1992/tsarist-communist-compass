@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback } from "react";
+import { Textarea } from "@/components/ui/textarea";
 import { useQuizQuestionsForSpec } from "@/hooks/useRevisionData";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
