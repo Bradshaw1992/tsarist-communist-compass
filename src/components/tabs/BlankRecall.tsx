@@ -244,27 +244,62 @@ export function BlankRecall({ specId, specTitle }: BlankRecallProps) {
             className="min-h-[200px] resize-y border-border bg-background font-sans text-sm leading-relaxed"
             disabled={revealed || isAnalysing}
           />
-          {isSupported && !revealed && !isAnalysing && (
-            <div className="flex justify-end pt-2">
-              <Button
-                type="button"
-                variant={isListening ? "destructive" : "outline"}
-                size="lg"
-                onClick={handleStartRecording}
-                className={`min-h-[48px] min-w-[48px] gap-2 ${isListening ? "animate-pulse" : ""}`}
-              >
-                {isListening ? (
-                  <>
-                    <MicOff className="h-5 w-5" />
-                    <span className="hidden sm:inline">Stop</span>
-                  </>
-                ) : (
-                  <>
-                    <Mic className="h-5 w-5" />
-                    <span className="hidden sm:inline">Record</span>
-                  </>
-                )}
-              </Button>
+          {!revealed && !isAnalysing && (
+            <div className="flex items-center justify-end gap-2 pt-2">
+              {/* Handwritten Notes Modal */}
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button type="button" variant="outline" size="lg" className="min-h-[48px] gap-2">
+                    <Camera className="h-5 w-5" />
+                    <span className="hidden sm:inline">Use Handwritten Notes</span>
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle className="flex items-center gap-2 font-serif text-lg text-primary">
+                      <Camera className="h-5 w-5" />
+                      Potemkin Scribe
+                    </DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4 py-2">
+                    <p className="text-sm leading-relaxed text-foreground/80">
+                      Working on paper? Upload a photo of your handwritten recall to the <strong>Potemkin Scribe</strong> to turn it into text you can paste here.
+                    </p>
+                    <a
+                      href="https://gemini.google.com/gem/1m9H0A3i4EGgdifGheiLlYB0ti1ZY9WO6?usp=sharing"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                      Open Potemkin Scribe
+                    </a>
+                  </div>
+                </DialogContent>
+              </Dialog>
+
+              {/* Voice recording */}
+              {isSupported && (
+                <Button
+                  type="button"
+                  variant={isListening ? "destructive" : "outline"}
+                  size="lg"
+                  onClick={handleStartRecording}
+                  className={`min-h-[48px] min-w-[48px] gap-2 ${isListening ? "animate-pulse" : ""}`}
+                >
+                  {isListening ? (
+                    <>
+                      <MicOff className="h-5 w-5" />
+                      <span className="hidden sm:inline">Stop</span>
+                    </>
+                  ) : (
+                    <>
+                      <Mic className="h-5 w-5" />
+                      <span className="hidden sm:inline">Record</span>
+                    </>
+                  )}
+                </Button>
+              )}
             </div>
           )}
         </CardContent>
