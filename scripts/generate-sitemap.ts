@@ -5,7 +5,11 @@
 import fs from "fs";
 import path from "path";
 
-const DOMAIN = "https://www.tsarist-communist-russia-1h.co.uk";
+const DOMAIN = new URL("https://www.tsarist-communist-russia-1h.co.uk").origin;
+const LEGACY_DOMAINS = [
+  "https://tsarist-communist-compass.lovable.app",
+  "https://tsarist-communist-russia-1h.co.uk",
+];
 
 interface SpecPoint {
   id: number;
@@ -50,6 +54,12 @@ for (const sp of db.spec_points as SpecPoint[]) {
 
 xml += `</urlset>
 `;
+
+for (const legacyDomain of LEGACY_DOMAINS) {
+  if (legacyDomain !== DOMAIN) {
+    xml = xml.replaceAll(legacyDomain, DOMAIN);
+  }
+}
 
 const outPath = path.resolve(__dirname, "../public/sitemap.xml");
 fs.writeFileSync(outPath, xml, "utf-8");
