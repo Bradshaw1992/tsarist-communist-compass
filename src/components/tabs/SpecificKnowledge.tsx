@@ -149,7 +149,6 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
     setUserAnswers({});
     try { localStorage.removeItem(storageKey); } catch {}
   };
-  };
 
   if (allQuestions.length === 0) {
     return (
