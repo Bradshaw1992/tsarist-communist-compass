@@ -154,6 +154,22 @@ export function BlankRecall({ specId, specTitle, onScoreRecord }: BlankRecallPro
     toggle();
   };
 
+  const fireConfetti = () => {
+    confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+    setTimeout(() => confetti({ particleCount: 80, spread: 100, origin: { y: 0.5 } }), 300);
+  };
+
+  const handleScoreRecord = (mentioned: number, total: number) => {
+    if (onScoreRecord && total > 0) {
+      onScoreRecord(specId, mentioned, total);
+      const pct = Math.round((mentioned / total) * 100);
+      if (pct >= 90) {
+        fireConfetti();
+        toast.success(`🌟 Topic Mastered! You scored ${pct}%`, { duration: 5000 });
+      }
+    }
+  };
+
   const handleReveal = async () => {
     if (!recall?.key_concepts) return;
     trackEvent("analyse_recall", { mode: useAI ? "ai" : "local", spec_id: specId });
@@ -164,6 +180,7 @@ export function BlankRecall({ specId, specTitle, onScoreRecord }: BlankRecallPro
         const result = await analyseKeyConceptsAI(userText, recall.key_concepts);
         setAnalysis(result);
         setRevealed(true);
+        handleScoreRecord(result.mentioned.length, result.mentioned.length + result.missed.length);
       } catch (err) {
         console.error("AI analysis error:", err);
         toast.error(
@@ -177,6 +194,7 @@ export function BlankRecall({ specId, specTitle, onScoreRecord }: BlankRecallPro
       const result = analyseKeyConceptsLocal(userText, recall.key_concepts);
       setAnalysis(result);
       setRevealed(true);
+      handleScoreRecord(result.mentioned.length, result.mentioned.length + result.missed.length);
     }
   };
 
