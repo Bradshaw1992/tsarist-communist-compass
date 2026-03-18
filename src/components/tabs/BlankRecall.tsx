@@ -18,6 +18,7 @@ import type { KeyConcept } from "@/types/revision";
 interface BlankRecallProps {
   specId: number;
   specTitle: string;
+  onScoreRecord?: (specId: number, correct: number, total: number) => void;
 }
 
 interface AnalysedConcept {
