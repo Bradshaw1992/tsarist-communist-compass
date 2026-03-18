@@ -154,6 +154,7 @@ export function BlankRecall({ specId, specTitle }: BlankRecallProps) {
 
   const handleReveal = async () => {
     if (!recall?.key_concepts) return;
+    trackEvent("analyse_recall", { mode: useAI ? "ai" : "local", spec_id: specId });
 
     if (useAI) {
       setIsAnalysing(true);

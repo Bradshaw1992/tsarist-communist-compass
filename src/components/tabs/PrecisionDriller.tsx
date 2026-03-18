@@ -55,6 +55,7 @@ export function PrecisionDriller({ specId }: PrecisionDrillerProps) {
   };
 
   const handleSelfAssess = useCallback((knew: boolean) => {
+    trackEvent("driller_assess", { result: knew ? "got_it" : "missed_it", spec_id: specId, driller: "precision" });
     setHistory((prev) => ({
       ...prev,
       [currentIndex]: { revealed: true, assessment: knew ? "knew" : "missed" },

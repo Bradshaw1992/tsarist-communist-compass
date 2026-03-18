@@ -102,6 +102,7 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
 
   const handleSelfAssess = useCallback((gotIt: boolean) => {
     const q = questions[currentIndex];
+    trackEvent("driller_assess", { result: gotIt ? "got_it" : "missed_it", spec_id: specId, driller: "sniper_facts" });
     setHistory((prev) => ({
       ...prev,
       [currentIndex]: { revealed: true, assessment: gotIt ? "correct" : "missed" },

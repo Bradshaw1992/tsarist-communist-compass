@@ -56,7 +56,13 @@ const Index = () => {
       .filter((s) => s.points.length > 0);
   }, [sections, search]);
 
-  const handleSelect = (id: number) => setSelectedSpecId(id);
+  const handleSelect = (id: number) => {
+    setSelectedSpecId(id);
+    const spec = db.spec_points.find((sp) => sp.id === id);
+    if (spec) {
+      trackPageView(`/topic/${id}`, `${spec.title} | AQA 1H Russia Compass`);
+    }
+  };
   const handleClose = () => setSelectedSpecId(null);
 
   return (
