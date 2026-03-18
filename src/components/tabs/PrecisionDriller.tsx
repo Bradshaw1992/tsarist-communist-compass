@@ -117,9 +117,29 @@ export function PrecisionDriller({ specId }: PrecisionDrillerProps) {
             </p>
           </div>
 
+          {/* Optional answer input — only before reveal */}
+          {!alreadyAssessed && !revealed && (
+            <div className="mt-4">
+              <Textarea
+                value={currentUserAnswer}
+                onChange={(e) => handleAnswerChange(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Type your answer here (optional)..."
+                className="resize-none text-sm"
+                rows={3}
+              />
+            </div>
+          )}
+
           {/* Already assessed — show result */}
           {alreadyAssessed && (
             <div className="mt-6 space-y-4">
+              {currentUserAnswer.trim() && (
+                <div className="rounded-lg border border-border bg-card p-4">
+                  <h4 className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Your Answer</h4>
+                  <p className="text-sm leading-relaxed text-foreground/80">{currentUserAnswer}</p>
+                </div>
+              )}
               <div className="rounded-lg border border-border bg-muted/50 p-5">
                 <h4 className="mb-1 font-serif text-sm font-semibold text-primary">Model Answer</h4>
                 <p className="text-sm leading-relaxed text-foreground/80">{question.correct_answer}</p>
@@ -149,7 +169,7 @@ export function PrecisionDriller({ specId }: PrecisionDrillerProps) {
 
           {/* Not yet revealed */}
           {!alreadyAssessed && !revealed && (
-            <div className="mt-6">
+            <div className="mt-4">
               <Button onClick={handleReveal} className="bg-primary text-primary-foreground hover:bg-primary/90">
                 <Eye className="mr-1.5 h-4 w-4" />
                 Reveal Answer
@@ -160,6 +180,12 @@ export function PrecisionDriller({ specId }: PrecisionDrillerProps) {
           {/* Revealed, awaiting self-assessment */}
           {!alreadyAssessed && revealed && (
             <div className="mt-6 animate-flip-in space-y-4">
+              {currentUserAnswer.trim() && (
+                <div className="rounded-lg border border-border bg-card p-4">
+                  <h4 className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Your Answer</h4>
+                  <p className="text-sm leading-relaxed text-foreground/80">{currentUserAnswer}</p>
+                </div>
+              )}
               <div className="rounded-lg border-2 border-primary/30 bg-muted/50 p-5">
                 <h4 className="mb-2 font-serif text-sm font-semibold uppercase tracking-wider text-primary">
                   Official Answer

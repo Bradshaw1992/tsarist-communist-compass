@@ -234,9 +234,29 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
             </p>
           </div>
 
+          {/* Optional answer input — only before reveal */}
+          {!alreadyAssessed && !revealed && (
+            <div className="mb-4">
+              <Textarea
+                value={currentUserAnswer}
+                onChange={(e) => handleAnswerChange(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Type your answer here (optional)..."
+                className="resize-none text-sm"
+                rows={3}
+              />
+            </div>
+          )}
+
           {/* Already assessed — show result */}
           {alreadyAssessed && (
             <div className="space-y-4">
+              {currentUserAnswer.trim() && (
+                <div className="rounded-lg border border-border bg-card p-4">
+                  <h4 className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Your Answer</h4>
+                  <p className="text-sm leading-relaxed text-foreground/80">{currentUserAnswer}</p>
+                </div>
+              )}
               <div className="rounded-lg border-2 border-primary/30 bg-muted/50 p-5">
                 <h4 className="mb-2 font-serif text-sm font-semibold uppercase tracking-wider text-primary">
                   Official Answer
@@ -272,6 +292,12 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
           {/* Revealed, awaiting self-assessment */}
           {!alreadyAssessed && revealed && (
             <div className="animate-flip-in space-y-4">
+              {currentUserAnswer.trim() && (
+                <div className="rounded-lg border border-border bg-card p-4">
+                  <h4 className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Your Answer</h4>
+                  <p className="text-sm leading-relaxed text-foreground/80">{currentUserAnswer}</p>
+                </div>
+              )}
               <div className="rounded-lg border-2 border-primary/30 bg-muted/50 p-5">
                 <h4 className="mb-2 font-serif text-sm font-semibold uppercase tracking-wider text-primary">
                   Official Answer
