@@ -113,7 +113,7 @@ function highlightKeywords(text: string, matchedWords: string[]) {
 
 // ─── Component ─────────────────────────────────────────────────────────────
 
-export function BlankRecall({ specId, specTitle }: BlankRecallProps) {
+export function BlankRecall({ specId, specTitle, onScoreRecord }: BlankRecallProps) {
   const recall = useRecallForSpec(specId);
   const storageKey = `blank-recall-${specId}`;
 
