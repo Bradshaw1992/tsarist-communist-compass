@@ -119,6 +119,7 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
     setPhase("quiz");
     setIsRetest(false);
     setHistory({});
+    setUserAnswers({});
   };
 
   const handleRetestWrong = () => {
@@ -133,6 +134,7 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
     setPhase("quiz");
     setIsRetest(true);
     setHistory({});
+    setUserAnswers({});
   };
 
   if (allQuestions.length === 0) {
