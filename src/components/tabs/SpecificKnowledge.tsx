@@ -2,9 +2,7 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { useFactDrillerForSpec } from "@/hooks/useRevisionData";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { CheckCircle2, XCircle, RotateCcw, Zap, ArrowRight, Trophy, AlertTriangle, ChevronLeft, ChevronRight } from "lucide-react";
-import { fuzzyCheckAnswer } from "@/lib/fuzzyMatcher";
+import { CheckCircle2, XCircle, RotateCcw, Zap, Eye, Trophy, AlertTriangle, ChevronLeft, ChevronRight } from "lucide-react";
 import type { FactDrillerQuestion } from "@/types/revision";
 
 interface SpecificKnowledgeProps {
@@ -22,10 +20,11 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 type Phase = "quiz" | "report";
+type Assessment = "correct" | "missed";
 
-interface AnswerHistory {
-  userInput: string;
-  status: "correct" | "wrong" | "skipped";
+interface HistoryEntry {
+  revealed: boolean;
+  assessment?: Assessment;
 }
 
 interface MissedItem {
@@ -37,21 +36,18 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
   const allQuestions = useFactDrillerForSpec(specId);
   const [questions, setQuestions] = useState<FactDrillerQuestion[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [userInput, setUserInput] = useState("");
-  const [status, setStatus] = useState<"idle" | "correct" | "wrong">("idle");
+  const [revealed, setRevealed] = useState(false);
   const [correct, setCorrect] = useState(0);
   const [missed, setMissed] = useState<MissedItem[]>([]);
   const [phase, setPhase] = useState<Phase>("quiz");
   const [isRetest, setIsRetest] = useState(false);
-  const [history, setHistory] = useState<Record<number, AnswerHistory>>({});
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [history, setHistory] = useState<Record<number, HistoryEntry>>({});
 
   useEffect(() => {
     if (allQuestions.length > 0) {
       setQuestions(shuffle(allQuestions));
       setCurrentIndex(0);
-      setUserInput("");
-      setStatus("idle");
+      setRevealed(false);
       setCorrect(0);
       setMissed([]);
       setPhase("quiz");
@@ -68,84 +64,40 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
 
   const question = questions[currentIndex];
 
-  const goNext = useCallback(() => {
-    if (currentIndex + 1 >= questions.length) {
-      setPhase("report");
-      return;
-    }
-    const nextIdx = currentIndex + 1;
-    setCurrentIndex(nextIdx);
-    // Restore history if navigating to a previously visited question
-    const prev = history[nextIdx];
-    if (prev) {
-      setUserInput(prev.userInput);
-      setStatus(prev.status === "skipped" ? "idle" : prev.status);
-    } else {
-      setUserInput("");
-      setStatus("idle");
-    }
-    setTimeout(() => inputRef.current?.focus(), 50);
-  }, [currentIndex, questions.length, history]);
+  const handleReveal = () => setRevealed(true);
 
-  const goPrev = useCallback(() => {
-    if (currentIndex <= 0) return;
-    // Save current state before navigating back
-    if (status !== "idle" && !history[currentIndex]) {
-      // Already saved via submit/skip
-    }
-    const prevIdx = currentIndex - 1;
-    setCurrentIndex(prevIdx);
-    const prev = history[prevIdx];
-    if (prev) {
-      setUserInput(prev.userInput);
-      setStatus(prev.status === "skipped" ? "idle" : prev.status);
-    } else {
-      setUserInput("");
-      setStatus("idle");
-    }
-    setTimeout(() => inputRef.current?.focus(), 50);
-  }, [currentIndex, history, status]);
+  const advanceTo = useCallback((index: number) => {
+    setCurrentIndex(index);
+    const entry = history[index];
+    setRevealed(entry?.revealed ?? false);
+  }, [history]);
 
-  const handleSkipNext = useCallback(() => {
-    // Save as skipped (doesn't count as correct)
-    if (!history[currentIndex] && status === "idle") {
-      setHistory((prev) => ({
-        ...prev,
-        [currentIndex]: { userInput, status: "skipped" },
-      }));
-    }
-    goNext();
-  }, [currentIndex, history, status, userInput, goNext]);
-
-  const handleSubmit = useCallback(() => {
-    if (status !== "idle" || !userInput.trim() || !question) return;
-    const isCorrect = fuzzyCheckAnswer(userInput, question.valid_synonyms);
-    const newStatus = isCorrect ? "correct" : "wrong";
-    setStatus(newStatus);
+  const handleSelfAssess = useCallback((gotIt: boolean) => {
+    const q = questions[currentIndex];
     setHistory((prev) => ({
       ...prev,
-      [currentIndex]: { userInput, status: newStatus },
+      [currentIndex]: { revealed: true, assessment: gotIt ? "correct" : "missed" },
     }));
-    if (isCorrect) {
+    if (gotIt) {
       setCorrect((p) => p + 1);
-      setTimeout(goNext, 800);
     } else {
-      setMissed((p) => [...p, { question: question.question, answer: question.answer }]);
+      setMissed((p) => [...p, { question: q.question, answer: q.answer }]);
     }
-  }, [userInput, question, status, goNext, currentIndex]);
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      if (status === "wrong") goNext();
-      else handleSubmit();
+    // Auto-advance
+    if (currentIndex + 1 < questions.length) {
+      const nextIdx = currentIndex + 1;
+      setCurrentIndex(nextIdx);
+      const next = history[nextIdx];
+      setRevealed(next?.revealed ?? false);
+    } else {
+      setPhase("report");
     }
-  };
+  }, [currentIndex, questions, history]);
 
   const handleRestart = () => {
     setQuestions(shuffle(allQuestions));
     setCurrentIndex(0);
-    setUserInput("");
-    setStatus("idle");
+    setRevealed(false);
     setCorrect(0);
     setMissed([]);
     setPhase("quiz");
@@ -159,8 +111,7 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
       .filter(Boolean) as FactDrillerQuestion[];
     setQuestions(shuffle(missedQs));
     setCurrentIndex(0);
-    setUserInput("");
-    setStatus("idle");
+    setRevealed(false);
     setCorrect(0);
     setMissed([]);
     setPhase("quiz");
@@ -232,16 +183,7 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
   if (!question) return null;
 
   const prevEntry = history[currentIndex];
-  const alreadyAnswered = !!prevEntry && prevEntry.status !== "skipped";
-
-  const borderClass =
-    status === "correct" ? "border-success" : status === "wrong" ? "border-destructive" : "border-border";
-  const inputClass =
-    status === "correct"
-      ? "border-success bg-success/10 text-success"
-      : status === "wrong"
-        ? "border-destructive bg-destructive/10 text-destructive"
-        : "";
+  const alreadyAssessed = !!prevEntry?.assessment;
 
   return (
     <div className="space-y-6">
@@ -251,7 +193,7 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
             {isRetest ? "Re-test: Wrong Answers" : "Specific Knowledge"}
           </h2>
           <p className="text-sm text-muted-foreground">
-            Rapid-fire recall — type the answer and hit Enter.
+            Think of the answer, then reveal — honest self-assessment builds stronger recall.
           </p>
         </div>
         <div className="flex items-center gap-3 text-xs">
@@ -268,7 +210,7 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
         Question {currentIndex + 1} of {questions.length}
       </div>
 
-      <Card className={`mx-auto max-w-2xl border-2 shadow-lg transition-colors ${borderClass}`}>
+      <Card className="mx-auto max-w-2xl border-2 shadow-lg">
         <CardContent className="p-6 sm:p-8">
           <div className="mb-6">
             <Zap className="mb-2 inline h-4 w-4 text-accent" />
@@ -277,56 +219,70 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
             </p>
           </div>
 
-          <div className="space-y-3">
-            <Input
-              ref={inputRef}
-              value={userInput}
-              onChange={(e) => setUserInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Type your answer…"
-              disabled={status !== "idle"}
-              className={`text-base ${inputClass}`}
-              autoFocus
-            />
-
-            {status === "idle" && !alreadyAnswered && (
-              <Button onClick={handleSubmit} disabled={!userInput.trim()}>
-                Check
-              </Button>
-            )}
-
-            {status === "correct" && (
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm font-medium text-success">
-                  <CheckCircle2 className="h-4 w-4" /> Correct!
-                </div>
-                <div className="rounded-lg border border-border bg-muted/50 p-3">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Official Answer</p>
-                  <p className="mt-1 font-serif text-sm leading-relaxed text-foreground">{question.answer}</p>
-                </div>
+          {/* Already assessed — show result */}
+          {alreadyAssessed && (
+            <div className="space-y-4">
+              <div className="rounded-lg border-2 border-primary/30 bg-muted/50 p-5">
+                <h4 className="mb-2 font-serif text-sm font-semibold uppercase tracking-wider text-primary">
+                  Official Answer
+                </h4>
+                <p className="font-serif text-base leading-relaxed text-foreground">
+                  {question.answer}
+                </p>
               </div>
-            )}
-
-            {status === "wrong" && (
-              <div className="space-y-3">
-                <div className="rounded-lg border border-border bg-muted/50 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Correct Answer</p>
-                  <p className="mt-1 font-serif text-sm leading-relaxed text-foreground">{question.answer}</p>
-                </div>
-                {!alreadyAnswered && (
-                  <Button onClick={goNext}>
-                    <ArrowRight className="mr-1.5 h-4 w-4" /> Next
-                  </Button>
+              <div className="flex items-center gap-2 text-sm font-medium">
+                {prevEntry.assessment === "correct" ? (
+                  <span className="flex items-center gap-1.5 text-success">
+                    <CheckCircle2 className="h-4 w-4" /> You got this
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1.5 text-destructive">
+                    <XCircle className="h-4 w-4" /> You missed this
+                  </span>
                 )}
               </div>
-            )}
-          </div>
+            </div>
+          )}
+
+          {/* Not yet revealed */}
+          {!alreadyAssessed && !revealed && (
+            <div>
+              <Button onClick={handleReveal} className="bg-primary text-primary-foreground hover:bg-primary/90">
+                <Eye className="mr-1.5 h-4 w-4" />
+                Reveal Answer
+              </Button>
+            </div>
+          )}
+
+          {/* Revealed, awaiting self-assessment */}
+          {!alreadyAssessed && revealed && (
+            <div className="animate-flip-in space-y-4">
+              <div className="rounded-lg border-2 border-primary/30 bg-muted/50 p-5">
+                <h4 className="mb-2 font-serif text-sm font-semibold uppercase tracking-wider text-primary">
+                  Official Answer
+                </h4>
+                <p className="font-serif text-base leading-relaxed text-foreground">
+                  {question.answer}
+                </p>
+              </div>
+              <div className="flex gap-3 pt-2">
+                <Button onClick={() => handleSelfAssess(true)} className="bg-primary text-primary-foreground hover:bg-primary/90">
+                  <CheckCircle2 className="mr-1.5 h-4 w-4" />
+                  I got it
+                </Button>
+                <Button onClick={() => handleSelfAssess(false)} variant="outline" className="border-destructive/30 text-destructive hover:bg-destructive/10">
+                  <XCircle className="mr-1.5 h-4 w-4" />
+                  I missed it
+                </Button>
+              </div>
+            </div>
+          )}
 
           {/* Navigation + Restart */}
           <div className="mt-6 flex items-center justify-between">
             <div className="flex gap-2">
               <Button
-                onClick={goPrev}
+                onClick={() => advanceTo(currentIndex - 1)}
                 disabled={currentIndex === 0}
                 variant="outline"
                 size="lg"
@@ -336,7 +292,7 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
                 <span className="hidden sm:inline">Previous</span>
               </Button>
               <Button
-                onClick={handleSkipNext}
+                onClick={() => advanceTo(currentIndex + 1)}
                 disabled={currentIndex >= questions.length - 1}
                 variant="outline"
                 size="lg"
@@ -346,7 +302,7 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
-            <Button onClick={handleRestart} variant="ghost" size="sm">
+            <Button onClick={handleReset} variant="ghost" size="sm">
               <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Restart
             </Button>
           </div>
