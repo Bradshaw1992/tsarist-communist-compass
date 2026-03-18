@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useRef } from "react";
+import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { useRecallForSpec } from "@/hooks/useRevisionData";
 import { useSpeechToText } from "@/hooks/useSpeechToText";
 import { Button } from "@/components/ui/button";
@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { PenLine, Eye, RotateCcw, AlertTriangle, CheckCircle2, Mic, MicOff, Sparkles, Cpu, Loader2 } from "lucide-react";
+import { PenLine, Eye, RotateCcw, AlertTriangle, CheckCircle2, Mic, MicOff, Sparkles, Cpu, Loader2, Trash2 } from "lucide-react";
 import { fuzzyKeywordInText } from "@/lib/fuzzyMatcher";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -111,12 +111,31 @@ function highlightKeywords(text: string, matchedWords: string[]) {
 
 export function BlankRecall({ specId, specTitle }: BlankRecallProps) {
   const recall = useRecallForSpec(specId);
-  const [userText, setUserText] = useState("");
+  const storageKey = `blank-recall-${specId}`;
+
+  const [userText, setUserText] = useState(() => {
+    try { return localStorage.getItem(storageKey) ?? ""; } catch { return ""; }
+  });
   const [revealed, setRevealed] = useState(false);
   const [isAnalysing, setIsAnalysing] = useState(false);
   const [useAI, setUseAI] = useState(true);
   const [analysis, setAnalysis] = useState<{ mentioned: AnalysedConcept[]; missed: string[] } | null>(null);
   const prefixRef = useRef("");
+
+  // Persist text to localStorage
+  useEffect(() => {
+    try { localStorage.setItem(storageKey, userText); } catch {}
+  }, [userText, storageKey]);
+
+  // Reload saved text when specId changes
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(storageKey) ?? "";
+      setUserText(saved);
+    } catch { setUserText(""); }
+    setRevealed(false);
+    setAnalysis(null);
+  }, [storageKey]);
 
   const handleTranscript = useCallback((text: string) => {
     setUserText(prefixRef.current + text);
@@ -160,6 +179,13 @@ export function BlankRecall({ specId, specTitle }: BlankRecallProps) {
     setUserText("");
     setRevealed(false);
     setAnalysis(null);
+  };
+
+  const handleClearAndNew = () => {
+    setUserText("");
+    setRevealed(false);
+    setAnalysis(null);
+    try { localStorage.removeItem(storageKey); } catch {}
   };
 
   if (!recall) {
@@ -268,6 +294,10 @@ export function BlankRecall({ specId, specTitle }: BlankRecallProps) {
             Try Again
           </Button>
         )}
+        <Button onClick={handleClearAndNew} variant="ghost" size="sm" className="text-destructive hover:text-destructive hover:bg-destructive/10">
+          <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+          Clear &amp; Start New
+        </Button>
         {!revealed && (
           <span className="text-xs text-muted-foreground">
             {useAI ? "Using Claude AI for semantic analysis" : "Using local keyword matching"}

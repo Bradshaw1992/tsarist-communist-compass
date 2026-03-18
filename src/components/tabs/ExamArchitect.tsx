@@ -1,9 +1,10 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useExamQuestionsForSpec } from "@/hooks/useRevisionData";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { FileText, ChevronDown, ChevronUp, BookOpen } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { FileText, ChevronDown, ChevronUp, BookOpen, Trash2 } from "lucide-react";
 import type { ExamQuestion } from "@/types/revision";
 
 interface ExamArchitectProps {
@@ -151,6 +152,20 @@ export function ExamArchitect({ specId }: ExamArchitectProps) {
 
 function ExamCard({ question }: { question: ExamQuestion }) {
   const [showMarkScheme, setShowMarkScheme] = useState(false);
+  const storageKey = `exam-plan-${question.id}`;
+
+  const [planText, setPlanText] = useState(() => {
+    try { return localStorage.getItem(storageKey) ?? ""; } catch { return ""; }
+  });
+
+  useEffect(() => {
+    try { localStorage.setItem(storageKey, planText); } catch {}
+  }, [planText, storageKey]);
+
+  const handleClear = () => {
+    setPlanText("");
+    try { localStorage.removeItem(storageKey); } catch {}
+  };
 
   const parsedContent = useMemo(
     () => parseIndicativeContent(question.indicative_content),
@@ -176,7 +191,26 @@ function ExamCard({ question }: { question: ExamQuestion }) {
           {question.question_text}
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-3">
+        {/* Planning textarea */}
+        <div className="space-y-1.5">
+          <Textarea
+            value={planText}
+            onChange={(e) => setPlanText(e.target.value)}
+            placeholder="Plan your answer here (optional)..."
+            className="min-h-[80px] resize-y text-sm"
+            rows={3}
+          />
+          {planText.trim() && (
+            <div className="flex justify-end">
+              <Button onClick={handleClear} variant="ghost" size="sm" className="h-7 text-xs text-destructive hover:text-destructive hover:bg-destructive/10">
+                <Trash2 className="mr-1 h-3 w-3" />
+                Clear &amp; Start New
+              </Button>
+            </div>
+          )}
+        </div>
+
         <Button
           variant="ghost"
           size="sm"
