@@ -13,4 +13,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://tsarist-communist-compass.lovable.app/sitemap.xml
+Sitemap: https://tsarist-communist-russia-1h.co.uk/sitemap.xml
