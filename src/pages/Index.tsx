@@ -274,7 +274,7 @@ const Index = () => {
                 </TabsList>
 
                 <TabsContent value="recall">
-                  <BlankRecall specId={selectedSpecId} specTitle={selectedSpec?.title || ""} />
+                  <BlankRecall specId={selectedSpecId} specTitle={selectedSpec?.title || ""} onScoreRecord={recordScore} />
                 </TabsContent>
                 <TabsContent value="exam">
                   <ExamArchitect specId={selectedSpecId} />
