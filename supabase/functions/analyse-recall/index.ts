@@ -6,6 +6,37 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+// ─── In-memory rate limiter (per Deno isolate) ─────────────────────────────
+const RATE_LIMIT_WINDOW_MS = 60_000; // 1 minute
+const RATE_LIMIT_MAX = 10; // max requests per window per IP
+
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return false;
+  }
+
+  entry.count++;
+  return entry.count > RATE_LIMIT_MAX;
+}
+
+// Clean up stale entries periodically
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, entry] of rateLimitMap) {
+    if (now > entry.resetAt) rateLimitMap.delete(ip);
+  }
+}, RATE_LIMIT_WINDOW_MS);
+
+// ─── Input limits ──────────────────────────────────────────────────────────
+const MAX_USER_TEXT_LENGTH = 10_000;
+const MAX_KEY_CONCEPTS = 50;
+
 interface KeyConcept {
   concept: string;
   trigger_keywords: string[];
@@ -22,6 +53,19 @@ serve(async (req) => {
   }
 
   try {
+    // ── Rate limiting ────────────────────────────────────────────────────
+    const clientIp =
+      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+      req.headers.get("cf-connecting-ip") ||
+      "unknown";
+
+    if (isRateLimited(clientIp)) {
+      return new Response(
+        JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }),
+        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
     if (!ANTHROPIC_API_KEY) {
       throw new Error("ANTHROPIC_API_KEY is not configured");
@@ -29,12 +73,37 @@ serve(async (req) => {
 
     const { userText, keyConcepts } = (await req.json()) as RequestBody;
 
-    if (!userText || !keyConcepts?.length) {
+    // ── Input validation ─────────────────────────────────────────────────
+    if (!userText || typeof userText !== "string") {
       return new Response(
-        JSON.stringify({ error: "Missing userText or keyConcepts" }),
+        JSON.stringify({ error: "Missing or invalid userText" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    if (userText.length > MAX_USER_TEXT_LENGTH) {
+      return new Response(
+        JSON.stringify({ error: `userText too long (max ${MAX_USER_TEXT_LENGTH} characters)` }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (!Array.isArray(keyConcepts) || keyConcepts.length === 0) {
+      return new Response(
+        JSON.stringify({ error: "Missing or empty keyConcepts" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (keyConcepts.length > MAX_KEY_CONCEPTS) {
+      return new Response(
+        JSON.stringify({ error: `keyConcepts limit exceeded (max ${MAX_KEY_CONCEPTS})` }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Sanitize triple-quotes to prevent prompt injection escape
+    const safeText = userText.replace(/"""/g, "'''");
 
     const systemPrompt = `You are the Potemkin History Marker. Your ONLY source of truth is the provided JSON array of key concepts. If a student's answer contains the core meaning of a concept in the JSON, mark it as "Mentioned." Do NOT use outside historical knowledge from the internet. If it is not in the JSON, it does not exist for this marking session.
 
@@ -66,7 +135,7 @@ ${JSON.stringify(keyConcepts, null, 2)}
 
 STUDENT'S WRITTEN TEXT:
 """
-${userText}
+${safeText}
 """
 
 Analyse the student's text against ONLY the provided key concepts. Return the JSON result.`;
@@ -123,7 +192,7 @@ Analyse the student's text against ONLY the provided key concepts. Return the JS
         headers: authHeaders,
         body: JSON.stringify({
           model,
-          max_tokens: 4096,
+          max_tokens: 2048,
           messages: [{ role: "user", content: userPrompt }],
           system: systemPrompt,
         }),
