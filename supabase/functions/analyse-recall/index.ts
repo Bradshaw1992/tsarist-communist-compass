@@ -252,7 +252,7 @@ Analyse the student's text against ONLY the provided key concepts. Return the JS
   } catch (error) {
     console.error("analyse-recall error:", error);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
+      JSON.stringify({ error: "An internal error occurred. Please try again." }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
