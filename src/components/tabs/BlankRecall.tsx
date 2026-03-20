@@ -154,6 +154,8 @@ export function BlankRecall({ specId, specTitle, onScoreRecord }: BlankRecallPro
   const [isAnalysing, setIsAnalysing] = useState(false);
   const [useAI, setUseAI] = useState(true);
   const [analysis, setAnalysis] = useState<{ mentioned: AnalysedConcept[]; missed: string[] } | null>(null);
+  const [polishedText, setPolishedText] = useState<string | null>(null);
+  const [isPolishing, setIsPolishing] = useState(false);
   const prefixRef = useRef("");
 
   // Persist text to localStorage
