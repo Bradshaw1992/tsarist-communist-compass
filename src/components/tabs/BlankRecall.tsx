@@ -394,11 +394,11 @@ export function BlankRecall({ specId, specTitle, onScoreRecord }: BlankRecallPro
         </CardContent>
       </Card>
 
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         {!revealed ? (
           <Button
             onClick={handleReveal}
-            disabled={!userText.trim() || isListening || isAnalysing}
+            disabled={!userText.trim() || isListening || isAnalysing || isPolishing}
             className="bg-primary text-primary-foreground hover:bg-primary/90"
           >
             {isAnalysing ? (
@@ -419,6 +419,27 @@ export function BlankRecall({ specId, specTitle, onScoreRecord }: BlankRecallPro
             Try Again
           </Button>
         )}
+
+        {/* AI Polish button */}
+        <Button
+          onClick={handlePolish}
+          disabled={!userText.trim() || isPolishing || isAnalysing || isListening}
+          variant="outline"
+          className="gap-2 border-accent/50 hover:bg-accent/10"
+        >
+          {isPolishing ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Claude is thinking…
+            </>
+          ) : (
+            <>
+              <Wand2 className="h-4 w-4" />
+              ✨ Clean with Claude
+            </>
+          )}
+        </Button>
+
         <Button onClick={handleClearAndNew} variant="ghost" size="sm" className="text-destructive hover:text-destructive hover:bg-destructive/10">
           <Trash2 className="mr-1.5 h-3.5 w-3.5" />
           Clear &amp; Start New
