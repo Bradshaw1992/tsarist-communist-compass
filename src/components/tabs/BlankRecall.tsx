@@ -171,6 +171,7 @@ export function BlankRecall({ specId, specTitle, onScoreRecord }: BlankRecallPro
     } catch { setUserText(""); }
     setRevealed(false);
     setAnalysis(null);
+    setPolishedText(null);
   }, [storageKey]);
 
   const handleTranscript = useCallback((text: string) => {
