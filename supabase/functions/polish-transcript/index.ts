@@ -84,17 +84,49 @@ serve(async (req) => {
       "Content-Type": "application/json",
     };
 
-    // Try Haiku first, fall back to any available model
-    const modelsToTry = [
-      "claude-3-5-haiku-latest",
-      "claude-3-5-haiku-20241022",
-      "claude-3-haiku-20240307",
-    ];
+    // Discover available models dynamically
+    const modelsResponse = await fetch("https://api.anthropic.com/v1/models", {
+      method: "GET",
+      headers: authHeaders,
+    });
+
+    if (!modelsResponse.ok) {
+      const modelListError = await modelsResponse.text();
+      console.error("Anthropic models list error:", modelsResponse.status, modelListError);
+      return new Response(
+        JSON.stringify({ error: "AI service temporarily unavailable. Please try again later." }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const modelsPayload = await modelsResponse.json() as { data?: { id?: string }[] };
+    const availableModelIds = (modelsPayload.data ?? [])
+      .map((m) => m.id)
+      .filter((id): id is string => Boolean(id));
+
+    if (availableModelIds.length === 0) {
+      return new Response(
+        JSON.stringify({ error: "AI service temporarily unavailable. Please try again later." }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Prefer Haiku (cheapest/fastest), then Sonnet, then any Claude
+    const modelScore = (id: string) => {
+      const lower = id.toLowerCase();
+      if (lower.includes("3-5-haiku")) return 5;
+      if (lower.includes("haiku")) return 4;
+      if (lower.includes("sonnet")) return 3;
+      if (lower.includes("claude")) return 2;
+      return 1;
+    };
+
+    const rankedModels = [...availableModelIds].sort((a, b) => modelScore(b) - modelScore(a));
 
     let response: Response | null = null;
     let selectedModel = "";
 
-    for (const model of modelsToTry) {
+    for (const model of rankedModels) {
       const attempt = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
         headers: authHeaders,
