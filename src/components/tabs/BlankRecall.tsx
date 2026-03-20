@@ -55,21 +55,51 @@ interface AIResult {
   matched_phrases: string[];
 }
 
+function classifyError(error: unknown): string {
+  const msg = error instanceof Error ? error.message : String(error);
+  const lower = msg.toLowerCase();
+
+  if (lower.includes("timeout") || lower.includes("timed out") || lower.includes("deadline") || lower.includes("aborted") || lower.includes("524") || lower.includes("504")) {
+    return "That was a long one! The AI timed out. Try breaking your answer into 1-minute chunks.";
+  }
+  if (lower.includes("too large") || lower.includes("payload") || lower.includes("413") || lower.includes("too long")) {
+    return "Recording is too large. Try speaking a bit more concisely.";
+  }
+  if (lower.includes("network") || lower.includes("fetch") || lower.includes("failed to fetch") || lower.includes("load failed") || lower.includes("networkerror") || lower.includes("offline")) {
+    return "Network error. Please check your Wi-Fi and try again.";
+  }
+  if (lower.includes("rate limit") || lower.includes("429")) {
+    return "Rate limit reached. Please wait a moment and try again.";
+  }
+  return msg || "AI analysis failed. Try switching to local matching instead.";
+}
+
 async function analyseKeyConceptsAI(
   userText: string,
   concepts: KeyConcept[]
 ): Promise<{ mentioned: AnalysedConcept[]; missed: string[] }> {
-  const { data, error } = await supabase.functions.invoke("analyse-recall", {
-    body: { userText, keyConcepts: concepts },
-  });
+  let data: any;
+  let error: any;
 
-  if (error) {
-    throw new Error(error.message || "AI analysis failed");
+  try {
+    const result = await supabase.functions.invoke("analyse-recall", {
+      body: { userText, keyConcepts: concepts },
+    });
+    data = result.data;
+    error = result.error;
+  } catch (fetchErr) {
+    console.error("[BlankRecall] Network/fetch error:", fetchErr);
+    throw new Error(classifyError(fetchErr));
   }
 
-  // Handle rate limit / payment errors surfaced from the edge function
+  if (error) {
+    console.error("[BlankRecall] Edge function error:", error);
+    throw new Error(classifyError(error));
+  }
+
   if (data?.error) {
-    throw new Error(data.error);
+    console.error("[BlankRecall] API error response:", data.error);
+    throw new Error(classifyError(new Error(data.error)));
   }
 
   const results: AIResult[] = data?.results ?? [];
@@ -362,6 +392,23 @@ export function BlankRecall({ specId, specTitle, onScoreRecord }: BlankRecallPro
           </span>
         )}
       </div>
+
+      {/* Processing feedback banner */}
+      {isAnalysing && useAI && (
+        <Card className="border-primary/30 bg-primary/5">
+          <CardContent className="flex items-center gap-3 p-4">
+            <Loader2 className="h-5 w-5 shrink-0 animate-spin text-primary" />
+            <div className="space-y-0.5">
+              <p className="text-sm font-medium text-foreground">Processing your recall…</p>
+              <p className="text-xs text-muted-foreground">
+                This might take a moment for longer recordings. The AI is reading through your answer.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+
 
       {revealed && analysis && (
         <div className="space-y-6">
