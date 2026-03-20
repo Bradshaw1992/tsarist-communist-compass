@@ -393,6 +393,38 @@ export function BlankRecall({ specId, specTitle, onScoreRecord }: BlankRecallPro
         )}
       </div>
 
+      {/* Processing feedback banner */}
+      {isAnalysing && useAI && (
+        <Card className="border-primary/30 bg-primary/5">
+          <CardContent className="flex items-center gap-3 p-4">
+            <Loader2 className="h-5 w-5 shrink-0 animate-spin text-primary" />
+            <div className="space-y-0.5">
+              <p className="text-sm font-medium text-foreground">Processing your recall…</p>
+              <p className="text-xs text-muted-foreground">
+                This might take a moment for longer recordings. The AI is reading through your answer.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+          </Button>
+        ) : (
+          <Button onClick={handleReset} variant="outline">
+            <RotateCcw className="mr-2 h-4 w-4" />
+            Try Again
+          </Button>
+        )}
+        <Button onClick={handleClearAndNew} variant="ghost" size="sm" className="text-destructive hover:text-destructive hover:bg-destructive/10">
+          <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+          Clear &amp; Start New
+        </Button>
+        {!revealed && (
+          <span className="text-xs text-muted-foreground">
+            {useAI ? "Using Claude AI for semantic analysis" : "Using local keyword matching"}
+          </span>
+        )}
+      </div>
+
       {revealed && analysis && (
         <div className="space-y-6">
           {/* Score summary */}
