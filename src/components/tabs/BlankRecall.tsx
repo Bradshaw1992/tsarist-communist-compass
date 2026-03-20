@@ -235,13 +235,47 @@ export function BlankRecall({ specId, specTitle, onScoreRecord }: BlankRecallPro
     setUserText("");
     setRevealed(false);
     setAnalysis(null);
+    setPolishedText(null);
   };
 
   const handleClearAndNew = () => {
     setUserText("");
     setRevealed(false);
     setAnalysis(null);
+    setPolishedText(null);
     try { localStorage.removeItem(storageKey); } catch {}
+  };
+
+  const handlePolish = async () => {
+    if (!userText.trim()) {
+      toast.error("Write or record your recall first before polishing.");
+      return;
+    }
+    setIsPolishing(true);
+    setPolishedText(null);
+    trackEvent("polish_transcript", { spec_id: specId });
+    try {
+      const { data, error } = await supabase.functions.invoke("polish-transcript", {
+        body: { transcript: userText },
+      });
+      if (error) {
+        console.error("[BlankRecall] Polish edge function error:", error);
+        throw new Error(classifyError(error));
+      }
+      if (data?.error) {
+        console.error("[BlankRecall] Polish API error:", data.error);
+        throw new Error(data.error);
+      }
+      setPolishedText(data.polished);
+    } catch (err) {
+      console.error("[BlankRecall] Polish error:", err);
+      toast.error(
+        err instanceof Error ? err.message : "Failed to polish transcript. Please try again.",
+        { duration: 5000 }
+      );
+    } finally {
+      setIsPolishing(false);
+    }
   };
 
   if (!recall) {
