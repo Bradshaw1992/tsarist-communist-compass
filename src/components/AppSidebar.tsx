@@ -48,7 +48,7 @@ export function AppSidebar({ selectedSpecId, onSelectSpec, scores }: AppSidebarP
         </div>
       </SidebarHeader>
 
-      <SidebarContent asChild>
+      <SidebarContent>
         <nav aria-label="Revision topics">
           {sections.map((section, sIdx) => (
             <Collapsible key={section.title} defaultOpen={sIdx < 2}>
