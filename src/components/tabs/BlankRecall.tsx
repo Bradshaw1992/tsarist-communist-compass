@@ -547,6 +547,51 @@ export function BlankRecall({ specId, specTitle, onScoreRecord }: BlankRecallPro
           )}
         </div>
       )}
+
+      {/* Polishing feedback */}
+      {isPolishing && (
+        <Card className="border-accent/30 bg-accent/5">
+          <CardContent className="flex items-center gap-3 p-4">
+            <Loader2 className="h-5 w-5 shrink-0 animate-spin text-accent" />
+            <div className="space-y-0.5">
+              <p className="text-sm font-medium text-foreground">Claude is thinking…</p>
+              <p className="text-xs text-muted-foreground">
+                Cleaning your transcript, correcting names, and organising into sections.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Polished output — parchment style */}
+      {polishedText && (
+        <Card className="relative overflow-hidden border-2 border-amber-600/30 bg-amber-50/80 shadow-md dark:border-amber-500/20 dark:bg-amber-950/20">
+          <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIj48ZmlsdGVyIGlkPSJhIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgbnVtT2N0YXZlcz0iNCIgc3RpdGNoVGlsZXM9InN0aXRjaCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWx0ZXI9InVybCgjYSkiIG9wYWNpdHk9Ii40Ii8+PC9zdmc+')]" />
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 font-serif text-lg text-amber-800 dark:text-amber-200">
+              <Wand2 className="h-5 w-5" />
+              Polished Transcript
+            </CardTitle>
+            <p className="text-xs text-amber-700/70 dark:text-amber-300/50">
+              Cleaned by Claude 3.5 Haiku — filler removed, names corrected, structured into sections.
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div
+              className="prose prose-sm max-w-none font-serif leading-relaxed text-amber-950 dark:text-amber-100 prose-headings:font-serif prose-headings:text-amber-800 dark:prose-headings:text-amber-200 prose-strong:text-amber-900 dark:prose-strong:text-amber-100 prose-li:marker:text-amber-600"
+              dangerouslySetInnerHTML={{
+                __html: polishedText
+                  .replace(/^## (.+)$/gm, '<h2 class="text-base font-bold mt-4 mb-2">$1</h2>')
+                  .replace(/^- (.+)$/gm, '<li>$1</li>')
+                  .replace(/(<li>.*<\/li>\n?)+/gs, (match) => `<ul class="list-disc pl-5 space-y-1">${match}</ul>`)
+                  .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                  .replace(/\n{2,}/g, '<br/><br/>')
+                  .replace(/\n/g, '<br/>')
+              }}
+            />
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
