@@ -334,13 +334,14 @@ export function BlankRecall({ specId, specTitle, onScoreRecord }: BlankRecallPro
             disabled={revealed || isAnalysing}
           />
           {!revealed && !isAnalysing && (
-            <div className="flex items-center justify-end gap-2 pt-2">
+            <div className="flex flex-wrap items-center justify-end gap-2 pt-2">
               {/* Handwritten Notes Modal */}
               <Dialog>
                 <DialogTrigger asChild>
                   <Button type="button" variant="outline" size="lg" className="min-h-[48px] gap-2">
                     <Camera className="h-5 w-5" />
                     <span className="hidden sm:inline">Use Handwritten Notes</span>
+                    <span className="sm:hidden">Notes</span>
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-md">
@@ -366,6 +367,25 @@ export function BlankRecall({ specId, specTitle, onScoreRecord }: BlankRecallPro
                   </div>
                 </DialogContent>
               </Dialog>
+
+              {/* Gemini longer recording */}
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                className="min-h-[48px] gap-2 border-purple-300 text-purple-700 hover:bg-purple-50 dark:border-purple-700 dark:text-purple-300 dark:hover:bg-purple-950/40"
+                asChild
+              >
+                <a
+                  href="https://gemini.google.com/gem/1KklPWqDQ-aHyCCgNK9LnkEiK64GjQZyL?usp=sharing"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Sparkles className="h-5 w-5" />
+                  <span className="hidden sm:inline">Longer Recording with Gemini</span>
+                  <span className="sm:hidden">Gemini</span>
+                </a>
+              </Button>
 
               {/* Voice recording */}
               {isSupported && (
