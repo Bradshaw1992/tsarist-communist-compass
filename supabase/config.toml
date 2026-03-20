@@ -2,3 +2,6 @@ project_id = "lcbqiuufbrjilkzzmvjd"
 
 [functions.analyse-recall]
 verify_jwt = false
+
+[functions.polish-transcript]
+verify_jwt = false
