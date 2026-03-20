@@ -146,7 +146,7 @@ serve(async (req) => {
     }
 
     if (!response) {
-      console.error("All Haiku models returned 404");
+      console.error("All discovered models returned 404");
       return new Response(
         JSON.stringify({ error: "AI service temporarily unavailable. Please try again later." }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
