@@ -1,9 +1,13 @@
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { useFactDrillerForSpec } from "@/hooks/useRevisionData";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, XCircle, RotateCcw, Zap, Eye, Trophy, AlertTriangle, ChevronLeft, ChevronRight } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import {
+  CheckCircle2, XCircle, RotateCcw, Zap, Eye, Trophy, Star,
+  BookOpen, ChevronLeft, ChevronRight,
+} from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
 import type { FactDrillerQuestion } from "@/types/revision";
 
@@ -11,6 +15,8 @@ interface SpecificKnowledgeProps {
   specId: number;
   onScoreRecord?: (specId: number, correct: number, total: number) => void;
 }
+
+const SESSION_SIZE = 10;
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -21,7 +27,6 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
-type Phase = "quiz" | "report";
 type Assessment = "correct" | "missed";
 
 interface HistoryEntry {
@@ -29,35 +34,44 @@ interface HistoryEntry {
   assessment?: Assessment;
 }
 
-interface MissedItem {
-  question: string;
-  answer: string;
-}
-
 export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgeProps) {
   const allQuestions = useFactDrillerForSpec(specId);
-  const storageKey = `sk-answers-${specId}`;
-  const [questions, setQuestions] = useState<FactDrillerQuestion[]>([]);
+
+  const [sessionSeed, setSessionSeed] = useState(0);
+  const [retryMode, setRetryMode] = useState(false);
+  const [retryQuestions, setRetryQuestions] = useState<FactDrillerQuestion[]>([]);
+  const [firstTryPerfect, setFirstTryPerfect] = useState(true);
+
+  const initialQuestions = useMemo(
+    () => shuffle(allQuestions).slice(0, SESSION_SIZE),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [specId, sessionSeed]
+  );
+
+  const questions = retryMode ? retryQuestions : initialQuestions;
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [revealed, setRevealed] = useState(false);
-  const [correct, setCorrect] = useState(0);
-  const [missed, setMissed] = useState<MissedItem[]>([]);
-  const [phase, setPhase] = useState<Phase>("quiz");
-  const [isRetest, setIsRetest] = useState(false);
+  const [stats, setStats] = useState({ correct: 0, missed: 0 });
   const [history, setHistory] = useState<Record<number, HistoryEntry>>({});
-  const [userAnswers, setUserAnswers] = useState<Record<number, string>>(() => {
-    try {
-      const saved = localStorage.getItem(storageKey);
-      return saved ? JSON.parse(saved) : {};
-    } catch { return {}; }
-  });
+  const [userAnswers, setUserAnswers] = useState<Record<number, string>>({});
+  const [sessionComplete, setSessionComplete] = useState(false);
 
+  const question = questions[currentIndex];
   const currentUserAnswer = userAnswers[currentIndex] ?? "";
+  const totalAnswered = stats.correct + stats.missed;
+  const allAnswered = totalAnswered === questions.length;
 
-  // Persist answers to localStorage
   useEffect(() => {
-    try { localStorage.setItem(storageKey, JSON.stringify(userAnswers)); } catch {}
-  }, [userAnswers, storageKey]);
+    if (allAnswered && questions.length > 0) {
+      setSessionComplete(true);
+      if (!retryMode && onScoreRecord) {
+        onScoreRecord(specId, stats.correct, questions.length);
+      }
+    }
+  }, [allAnswered, questions.length, retryMode, onScoreRecord, specId, stats.correct]);
+
+  const handleReveal = () => setRevealed(true);
 
   const handleAnswerChange = (value: string) => {
     setUserAnswers((prev) => ({ ...prev, [currentIndex]: value }));
@@ -70,89 +84,63 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
     }
   };
 
-  useEffect(() => {
-    if (allQuestions.length > 0) {
-      setQuestions(shuffle(allQuestions));
-      setCurrentIndex(0);
-      setRevealed(false);
-      setCorrect(0);
-      setMissed([]);
-      setPhase("quiz");
-      setIsRetest(false);
-      setHistory({});
-      setUserAnswers({});
-    }
-  }, [allQuestions]);
-
-  useEffect(() => {
-    if (phase === "report" && onScoreRecord && !isRetest) {
-      onScoreRecord(specId, correct, questions.length);
-    }
-  }, [phase, onScoreRecord, specId, correct, questions.length, isRetest]);
-
-  const question = questions[currentIndex];
-
-  const handleReveal = () => setRevealed(true);
-
-  const advanceTo = useCallback((index: number) => {
-    setCurrentIndex(index);
-    const entry = history[index];
-    setRevealed(entry?.revealed ?? false);
-  }, [history]);
-
   const handleSelfAssess = useCallback((gotIt: boolean) => {
-    const q = questions[currentIndex];
     trackEvent("driller_assess", { result: gotIt ? "got_it" : "missed_it", spec_id: specId, driller: "sniper_facts" });
+    if (!gotIt) setFirstTryPerfect(false);
     setHistory((prev) => ({
       ...prev,
       [currentIndex]: { revealed: true, assessment: gotIt ? "correct" : "missed" },
     }));
-    if (gotIt) {
-      setCorrect((p) => p + 1);
-    } else {
-      setMissed((p) => [...p, { question: q.question, answer: q.answer }]);
-    }
-    // Auto-advance
+    setStats((prev) => ({
+      correct: prev.correct + (gotIt ? 1 : 0),
+      missed: prev.missed + (gotIt ? 0 : 1),
+    }));
     if (currentIndex + 1 < questions.length) {
       const nextIdx = currentIndex + 1;
       setCurrentIndex(nextIdx);
       const next = history[nextIdx];
       setRevealed(next?.revealed ?? false);
-    } else {
-      setPhase("report");
     }
-  }, [currentIndex, questions, history]);
+  }, [currentIndex, questions.length, history, specId]);
 
-  const handleRestart = () => {
-    setQuestions(shuffle(allQuestions));
+  const navigateTo = useCallback((index: number) => {
+    setCurrentIndex(index);
+    const entry = history[index];
+    setRevealed(entry?.revealed ?? false);
+  }, [history]);
+
+  const resetSession = useCallback(() => {
     setCurrentIndex(0);
     setRevealed(false);
-    setCorrect(0);
-    setMissed([]);
-    setPhase("quiz");
-    setIsRetest(false);
+    setStats({ correct: 0, missed: 0 });
     setHistory({});
     setUserAnswers({});
-    try { localStorage.removeItem(storageKey); } catch {}
-  };
+    setSessionComplete(false);
+    setRetryMode(false);
+    setRetryQuestions([]);
+    setFirstTryPerfect(true);
+    setSessionSeed((s) => s + 1);
+  }, []);
 
-  const handleRetestWrong = () => {
-    const missedQs = missed
-      .map((m) => allQuestions.find((q) => q.question === m.question))
-      .filter(Boolean) as FactDrillerQuestion[];
-    setQuestions(shuffle(missedQs));
+  const handleRetryMissed = useCallback(() => {
+    const missed: FactDrillerQuestion[] = [];
+    Object.entries(history).forEach(([idx, entry]) => {
+      if (entry.assessment === "missed") {
+        missed.push(questions[Number(idx)]);
+      }
+    });
+    setRetryQuestions(shuffle(missed));
+    setRetryMode(true);
     setCurrentIndex(0);
     setRevealed(false);
-    setCorrect(0);
-    setMissed([]);
-    setPhase("quiz");
-    setIsRetest(true);
+    setStats({ correct: 0, missed: 0 });
     setHistory({});
     setUserAnswers({});
-    try { localStorage.removeItem(storageKey); } catch {}
-  };
+    setSessionComplete(false);
+    setFirstTryPerfect(false);
+  }, [history, questions]);
 
-  if (allQuestions.length === 0) {
+  if (questions.length === 0 && !sessionComplete) {
     return (
       <div className="flex items-center justify-center py-20 text-muted-foreground">
         No rapid-fire questions available for this specification point.
@@ -160,50 +148,61 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
     );
   }
 
-  // --- REPORT PHASE ---
-  if (phase === "report") {
-    const total = questions.length;
-    const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
+  const prevEntry = history[currentIndex];
+  const alreadyAssessed = !!prevEntry?.assessment;
+  const isMastered = sessionComplete && stats.missed === 0;
+  const hasMissed = sessionComplete && stats.missed > 0;
+
+  // --- SESSION COMPLETE ---
+  if (sessionComplete) {
     return (
       <div className="space-y-6">
-        <h2 className="font-serif text-2xl font-bold text-primary">Revision Report</h2>
-        <Card className="mx-auto max-w-2xl border-2 border-primary/20 shadow-lg">
-          <CardContent className="p-6 sm:p-8 space-y-6">
-            <div className="flex items-center gap-4">
-              <Trophy className="h-8 w-8 text-accent" />
-              <div>
-                <p className="text-3xl font-bold text-foreground">{correct}/{total}</p>
-                <p className="text-sm text-muted-foreground">{pct}% correct{isRetest ? " (re-test)" : ""}</p>
-              </div>
-            </div>
-            {missed.length > 0 && (
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 text-sm font-semibold text-destructive">
-                  <AlertTriangle className="h-4 w-4" /> Focus List — {missed.length} question{missed.length > 1 ? "s" : ""} to review
+        <Header questionsCount={questions.length} allCount={allQuestions.length} stats={stats} retryMode={retryMode} />
+        <Card className="mx-auto max-w-2xl border-2 shadow-lg">
+          <CardContent className="flex flex-col items-center gap-5 p-8 sm:p-10 text-center">
+            {isMastered ? (
+              <>
+                <div className="rounded-full bg-primary/10 p-4">
+                  <Trophy className="h-10 w-10 text-primary" />
                 </div>
-                <ul className="space-y-2">
-                  {missed.map((m, i) => (
-                    <li key={i} className="rounded-lg border border-border bg-muted/50 p-3 text-sm">
-                      <p className="font-medium text-foreground">{m.question}</p>
-                      <p className="mt-1 text-muted-foreground">
-                        <span className="font-semibold text-primary">Answer:</span> {m.answer}
-                      </p>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+                <h3 className="font-serif text-2xl font-bold text-primary">
+                  Topic Mastery: {questions.length}/{questions.length}
+                </h3>
+                {firstTryPerfect && !retryMode && (
+                  <Badge className="bg-amber-500/15 text-amber-600 border-amber-500/30 text-sm px-3 py-1">
+                    <Star className="mr-1.5 h-4 w-4 fill-amber-500 text-amber-500" />
+                    Perfect Score!
+                  </Badge>
+                )}
+                <p className="text-sm text-muted-foreground">
+                  {retryMode
+                    ? "You've mastered all the questions you previously missed."
+                    : "Excellent recall — you nailed every question."}
+                </p>
+              </>
+            ) : (
+              <>
+                <div className="rounded-full bg-muted p-4">
+                  <BookOpen className="h-10 w-10 text-muted-foreground" />
+                </div>
+                <h3 className="font-serif text-2xl font-bold text-foreground">
+                  {stats.correct}/{questions.length} Correct
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  You missed {stats.missed} question{stats.missed > 1 ? "s" : ""}. Retry them to reach mastery.
+                </p>
+              </>
             )}
-            {missed.length === 0 && (
-              <p className="text-sm font-medium text-success">Perfect score — no questions to review!</p>
-            )}
-            <div className="flex flex-wrap gap-3">
-              {missed.length > 0 && (
-                <Button onClick={handleRetestWrong}>
-                  <RotateCcw className="mr-1.5 h-4 w-4" /> Re-test Wrong Answers
+            <div className="flex gap-3 pt-2">
+              {hasMissed && (
+                <Button onClick={handleRetryMissed} className="bg-primary text-primary-foreground hover:bg-primary/90">
+                  <RotateCcw className="mr-1.5 h-4 w-4" />
+                  Retry Missed Questions
                 </Button>
               )}
-              <Button onClick={handleRestart} variant="outline">
-                <RotateCcw className="mr-1.5 h-4 w-4" /> Restart All
+              <Button onClick={resetSession} variant={hasMissed ? "outline" : "default"}>
+                <RotateCcw className="mr-1.5 h-4 w-4" />
+                Restart
               </Button>
             </div>
           </CardContent>
@@ -215,31 +214,12 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
   // --- QUIZ PHASE ---
   if (!question) return null;
 
-  const prevEntry = history[currentIndex];
-  const alreadyAssessed = !!prevEntry?.assessment;
-
   return (
     <div className="space-y-6">
-      <div className="flex items-start justify-between">
-        <div className="space-y-1">
-          <h2 className="font-serif text-2xl font-bold text-primary">
-            {isRetest ? "Re-test: Wrong Answers" : "Specific Knowledge"}
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            Think of the answer, then reveal — honest self-assessment builds stronger recall.
-          </p>
-        </div>
-        <div className="flex items-center gap-3 text-xs">
-          <span className="flex items-center gap-1 text-success">
-            <CheckCircle2 className="h-3.5 w-3.5" /> {correct}
-          </span>
-          <span className="flex items-center gap-1 text-destructive">
-            <XCircle className="h-3.5 w-3.5" /> {missed.length}
-          </span>
-        </div>
-      </div>
+      <Header questionsCount={questions.length} allCount={allQuestions.length} stats={stats} retryMode={retryMode} />
 
       <div className="text-center text-xs text-muted-foreground">
+        {retryMode && <span className="text-destructive font-medium mr-1">Retry ·</span>}
         Question {currentIndex + 1} of {questions.length}
       </div>
 
@@ -252,7 +232,7 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
             </p>
           </div>
 
-          {/* Optional answer input — only before reveal */}
+          {/* Answer input before reveal */}
           {!alreadyAssessed && !revealed && (
             <div className="mb-4">
               <Textarea
@@ -266,7 +246,7 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
             </div>
           )}
 
-          {/* Already assessed — show result */}
+          {/* Already assessed */}
           {alreadyAssessed && (
             <div className="space-y-4">
               {currentUserAnswer.trim() && (
@@ -275,29 +255,21 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
                   <p className="text-sm leading-relaxed text-foreground/80">{currentUserAnswer}</p>
                 </div>
               )}
-              <div className="rounded-lg border-2 border-primary/30 bg-muted/50 p-5">
-                <h4 className="mb-2 font-serif text-sm font-semibold uppercase tracking-wider text-primary">
-                  Official Answer
-                </h4>
-                <p className="font-serif text-base leading-relaxed text-foreground">
-                  {question.answer}
-                </p>
+              <div className="rounded-lg border border-border bg-muted/50 p-5">
+                <h4 className="mb-1 font-serif text-sm font-semibold text-primary">Model Answer</h4>
+                <p className="text-sm leading-relaxed text-foreground/80">{question.answer}</p>
               </div>
               <div className="flex items-center gap-2 text-sm font-medium">
                 {prevEntry.assessment === "correct" ? (
-                  <span className="flex items-center gap-1.5 text-success">
-                    <CheckCircle2 className="h-4 w-4" /> You got this
-                  </span>
+                  <span className="flex items-center gap-1.5 text-primary"><CheckCircle2 className="h-4 w-4" /> You got this</span>
                 ) : (
-                  <span className="flex items-center gap-1.5 text-destructive">
-                    <XCircle className="h-4 w-4" /> You missed this
-                  </span>
+                  <span className="flex items-center gap-1.5 text-destructive"><XCircle className="h-4 w-4" /> You missed this</span>
                 )}
               </div>
             </div>
           )}
 
-          {/* Not yet revealed */}
+          {/* Reveal button */}
           {!alreadyAssessed && !revealed && (
             <div>
               <Button onClick={handleReveal} className="bg-primary text-primary-foreground hover:bg-primary/90">
@@ -317,12 +289,8 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
                 </div>
               )}
               <div className="rounded-lg border-2 border-primary/30 bg-muted/50 p-5">
-                <h4 className="mb-2 font-serif text-sm font-semibold uppercase tracking-wider text-primary">
-                  Official Answer
-                </h4>
-                <p className="font-serif text-base leading-relaxed text-foreground">
-                  {question.answer}
-                </p>
+                <h4 className="mb-2 font-serif text-sm font-semibold uppercase tracking-wider text-primary">Official Answer</h4>
+                <p className="font-serif text-base leading-relaxed text-foreground">{question.answer}</p>
               </div>
               <div className="flex gap-3 pt-2">
                 <Button onClick={() => handleSelfAssess(true)} className="bg-primary text-primary-foreground hover:bg-primary/90">
@@ -337,36 +305,49 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
             </div>
           )}
 
-          {/* Navigation + Restart */}
+          {/* Navigation */}
           <div className="mt-6 flex items-center justify-between">
             <div className="flex gap-2">
-              <Button
-                onClick={() => advanceTo(currentIndex - 1)}
-                disabled={currentIndex === 0}
-                variant="outline"
-                size="lg"
-                className="min-h-[44px] min-w-[44px] gap-1.5"
-              >
+              <Button onClick={() => navigateTo(currentIndex - 1)} disabled={currentIndex === 0} variant="outline" size="lg" className="min-h-[44px] min-w-[44px] gap-1.5">
                 <ChevronLeft className="h-4 w-4" />
                 <span className="hidden sm:inline">Previous</span>
               </Button>
-              <Button
-                onClick={() => advanceTo(currentIndex + 1)}
-                disabled={currentIndex >= questions.length - 1}
-                variant="outline"
-                size="lg"
-                className="min-h-[44px] min-w-[44px] gap-1.5"
-              >
+              <Button onClick={() => navigateTo(currentIndex + 1)} disabled={currentIndex >= questions.length - 1} variant="outline" size="lg" className="min-h-[44px] min-w-[44px] gap-1.5">
                 <span className="hidden sm:inline">Next</span>
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
-            <Button onClick={handleRestart} variant="ghost" size="sm">
+            <Button onClick={resetSession} variant="ghost" size="sm">
               <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> Restart
             </Button>
           </div>
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+/* ---- Sub-components ---- */
+
+function Header({ questionsCount, allCount, stats, retryMode }: {
+  questionsCount: number; allCount: number; stats: { correct: number; missed: number }; retryMode: boolean;
+}) {
+  return (
+    <div className="flex items-start justify-between">
+      <div className="space-y-1">
+        <h2 className="font-serif text-2xl font-bold text-primary">Specific Knowledge</h2>
+        <p className="text-sm text-muted-foreground">
+          {retryMode ? `Retrying ${questionsCount} missed` : `${questionsCount} of ${allCount} questions`} · shuffled each session
+        </p>
+      </div>
+      <div className="flex items-center gap-3 text-xs">
+        <span className="flex items-center gap-1 text-primary">
+          <CheckCircle2 className="h-3.5 w-3.5" /> {stats.correct}
+        </span>
+        <span className="flex items-center gap-1 text-destructive">
+          <XCircle className="h-3.5 w-3.5" /> {stats.missed}
+        </span>
+      </div>
     </div>
   );
 }
