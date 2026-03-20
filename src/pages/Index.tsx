@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { trackPageView } from "@/lib/analytics";
 import { useSearchParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -32,9 +32,7 @@ const Index = () => {
 
   const handleSelect = (id: number) => {
     setSelectedSpecId(id);
-    try {
-      localStorage.setItem("russia-last-studied", String(id));
-    } catch {}
+    try { localStorage.setItem("russia-last-studied", String(id)); } catch {}
     const spec = db.spec_points.find((sp) => sp.id === id);
     if (spec) {
       trackPageView(`/topic/${id}`, `${spec.title} | AQA 1H Russia Compass`);
@@ -45,11 +43,7 @@ const Index = () => {
 
   const handleStartRevising = () => {
     const lastId = localStorage.getItem("russia-last-studied");
-    if (lastId) {
-      handleSelect(parseInt(lastId, 10));
-    } else {
-      handleSelect(db.spec_points[0]?.id ?? 1);
-    }
+    handleSelect(lastId ? parseInt(lastId, 10) : (db.spec_points[0]?.id ?? 1));
   };
 
   const handleOpenScribe = () => {
@@ -62,7 +56,6 @@ const Index = () => {
   return (
     <SidebarProvider defaultOpen={!isMobile}>
       <div className="flex min-h-screen w-full">
-        {/* Semantic aside */}
         <aside aria-label="Topic navigation">
           <AppSidebar
             selectedSpecId={selectedSpecId}
@@ -74,7 +67,6 @@ const Index = () => {
           />
         </aside>
 
-        {/* Main content */}
         <div className="flex flex-1 flex-col min-w-0">
           {/* Sticky top bar */}
           <header className="sticky top-0 z-40 flex items-center gap-3 border-b border-border bg-card/95 px-4 py-2 backdrop-blur">
@@ -85,16 +77,17 @@ const Index = () => {
             </span>
           </header>
 
-          {/* Welcome page */}
           <main>
             <WelcomeHero
+              onSelectTopic={handleSelect}
               onStartRevising={handleStartRevising}
               onOpenScribe={handleOpenScribe}
+              scores={scores}
             />
           </main>
         </div>
 
-        {/* Full-screen revision modal */}
+        {/* Revision modal */}
         <Dialog open={!!selectedSpecId} onOpenChange={(open) => !open && handleClose()}>
           <DialogContent className="flex h-[95vh] max-h-[95vh] w-[95vw] max-w-6xl flex-col gap-0 overflow-hidden p-0">
             <div className="flex items-center gap-3 border-b border-border px-5 py-3">
@@ -102,9 +95,7 @@ const Index = () => {
                 <h2 className="truncate font-serif text-base font-bold text-primary sm:text-lg">
                   {selectedSpec?.title}
                 </h2>
-                <p className="truncate text-xs text-muted-foreground">
-                  {selectedSpec?.section}
-                </p>
+                <p className="truncate text-xs text-muted-foreground">{selectedSpec?.section}</p>
               </div>
               <Button variant="ghost" size="icon" onClick={handleClose}>
                 <X className="h-5 w-5" />
@@ -132,7 +123,6 @@ const Index = () => {
                       <span className="hidden sm:inline">Specific</span> Knowledge
                     </TabsTrigger>
                   </TabsList>
-
                   <TabsContent value="recall">
                     <BlankRecall specId={selectedSpecId} specTitle={selectedSpec?.title || ""} onScoreRecord={recordScore} />
                   </TabsContent>
