@@ -217,8 +217,8 @@ export function BlankRecall({ specId, specTitle, onScoreRecord }: BlankRecallPro
       } catch (err) {
         console.error("AI analysis error:", err);
         toast.error(
-          err instanceof Error ? err.message : "AI analysis failed. Try local matching instead.",
-          { duration: 5000 }
+          err instanceof Error ? err.message : "Claude is a bit busy! Please try again in 10 seconds or shorten your text.",
+          { duration: 6000 }
         );
       } finally {
         setIsAnalysing(false);
