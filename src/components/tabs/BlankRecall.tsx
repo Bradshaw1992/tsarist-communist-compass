@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { PenLine, Eye, RotateCcw, AlertTriangle, CheckCircle2, Mic, MicOff, Sparkles, Cpu, Loader2, Trash2, Camera, ExternalLink, Wand2 } from "lucide-react";
 import { fuzzyKeywordInText } from "@/lib/fuzzyMatcher";
-import { supabase } from "@/integrations/supabase/client";
+
 import { toast } from "sonner";
 import { trackEvent } from "@/lib/analytics";
 import type { KeyConcept } from "@/types/revision";
@@ -207,6 +207,9 @@ export function BlankRecall({ specId, specTitle, onScoreRecord }: BlankRecallPro
   const [analysis, setAnalysis] = useState<{ mentioned: AnalysedConcept[]; missed: string[] } | null>(null);
   const [polishedText, setPolishedText] = useState<string | null>(null);
   const [isPolishing, setIsPolishing] = useState(false);
+  const [analyseError, setAnalyseError] = useState<string | null>(null);
+  const [polishError, setPolishError] = useState<string | null>(null);
+  const [streamingPolish, setStreamingPolish] = useState("");
   const prefixRef = useRef("");
 
   // Persist text to localStorage
@@ -257,6 +260,7 @@ export function BlankRecall({ specId, specTitle, onScoreRecord }: BlankRecallPro
   const handleReveal = async () => {
     if (!recall?.key_concepts) return;
     trackEvent("analyse_recall", { mode: useAI ? "ai" : "local", spec_id: specId });
+    setAnalyseError(null);
 
     if (useAI) {
       setIsAnalysing(true);
@@ -267,10 +271,9 @@ export function BlankRecall({ specId, specTitle, onScoreRecord }: BlankRecallPro
         handleScoreRecord(result.mentioned.length, result.mentioned.length + result.missed.length);
       } catch (err) {
         console.error("AI analysis error:", err);
-        toast.error(
-          err instanceof Error ? err.message : "Claude is a bit busy! Please try again in 10 seconds or shorten your text.",
-          { duration: 6000 }
-        );
+        const msg = err instanceof Error ? err.message : "Claude is a bit busy! Please try again in 10 seconds or shorten your text.";
+        setAnalyseError(msg);
+        toast.error(msg, { duration: 6000 });
       } finally {
         setIsAnalysing(false);
       }
@@ -304,26 +307,72 @@ export function BlankRecall({ specId, specTitle, onScoreRecord }: BlankRecallPro
     }
     setIsPolishing(true);
     setPolishedText(null);
+    setStreamingPolish("");
+    setPolishError(null);
     trackEvent("polish_transcript", { spec_id: specId });
+
     try {
-      const { data, error } = await supabase.functions.invoke("polish-transcript", {
-        body: { transcript: userText },
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      const url = `${supabaseUrl}/functions/v1/polish-transcript`;
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: supabaseKey,
+          Authorization: `Bearer ${supabaseKey}`,
+        },
+        body: JSON.stringify({ transcript: userText }),
       });
-      if (error) {
-        console.error("[BlankRecall] Polish edge function error:", error);
-        throw new Error(classifyError(error));
+
+      if (!response.ok) {
+        let errMsg = `Polish failed (${response.status})`;
+        try { const b = await response.json(); if (b?.error) errMsg = b.error; } catch {}
+        throw new Error(errMsg);
       }
-      if (data?.error) {
-        console.error("[BlankRecall] Polish API error:", data.error);
-        throw new Error(data.error);
+
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error("No response stream");
+
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let fullText = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          const payload = line.slice(6).trim();
+          if (payload === "[DONE]") continue;
+
+          try {
+            const event = JSON.parse(payload);
+            if (event.type === "delta" && event.text) {
+              fullText += event.text;
+              setStreamingPolish(fullText);
+            } else if (event.type === "error") {
+              throw new Error(event.error);
+            }
+          } catch (parseErr) {
+            if (parseErr instanceof Error && parseErr.message !== "Unexpected end of JSON input") throw parseErr;
+          }
+        }
       }
-      setPolishedText(data.polished);
+
+      setPolishedText(fullText);
+      setStreamingPolish("");
     } catch (err) {
       console.error("[BlankRecall] Polish error:", err);
-      toast.error(
-        err instanceof Error ? err.message : "Failed to polish transcript. Please try again.",
-        { duration: 5000 }
-      );
+      const msg = err instanceof Error ? err.message : "Failed to polish transcript. Please try again.";
+      setPolishError(msg);
+      toast.error(msg, { duration: 5000 });
     } finally {
       setIsPolishing(false);
     }
@@ -528,11 +577,27 @@ export function BlankRecall({ specId, specTitle, onScoreRecord }: BlankRecallPro
           <CardContent className="flex items-center gap-3 p-4">
             <Loader2 className="h-5 w-5 shrink-0 animate-spin text-primary" />
             <div className="space-y-0.5">
-              <p className="text-sm font-medium text-foreground">Processing your recall…</p>
+              <p className="text-sm font-medium text-foreground">Scribe is cross-referencing your transcript with the AQA 1H spec…</p>
               <p className="text-xs text-muted-foreground">
-                This might take a moment for longer recordings. The AI is reading through your answer.
+                Streaming response — this won't time out.
               </p>
             </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Retry button after analyse error */}
+      {analyseError && !revealed && !isAnalysing && (
+        <Card className="border-destructive/30 bg-destructive/5">
+          <CardContent className="flex items-center justify-between gap-3 p-4">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 shrink-0 text-destructive" />
+              <p className="text-sm text-foreground">{analyseError}</p>
+            </div>
+            <Button onClick={handleReveal} size="sm" variant="outline" className="shrink-0">
+              <RotateCcw className="mr-1.5 h-3.5 w-3.5" />
+              Retry
+            </Button>
           </CardContent>
         </Card>
       )}
@@ -625,11 +690,48 @@ export function BlankRecall({ specId, specTitle, onScoreRecord }: BlankRecallPro
           <CardContent className="flex items-center gap-3 p-4">
             <Loader2 className="h-5 w-5 shrink-0 animate-spin text-accent" />
             <div className="space-y-0.5">
-              <p className="text-sm font-medium text-foreground">Claude is thinking…</p>
+              <p className="text-sm font-medium text-foreground">Scribe is cross-referencing your transcript with the AQA 1H spec…</p>
               <p className="text-xs text-muted-foreground">
-                Cleaning your transcript, correcting names, and organising into sections.
+                Cleaning transcript, correcting names, and organising into sections.
               </p>
             </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Streaming polish preview */}
+      {isPolishing && streamingPolish && (
+        <Card className="relative overflow-hidden border-2 border-amber-600/30 bg-amber-50/80 shadow-md dark:border-amber-500/20 dark:bg-amber-950/20">
+          <CardContent className="p-4">
+            <div
+              className="prose prose-sm max-w-none font-serif leading-relaxed text-amber-950 dark:text-amber-100 opacity-70"
+              dangerouslySetInnerHTML={{
+                __html: streamingPolish
+                  .replace(/^## (.+)$/gm, '<h2 class="text-base font-bold mt-4 mb-2">$1</h2>')
+                  .replace(/^- (.+)$/gm, '<li>$1</li>')
+                  .replace(/(<li>.*<\/li>\n?)+/gs, (match) => `<ul class="list-disc pl-5 space-y-1">${match}</ul>`)
+                  .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                  .replace(/\n{2,}/g, '<br/><br/>')
+                  .replace(/\n/g, '<br/>')
+              }}
+            />
+            <span className="inline-block h-4 w-1 animate-pulse bg-amber-600 dark:bg-amber-400 ml-0.5" />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Polish retry on error */}
+      {polishError && !isPolishing && (
+        <Card className="border-destructive/30 bg-destructive/5">
+          <CardContent className="flex items-center justify-between gap-3 p-4">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 shrink-0 text-destructive" />
+              <p className="text-sm text-foreground">{polishError}</p>
+            </div>
+            <Button onClick={handlePolish} size="sm" variant="outline" className="shrink-0">
+              <RotateCcw className="mr-1.5 h-3.5 w-3.5" />
+              Retry
+            </Button>
           </CardContent>
         </Card>
       )}

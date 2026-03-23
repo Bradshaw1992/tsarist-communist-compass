@@ -6,9 +6,8 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const MODEL = "claude-3-5-haiku-20241022";
 const MAX_TEXT_LENGTH = 15_000;
-
-// Reuse the same rate limiter pattern from analyse-recall
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX = 10;
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
@@ -39,8 +38,7 @@ serve(async (req) => {
   try {
     const clientIp =
       req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-      req.headers.get("cf-connecting-ip") ||
-      "unknown";
+      req.headers.get("cf-connecting-ip") || "unknown";
 
     if (isRateLimited(clientIp)) {
       return new Response(
@@ -75,116 +73,92 @@ serve(async (req) => {
     }
 
     const systemPrompt = `You are an expert A-Level History Scribe. Clean this transcript by removing filler words, correcting historical names (e.g., Pobedonostsev, Zinoviev), and formatting it into three sections: Main Arguments, Key Evidence, and Historiography/Vocabulary. Use markdown formatting with ## headings for each section and bullet points for clarity. Keep the student's original meaning intact — only clean, never add new content.`;
-
     const safeTranscript = transcript.replace(/"""/g, "'''");
 
-    const authHeaders = {
-      "x-api-key": ANTHROPIC_API_KEY,
-      "anthropic-version": "2023-06-01",
-      "Content-Type": "application/json",
-    };
-
-    // Discover available models dynamically
-    const modelsResponse = await fetch("https://api.anthropic.com/v1/models", {
-      method: "GET",
-      headers: authHeaders,
+    const anthropicStream = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "x-api-key": ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        max_tokens: 4096,
+        stream: true,
+        messages: [{ role: "user", content: `Here is the raw transcript to clean:\n\n"""\n${safeTranscript}\n"""` }],
+        system: systemPrompt,
+      }),
     });
 
-    if (!modelsResponse.ok) {
-      const modelListError = await modelsResponse.text();
-      console.error("Anthropic models list error:", modelsResponse.status, modelListError);
-      return new Response(
-        JSON.stringify({ error: "AI service temporarily unavailable. Please try again later." }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    const modelsPayload = await modelsResponse.json() as { data?: { id?: string }[] };
-    const availableModelIds = (modelsPayload.data ?? [])
-      .map((m) => m.id)
-      .filter((id): id is string => Boolean(id));
-
-    if (availableModelIds.length === 0) {
-      return new Response(
-        JSON.stringify({ error: "AI service temporarily unavailable. Please try again later." }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    // Prefer Haiku (cheapest/fastest), then Sonnet, then any Claude
-    const modelScore = (id: string) => {
-      const lower = id.toLowerCase();
-      if (lower.includes("3-5-haiku")) return 5;
-      if (lower.includes("haiku")) return 4;
-      if (lower.includes("sonnet")) return 3;
-      if (lower.includes("claude")) return 2;
-      return 1;
-    };
-
-    const rankedModels = [...availableModelIds].sort((a, b) => modelScore(b) - modelScore(a));
-
-    let response: Response | null = null;
-    let selectedModel = "";
-
-    for (const model of rankedModels) {
-      const attempt = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: authHeaders,
-        body: JSON.stringify({
-          model,
-          max_tokens: 4096,
-          messages: [{ role: "user", content: `Here is the raw transcript to clean:\n\n"""\n${safeTranscript}\n"""` }],
-          system: systemPrompt,
-        }),
-      });
-
-      if (attempt.status === 404) continue;
-
-      selectedModel = model;
-      response = attempt;
-      break;
-    }
-
-    if (!response) {
-      console.error("All discovered models returned 404");
-      return new Response(
-        JSON.stringify({ error: "AI service temporarily unavailable. Please try again later." }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Anthropic API error:", response.status, errorText, "model:", selectedModel);
-
-      if (response.status === 429) {
+    if (!anthropicStream.ok) {
+      const errorText = await anthropicStream.text();
+      console.error("Anthropic API error:", anthropicStream.status, errorText);
+      if (anthropicStream.status === 429) {
         return new Response(
           JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }),
           { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-
       return new Response(
         JSON.stringify({ error: "An internal error occurred. Please try again." }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const anthropicResponse = await response.json();
-    const content = anthropicResponse.content?.[0]?.text;
+    // Stream SSE to client — send text chunks as they arrive
+    const encoder = new TextEncoder();
+    const decoder = new TextDecoder();
 
-    if (!content) {
-      console.error("No content in Anthropic response:", anthropicResponse);
-      return new Response(
-        JSON.stringify({ error: "An internal error occurred. Please try again." }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
+    const readable = new ReadableStream({
+      async start(controller) {
+        try {
+          const reader = anthropicStream.body!.getReader();
+          let buffer = "";
 
-    return new Response(
-      JSON.stringify({ polished: content }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n");
+            buffer = lines.pop() || "";
+
+            for (const line of lines) {
+              if (!line.startsWith("data: ")) continue;
+              const jsonStr = line.slice(6).trim();
+              if (jsonStr === "[DONE]") continue;
+
+              try {
+                const event = JSON.parse(jsonStr);
+                if (event.type === "content_block_delta" && event.delta?.text) {
+                  controller.enqueue(
+                    encoder.encode(`data: ${JSON.stringify({ type: "delta", text: event.delta.text })}\n\n`)
+                  );
+                }
+                if (event.type === "message_stop") {
+                  controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "done" })}\n\n`));
+                }
+              } catch { /* skip malformed */ }
+            }
+          }
+
+          controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+          controller.close();
+        } catch (err) {
+          console.error("Stream processing error:", err);
+          try {
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "error", error: "Stream processing failed" })}\n\n`));
+            controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+            controller.close();
+          } catch { /* already closed */ }
+        }
+      },
+    });
+
+    return new Response(readable, {
+      headers: { ...corsHeaders, "Content-Type": "text/event-stream", "Cache-Control": "no-cache", Connection: "keep-alive" },
+    });
   } catch (error) {
     console.error("polish-transcript error:", error);
     return new Response(

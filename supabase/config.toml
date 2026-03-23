@@ -6,3 +6,4 @@ max_timeout = 120
 
 [functions.polish-transcript]
 verify_jwt = false
+max_timeout = 120
