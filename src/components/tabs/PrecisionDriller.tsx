@@ -230,9 +230,12 @@ export function PrecisionDriller({ specId }: PrecisionDrillerProps) {
             <Badge variant="secondary" className="font-sans text-xs capitalize">
               {question.question_type.replace("_", " ")}
             </Badge>
-            <p className="font-serif text-lg font-medium leading-relaxed text-foreground">
-              {question.question_text}
-            </p>
+            <div className="flex items-start gap-2">
+              <p className="font-serif text-lg font-medium leading-relaxed text-foreground flex-1">
+                {question.question_text}
+              </p>
+              <ReportFlagButton onClick={() => { setReportText(question.question_text); setReportOpen(true); }} />
+            </div>
           </div>
 
           {/* Answer input before reveal */}
