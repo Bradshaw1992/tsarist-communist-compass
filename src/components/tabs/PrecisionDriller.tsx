@@ -36,6 +36,9 @@ function shuffleArray<T>(arr: T[]): T[] {
 
 export function PrecisionDriller({ specId }: PrecisionDrillerProps) {
   const allQuestions = useQuizQuestionsForSpec(specId);
+  const topicName = useTopicNameForSpec(specId);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reportText, setReportText] = useState("");
 
   const [sessionSeed, setSessionSeed] = useState(0);
   const [retryMode, setRetryMode] = useState(false);
