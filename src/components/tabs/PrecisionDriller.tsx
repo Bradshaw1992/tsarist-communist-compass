@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { Textarea } from "@/components/ui/textarea";
-import { useQuizQuestionsForSpec } from "@/hooks/useRevisionData";
+import { useQuizQuestionsForSpec, useTopicNameForSpec } from "@/hooks/useRevisionData";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +9,7 @@ import {
   ChevronLeft, ChevronRight, Trophy, Star,
 } from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
+import { ReportIssueDialog, ReportFlagButton } from "@/components/ReportIssueDialog";
 import type { QuizQuestion } from "@/types/revision";
 
 interface PrecisionDrillerProps {
