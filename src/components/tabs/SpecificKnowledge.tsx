@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { Textarea } from "@/components/ui/textarea";
-import { useFactDrillerForSpec } from "@/hooks/useRevisionData";
+import { useFactDrillerForSpec, useTopicNameForSpec } from "@/hooks/useRevisionData";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +9,7 @@ import {
   BookOpen, ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
+import { ReportIssueDialog, ReportFlagButton } from "@/components/ReportIssueDialog";
 import type { FactDrillerQuestion } from "@/types/revision";
 
 interface SpecificKnowledgeProps {
@@ -36,6 +37,9 @@ interface HistoryEntry {
 
 export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgeProps) {
   const allQuestions = useFactDrillerForSpec(specId);
+  const topicName = useTopicNameForSpec(specId);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reportText, setReportText] = useState("");
 
   const [sessionSeed, setSessionSeed] = useState(0);
   const [retryMode, setRetryMode] = useState(false);
@@ -227,9 +231,12 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
         <CardContent className="p-6 sm:p-8">
           <div className="mb-6">
             <Zap className="mb-2 inline h-4 w-4 text-accent" />
-            <p className="font-serif text-lg font-medium leading-relaxed text-foreground">
-              {question.question}
-            </p>
+            <div className="flex items-start gap-2">
+              <p className="font-serif text-lg font-medium leading-relaxed text-foreground flex-1">
+                {question.question}
+              </p>
+              <ReportFlagButton onClick={() => { setReportText(question.question); setReportOpen(true); }} />
+            </div>
           </div>
 
           {/* Answer input before reveal */}
@@ -323,6 +330,14 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
           </div>
         </CardContent>
       </Card>
+
+      <ReportIssueDialog
+        open={reportOpen}
+        onOpenChange={setReportOpen}
+        section="Knowledge"
+        topicName={topicName}
+        originalText={reportText}
+      />
     </div>
   );
 }

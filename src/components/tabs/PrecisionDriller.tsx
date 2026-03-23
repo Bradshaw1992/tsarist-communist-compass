@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { Textarea } from "@/components/ui/textarea";
-import { useQuizQuestionsForSpec } from "@/hooks/useRevisionData";
+import { useQuizQuestionsForSpec, useTopicNameForSpec } from "@/hooks/useRevisionData";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +9,7 @@ import {
   ChevronLeft, ChevronRight, Trophy, Star,
 } from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
+import { ReportIssueDialog, ReportFlagButton } from "@/components/ReportIssueDialog";
 import type { QuizQuestion } from "@/types/revision";
 
 interface PrecisionDrillerProps {
@@ -35,6 +36,9 @@ function shuffleArray<T>(arr: T[]): T[] {
 
 export function PrecisionDriller({ specId }: PrecisionDrillerProps) {
   const allQuestions = useQuizQuestionsForSpec(specId);
+  const topicName = useTopicNameForSpec(specId);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reportText, setReportText] = useState("");
 
   const [sessionSeed, setSessionSeed] = useState(0);
   const [retryMode, setRetryMode] = useState(false);
@@ -226,9 +230,12 @@ export function PrecisionDriller({ specId }: PrecisionDrillerProps) {
             <Badge variant="secondary" className="font-sans text-xs capitalize">
               {question.question_type.replace("_", " ")}
             </Badge>
-            <p className="font-serif text-lg font-medium leading-relaxed text-foreground">
-              {question.question_text}
-            </p>
+            <div className="flex items-start gap-2">
+              <p className="font-serif text-lg font-medium leading-relaxed text-foreground flex-1">
+                {question.question_text}
+              </p>
+              <ReportFlagButton onClick={() => { setReportText(question.question_text); setReportOpen(true); }} />
+            </div>
           </div>
 
           {/* Answer input before reveal */}
@@ -319,6 +326,14 @@ export function PrecisionDriller({ specId }: PrecisionDrillerProps) {
           </div>
         </CardContent>
       </Card>
+
+      <ReportIssueDialog
+        open={reportOpen}
+        onOpenChange={setReportOpen}
+        section="Driller"
+        topicName={topicName}
+        originalText={reportText}
+      />
     </div>
   );
 }

@@ -38,3 +38,10 @@ export function useQuizQuestionsForSpec(specId: number) {
 export function useFactDrillerForSpec(specId: number) {
   return useMemo(() => db.fact_driller.filter((q) => q.spec_point_id === specId), [specId]);
 }
+
+export function useTopicNameForSpec(specId: number) {
+  return useMemo(() => {
+    const sp = db.spec_points.find((p) => p.id === specId);
+    return sp?.title ?? `Topic ${specId}`;
+  }, [specId]);
+}
