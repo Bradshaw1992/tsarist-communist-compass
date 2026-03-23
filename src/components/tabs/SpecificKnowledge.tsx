@@ -330,6 +330,14 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
           </div>
         </CardContent>
       </Card>
+
+      <ReportIssueDialog
+        open={reportOpen}
+        onOpenChange={setReportOpen}
+        section="Knowledge"
+        topicName={topicName}
+        originalText={reportText}
+      />
     </div>
   );
 }
