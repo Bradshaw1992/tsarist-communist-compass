@@ -577,11 +577,27 @@ export function BlankRecall({ specId, specTitle, onScoreRecord }: BlankRecallPro
           <CardContent className="flex items-center gap-3 p-4">
             <Loader2 className="h-5 w-5 shrink-0 animate-spin text-primary" />
             <div className="space-y-0.5">
-              <p className="text-sm font-medium text-foreground">Processing your recall…</p>
+              <p className="text-sm font-medium text-foreground">Scribe is cross-referencing your transcript with the AQA 1H spec…</p>
               <p className="text-xs text-muted-foreground">
-                This might take a moment for longer recordings. The AI is reading through your answer.
+                Streaming response — this won't time out.
               </p>
             </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Retry button after analyse error */}
+      {analyseError && !revealed && !isAnalysing && (
+        <Card className="border-destructive/30 bg-destructive/5">
+          <CardContent className="flex items-center justify-between gap-3 p-4">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 shrink-0 text-destructive" />
+              <p className="text-sm text-foreground">{analyseError}</p>
+            </div>
+            <Button onClick={handleReveal} size="sm" variant="outline" className="shrink-0">
+              <RotateCcw className="mr-1.5 h-3.5 w-3.5" />
+              Retry
+            </Button>
           </CardContent>
         </Card>
       )}
