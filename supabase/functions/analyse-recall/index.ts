@@ -6,7 +6,8 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const MODEL = "claude-3-5-haiku-20241022";
+const PRIMARY_MODEL = "claude-3-5-haiku-20241022";
+const FALLBACK_MODELS = ["claude-3-5-haiku-latest", "claude-3-haiku-20240307"];
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX = 10;
 const MAX_USER_TEXT_LENGTH = 10_000;
@@ -127,6 +128,46 @@ function normalizeResults(raw: unknown, keyConcepts: KeyConcept[]): { results: N
   return { results };
 }
 
+async function openAnthropicStream(
+  apiKey: string,
+  systemPrompt: string,
+  userPrompt: string,
+) {
+  const models = [PRIMARY_MODEL, ...FALLBACK_MODELS];
+  let lastStatus = 500;
+  let lastErrorText = "Unknown error";
+
+  for (const model of models) {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model,
+        max_tokens: MAX_TOKENS,
+        stream: true,
+        messages: [{ role: "user", content: userPrompt }],
+        system: systemPrompt,
+      }),
+    });
+
+    if (response.ok) {
+      return { response, model };
+    }
+
+    lastStatus = response.status;
+    lastErrorText = await response.text();
+    console.error(`Anthropic API error with model ${model}:`, response.status, lastErrorText);
+
+    if (response.status !== 404) break;
+  }
+
+  return { response: null, model: null, lastStatus, lastErrorText };
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -187,28 +228,15 @@ Rules for "matched_phrases":
 
     const userPrompt = `KEY CONCEPTS JSON:\n${JSON.stringify(conceptPayload)}\n\nSTUDENT'S WRITTEN TEXT:\n"""\n${safeText}\n"""\n\nAnalyse the student's text against ONLY the provided key concepts. Return the JSON result.`;
 
-    const anthropicStream = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        max_tokens: MAX_TOKENS,
-        stream: true,
-        messages: [{ role: "user", content: userPrompt }],
-        system: systemPrompt,
-      }),
-    });
+    const anthropicAttempt = await openAnthropicStream(ANTHROPIC_API_KEY, systemPrompt, userPrompt);
 
-    if (!anthropicStream.ok) {
-      const errorText = await anthropicStream.text();
-      console.error("Anthropic API error:", anthropicStream.status, errorText);
-      if (anthropicStream.status === 429) return jsonError("Rate limit exceeded. Please try again in a moment.", 429);
-      return jsonError(`AI analysis failed (${anthropicStream.status})`, 500);
+    if (!anthropicAttempt.response) {
+      if (anthropicAttempt.lastStatus === 429) return jsonError("Rate limit exceeded. Please try again in a moment.", 429);
+      return jsonError(`AI analysis failed (${anthropicAttempt.lastStatus})`, 500);
     }
+
+    const anthropicStream = anthropicAttempt.response;
+    const activeModel = anthropicAttempt.model;
 
     const encoder = new TextEncoder();
     const decoder = new TextDecoder();
@@ -218,7 +246,7 @@ Rules for "matched_phrases":
         let heartbeat: number | null = null;
         let resultSent = false;
         try {
-          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "started" })}\n\n`));
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "started", model: activeModel })}\n\n`));
 
           heartbeat = setInterval(() => {
             try {
