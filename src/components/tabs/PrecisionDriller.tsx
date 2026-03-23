@@ -326,6 +326,14 @@ export function PrecisionDriller({ specId }: PrecisionDrillerProps) {
           </div>
         </CardContent>
       </Card>
+
+      <ReportIssueDialog
+        open={reportOpen}
+        onOpenChange={setReportOpen}
+        section="Driller"
+        topicName={topicName}
+        originalText={reportText}
+      />
     </div>
   );
 }
