@@ -6,9 +6,12 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-// ─── In-memory rate limiter ────────────────────────────────────────────────
+const MODEL = "claude-3-5-haiku-20241022";
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX = 10;
+const MAX_USER_TEXT_LENGTH = 10_000;
+const MAX_KEY_CONCEPTS = 50;
+
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 
 function isRateLimited(ip: string): boolean {
@@ -29,19 +32,8 @@ setInterval(() => {
   }
 }, RATE_LIMIT_WINDOW_MS);
 
-// ─── Input limits ──────────────────────────────────────────────────────────
-const MAX_USER_TEXT_LENGTH = 10_000;
-const MAX_KEY_CONCEPTS = 50;
-
-interface KeyConcept {
-  concept: string;
-  trigger_keywords: string[];
-}
-
-interface RequestBody {
-  userText: string;
-  keyConcepts: KeyConcept[];
-}
+interface KeyConcept { concept: string; trigger_keywords: string[]; }
+interface RequestBody { userText: string; keyConcepts: KeyConcept[]; }
 
 function jsonError(message: string, status: number) {
   return new Response(JSON.stringify({ error: message }), {
@@ -58,33 +50,21 @@ serve(async (req) => {
   try {
     const clientIp =
       req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-      req.headers.get("cf-connecting-ip") ||
-      "unknown";
+      req.headers.get("cf-connecting-ip") || "unknown";
 
     if (isRateLimited(clientIp)) {
       return jsonError("Rate limit exceeded. Please try again in a moment.", 429);
     }
 
     const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
-    if (!ANTHROPIC_API_KEY) {
-      throw new Error("ANTHROPIC_API_KEY is not configured");
-    }
+    if (!ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY is not configured");
 
     const { userText, keyConcepts } = (await req.json()) as RequestBody;
 
-    // ── Input validation ─────────────────────────────────────────────────
-    if (!userText || typeof userText !== "string") {
-      return jsonError("Missing or invalid userText", 400);
-    }
-    if (userText.length > MAX_USER_TEXT_LENGTH) {
-      return jsonError(`userText too long (max ${MAX_USER_TEXT_LENGTH} characters)`, 400);
-    }
-    if (!Array.isArray(keyConcepts) || keyConcepts.length === 0) {
-      return jsonError("Missing or empty keyConcepts", 400);
-    }
-    if (keyConcepts.length > MAX_KEY_CONCEPTS) {
-      return jsonError(`keyConcepts limit exceeded (max ${MAX_KEY_CONCEPTS})`, 400);
-    }
+    if (!userText || typeof userText !== "string") return jsonError("Missing or invalid userText", 400);
+    if (userText.length > MAX_USER_TEXT_LENGTH) return jsonError(`userText too long (max ${MAX_USER_TEXT_LENGTH} characters)`, 400);
+    if (!Array.isArray(keyConcepts) || keyConcepts.length === 0) return jsonError("Missing or empty keyConcepts", 400);
+    if (keyConcepts.length > MAX_KEY_CONCEPTS) return jsonError(`keyConcepts limit exceeded (max ${MAX_KEY_CONCEPTS})`, 400);
 
     const safeText = userText.replace(/"""/g, "'''");
 
@@ -113,100 +93,30 @@ Rules for "matched_phrases":
 - For "missed" concepts, matched_phrases should be an empty array.
 - Be generous but accurate: if the student conveys the same idea with different words, still mark the relevant phrase in the concept as matched.`;
 
-    const userPrompt = `KEY CONCEPTS JSON:
-${JSON.stringify(keyConcepts, null, 2)}
+    const userPrompt = `KEY CONCEPTS JSON:\n${JSON.stringify(keyConcepts, null, 2)}\n\nSTUDENT'S WRITTEN TEXT:\n"""\n${safeText}\n"""\n\nAnalyse the student's text against ONLY the provided key concepts. Return the JSON result.`;
 
-STUDENT'S WRITTEN TEXT:
-"""
-${safeText}
-"""
-
-Analyse the student's text against ONLY the provided key concepts. Return the JSON result.`;
-
-    const authHeaders = {
-      "x-api-key": ANTHROPIC_API_KEY,
-      "anthropic-version": "2023-06-01",
-      "Content-Type": "application/json",
-    };
-
-    // ── Discover available models ────────────────────────────────────────
-    const modelsResponse = await fetch("https://api.anthropic.com/v1/models", {
-      method: "GET",
-      headers: authHeaders,
+    const anthropicStream = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "x-api-key": ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        max_tokens: 2048,
+        stream: true,
+        messages: [{ role: "user", content: userPrompt }],
+        system: systemPrompt,
+      }),
     });
-
-    if (!modelsResponse.ok) {
-      const err = await modelsResponse.text();
-      console.error("Anthropic models list error:", modelsResponse.status, err);
-      return jsonError(`AI analysis failed: unable to list models (${modelsResponse.status})`, 500);
-    }
-
-    const modelsPayload = (await modelsResponse.json()) as { data?: { id?: string }[] };
-    const availableModelIds = (modelsPayload.data ?? [])
-      .map((m) => m.id)
-      .filter((id): id is string => Boolean(id));
-
-    if (availableModelIds.length === 0) {
-      return jsonError("AI analysis failed: no models available for this API key", 500);
-    }
-
-    const modelScore = (id: string) => {
-      const lower = id.toLowerCase();
-      if (lower.includes("3-5-haiku")) return 5;
-      if (lower.includes("haiku")) return 4;
-      if (lower.includes("sonnet")) return 3;
-      if (lower.includes("claude")) return 2;
-      return 1;
-    };
-
-    const rankedModels = [...availableModelIds].sort((a, b) => modelScore(b) - modelScore(a));
-
-    // ── Try each model with STREAMING ────────────────────────────────────
-    let anthropicStream: Response | null = null;
-    let selectedModel = "";
-
-    for (const model of rankedModels) {
-      const attempt = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: authHeaders,
-        body: JSON.stringify({
-          model,
-          max_tokens: 2048,
-          stream: true,
-          messages: [{ role: "user", content: userPrompt }],
-          system: systemPrompt,
-        }),
-      });
-
-      if (attempt.status === 404) {
-        continue;
-      }
-
-      selectedModel = model;
-      anthropicStream = attempt;
-      break;
-    }
-
-    if (!anthropicStream) {
-      return jsonError("AI analysis failed: all models returned not found", 500);
-    }
 
     if (!anthropicStream.ok) {
       const errorText = await anthropicStream.text();
-      console.error("Anthropic API error:", anthropicStream.status, errorText, "model:", selectedModel);
-
-      if (anthropicStream.status === 429) {
-        return jsonError("Rate limit exceeded. Please try again in a moment.", 429);
-      }
+      console.error("Anthropic API error:", anthropicStream.status, errorText);
+      if (anthropicStream.status === 429) return jsonError("Rate limit exceeded. Please try again in a moment.", 429);
       return jsonError(`AI analysis failed (${anthropicStream.status})`, 500);
     }
-
-    // ── Stream Anthropic SSE events through to the client ────────────────
-    // We transform Anthropic's SSE stream into a simple text stream that
-    // concatenates content_block_delta text pieces, then sends the final
-    // assembled JSON as a single flush at the end. This keeps the connection
-    // alive (preventing gateway timeouts) while giving the client a clean
-    // text/event-stream it can read incrementally.
 
     const encoder = new TextEncoder();
     const decoder = new TextDecoder();
@@ -214,7 +124,7 @@ Analyse the student's text against ONLY the provided key concepts. Return the JS
     const readable = new ReadableStream({
       async start(controller) {
         try {
-          const reader = anthropicStream!.body!.getReader();
+          const reader = anthropicStream.body!.getReader();
           let buffer = "";
           let fullText = "";
 
@@ -233,48 +143,31 @@ Analyse the student's text against ONLY the provided key concepts. Return the JS
 
               try {
                 const event = JSON.parse(jsonStr);
-
                 if (event.type === "content_block_delta" && event.delta?.text) {
                   fullText += event.delta.text;
-                  // Send a keepalive/progress SSE event
-                  controller.enqueue(
-                    encoder.encode(`data: ${JSON.stringify({ type: "progress", length: fullText.length })}\n\n`)
-                  );
+                  controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "progress", length: fullText.length })}\n\n`));
                 }
-
                 if (event.type === "message_stop") {
-                  // Parse and send the final result
                   const jsonMatch = fullText.match(/\{[\s\S]*\}/);
                   if (jsonMatch) {
                     const parsed = JSON.parse(jsonMatch[0]);
-                    controller.enqueue(
-                      encoder.encode(`data: ${JSON.stringify({ type: "result", data: parsed })}\n\n`)
-                    );
+                    controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "result", data: parsed })}\n\n`));
                   } else {
-                    controller.enqueue(
-                      encoder.encode(`data: ${JSON.stringify({ type: "error", error: "Could not parse AI response" })}\n\n`)
-                    );
+                    controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "error", error: "Could not parse AI response" })}\n\n`));
                   }
                 }
-              } catch {
-                // skip malformed SSE lines
-              }
+              } catch { /* skip malformed */ }
             }
           }
 
-          // If we never got message_stop, try to parse what we have
-          if (fullText && !fullText.includes('"message_stop"')) {
+          if (fullText) {
             const jsonMatch = fullText.match(/\{[\s\S]*\}/);
             if (jsonMatch) {
               try {
                 const parsed = JSON.parse(jsonMatch[0]);
-                controller.enqueue(
-                  encoder.encode(`data: ${JSON.stringify({ type: "result", data: parsed })}\n\n`)
-                );
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "result", data: parsed })}\n\n`));
               } catch {
-                controller.enqueue(
-                  encoder.encode(`data: ${JSON.stringify({ type: "error", error: "Incomplete AI response" })}\n\n`)
-                );
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "error", error: "Incomplete AI response" })}\n\n`));
               }
             }
           }
@@ -283,22 +176,17 @@ Analyse the student's text against ONLY the provided key concepts. Return the JS
           controller.close();
         } catch (err) {
           console.error("Stream processing error:", err);
-          controller.enqueue(
-            encoder.encode(`data: ${JSON.stringify({ type: "error", error: "Stream processing failed" })}\n\n`)
-          );
-          controller.enqueue(encoder.encode("data: [DONE]\n\n"));
-          controller.close();
+          try {
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "error", error: "Stream processing failed" })}\n\n`));
+            controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+            controller.close();
+          } catch { /* controller already closed */ }
         }
       },
     });
 
     return new Response(readable, {
-      headers: {
-        ...corsHeaders,
-        "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache",
-        "Connection": "keep-alive",
-      },
+      headers: { ...corsHeaders, "Content-Type": "text/event-stream", "Cache-Control": "no-cache", Connection: "keep-alive" },
     });
   } catch (error) {
     console.error("analyse-recall error:", error);
