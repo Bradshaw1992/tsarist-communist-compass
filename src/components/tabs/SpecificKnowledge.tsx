@@ -231,9 +231,12 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
         <CardContent className="p-6 sm:p-8">
           <div className="mb-6">
             <Zap className="mb-2 inline h-4 w-4 text-accent" />
-            <p className="font-serif text-lg font-medium leading-relaxed text-foreground">
-              {question.question}
-            </p>
+            <div className="flex items-start gap-2">
+              <p className="font-serif text-lg font-medium leading-relaxed text-foreground flex-1">
+                {question.question}
+              </p>
+              <ReportFlagButton onClick={() => { setReportText(question.question); setReportOpen(true); }} />
+            </div>
           </div>
 
           {/* Answer input before reveal */}
