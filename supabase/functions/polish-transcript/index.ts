@@ -6,7 +6,8 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const MODEL = "claude-3-5-haiku-20241022";
+const PRIMARY_MODEL = "claude-haiku-4-5-20251001";
+const FALLBACK_MODELS = ["claude-sonnet-4-5-20250929", "claude-sonnet-4-6"];
 const MAX_TEXT_LENGTH = 15_000;
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX = 10;
@@ -29,6 +30,44 @@ setInterval(() => {
     if (now > entry.resetAt) rateLimitMap.delete(ip);
   }
 }, RATE_LIMIT_WINDOW_MS);
+
+async function openAnthropicStream(
+  apiKey: string,
+  systemPrompt: string,
+  transcript: string,
+) {
+  const models = [PRIMARY_MODEL, ...FALLBACK_MODELS];
+  let lastStatus = 500;
+  let lastErrorText = "Unknown error";
+
+  for (const model of models) {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model,
+        max_tokens: 4096,
+        stream: true,
+        messages: [{ role: "user", content: `Here is the raw transcript to clean:\n\n"""\n${transcript}\n"""` }],
+        system: systemPrompt,
+      }),
+    });
+
+    if (response.ok) return { response, model };
+
+    lastStatus = response.status;
+    lastErrorText = await response.text();
+    console.error(`Anthropic API error with model ${model}:`, response.status, lastErrorText);
+
+    if (response.status !== 404) break;
+  }
+
+  return { response: null, model: null, lastStatus, lastErrorText };
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -75,26 +114,10 @@ serve(async (req) => {
     const systemPrompt = `You are an expert A-Level History Scribe. Clean this transcript by removing filler words, correcting historical names (e.g., Pobedonostsev, Zinoviev), and formatting it into three sections: Main Arguments, Key Evidence, and Historiography/Vocabulary. Use markdown formatting with ## headings for each section and bullet points for clarity. Keep the student's original meaning intact — only clean, never add new content.`;
     const safeTranscript = transcript.replace(/"""/g, "'''");
 
-    const anthropicStream = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        max_tokens: 4096,
-        stream: true,
-        messages: [{ role: "user", content: `Here is the raw transcript to clean:\n\n"""\n${safeTranscript}\n"""` }],
-        system: systemPrompt,
-      }),
-    });
+    const anthropicAttempt = await openAnthropicStream(ANTHROPIC_API_KEY, systemPrompt, safeTranscript);
 
-    if (!anthropicStream.ok) {
-      const errorText = await anthropicStream.text();
-      console.error("Anthropic API error:", anthropicStream.status, errorText);
-      if (anthropicStream.status === 429) {
+    if (!anthropicAttempt.response) {
+      if (anthropicAttempt.lastStatus === 429) {
         return new Response(
           JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }),
           { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -105,6 +128,8 @@ serve(async (req) => {
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    const anthropicStream = anthropicAttempt.response;
 
     // Stream SSE to client — send text chunks as they arrive
     const encoder = new TextEncoder();
