@@ -76,34 +76,85 @@ function classifyError(error: unknown): string {
 
 async function analyseKeyConceptsAI(
   userText: string,
-  concepts: KeyConcept[]
+  concepts: KeyConcept[],
+  onProgress?: (charCount: number) => void
 ): Promise<{ mentioned: AnalysedConcept[]; missed: string[] }> {
-  let data: any;
-  let error: any;
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
+  const url = `${supabaseUrl}/functions/v1/analyse-recall`;
+
+  let response: Response;
   try {
-    const result = await supabase.functions.invoke("analyse-recall", {
-      body: { userText, keyConcepts: concepts },
+    response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: supabaseKey,
+        Authorization: `Bearer ${supabaseKey}`,
+      },
+      body: JSON.stringify({ userText, keyConcepts: concepts }),
     });
-    data = result.data;
-    error = result.error;
   } catch (fetchErr) {
     console.error("[BlankRecall] Network/fetch error:", fetchErr);
     throw new Error(classifyError(fetchErr));
   }
 
-  if (error) {
-    console.error("[BlankRecall] Edge function error:", error);
-    throw new Error(classifyError(error));
+  if (!response.ok) {
+    let errMsg = `AI analysis failed (${response.status})`;
+    try {
+      const errBody = await response.json();
+      if (errBody?.error) errMsg = errBody.error;
+    } catch {}
+    console.error("[BlankRecall] Edge function error:", errMsg);
+    throw new Error(classifyError(new Error(errMsg)));
   }
 
-  if (data?.error) {
-    console.error("[BlankRecall] API error response:", data.error);
-    throw new Error(classifyError(new Error(data.error)));
+  // ── Read SSE stream ──────────────────────────────────────────────────
+  const reader = response.body?.getReader();
+  if (!reader) throw new Error("No response stream");
+
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let resultData: any = null;
+  let streamError: string | null = null;
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop() || "";
+
+    for (const line of lines) {
+      if (!line.startsWith("data: ")) continue;
+      const payload = line.slice(6).trim();
+      if (payload === "[DONE]") continue;
+
+      try {
+        const event = JSON.parse(payload);
+        if (event.type === "progress" && onProgress) {
+          onProgress(event.length);
+        } else if (event.type === "result") {
+          resultData = event.data;
+        } else if (event.type === "error") {
+          streamError = event.error;
+        }
+      } catch {}
+    }
   }
 
-  const results: AIResult[] = data?.results ?? [];
+  if (streamError) {
+    console.error("[BlankRecall] Stream error:", streamError);
+    throw new Error(classifyError(new Error(streamError)));
+  }
 
+  if (!resultData?.results) {
+    throw new Error("Claude is a bit busy! Please try again in 10 seconds or shorten your text.");
+  }
+
+  const results: AIResult[] = resultData.results;
   const mentioned: AnalysedConcept[] = [];
   const missed: string[] = [];
 
