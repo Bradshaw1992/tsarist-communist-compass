@@ -105,7 +105,14 @@ async function analyseKeyConceptsAI(
     try {
       const errBody = await response.json();
       if (errBody?.error) errMsg = errBody.error;
-    } catch {}
+    } catch {
+      try {
+        const fallback = await response.text();
+        if (fallback) errMsg = fallback;
+      } catch {
+        // no-op
+      }
+    }
     console.error("[BlankRecall] Edge function error:", errMsg);
     throw new Error(classifyError(new Error(errMsg)));
   }
@@ -119,6 +126,25 @@ async function analyseKeyConceptsAI(
   let resultData: any = null;
   let streamError: string | null = null;
 
+  const processSseLine = (line: string) => {
+    if (!line.startsWith("data: ")) return;
+    const payload = line.slice(6).trim();
+    if (!payload || payload === "[DONE]") return;
+
+    try {
+      const event = JSON.parse(payload);
+      if (event.type === "progress" && onProgress) {
+        onProgress(event.length);
+      } else if (event.type === "result") {
+        resultData = event.data;
+      } else if (event.type === "error") {
+        streamError = event.error;
+      }
+    } catch (parseErr) {
+      console.error("[BlankRecall] SSE parse error:", parseErr, payload);
+    }
+  };
+
   while (true) {
     const { done, value } = await reader.read();
     if (done) break;
@@ -128,21 +154,12 @@ async function analyseKeyConceptsAI(
     buffer = lines.pop() || "";
 
     for (const line of lines) {
-      if (!line.startsWith("data: ")) continue;
-      const payload = line.slice(6).trim();
-      if (payload === "[DONE]") continue;
-
-      try {
-        const event = JSON.parse(payload);
-        if (event.type === "progress" && onProgress) {
-          onProgress(event.length);
-        } else if (event.type === "result") {
-          resultData = event.data;
-        } else if (event.type === "error") {
-          streamError = event.error;
-        }
-      } catch {}
+      processSseLine(line);
     }
+  }
+
+  if (buffer.trim()) {
+    processSseLine(buffer.trim());
   }
 
   if (streamError) {
