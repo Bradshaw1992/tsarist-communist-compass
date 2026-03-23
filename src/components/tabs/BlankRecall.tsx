@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { PenLine, Eye, RotateCcw, AlertTriangle, CheckCircle2, Mic, MicOff, Sparkles, Cpu, Loader2, Trash2, Camera, ExternalLink, Wand2 } from "lucide-react";
 import { fuzzyKeywordInText } from "@/lib/fuzzyMatcher";
-import { supabase } from "@/integrations/supabase/client";
+
 import { toast } from "sonner";
 import { trackEvent } from "@/lib/analytics";
 import type { KeyConcept } from "@/types/revision";
