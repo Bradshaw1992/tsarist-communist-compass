@@ -307,26 +307,72 @@ export function BlankRecall({ specId, specTitle, onScoreRecord }: BlankRecallPro
     }
     setIsPolishing(true);
     setPolishedText(null);
+    setStreamingPolish("");
+    setPolishError(null);
     trackEvent("polish_transcript", { spec_id: specId });
+
     try {
-      const { data, error } = await supabase.functions.invoke("polish-transcript", {
-        body: { transcript: userText },
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      const url = `${supabaseUrl}/functions/v1/polish-transcript`;
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: supabaseKey,
+          Authorization: `Bearer ${supabaseKey}`,
+        },
+        body: JSON.stringify({ transcript: userText }),
       });
-      if (error) {
-        console.error("[BlankRecall] Polish edge function error:", error);
-        throw new Error(classifyError(error));
+
+      if (!response.ok) {
+        let errMsg = `Polish failed (${response.status})`;
+        try { const b = await response.json(); if (b?.error) errMsg = b.error; } catch {}
+        throw new Error(errMsg);
       }
-      if (data?.error) {
-        console.error("[BlankRecall] Polish API error:", data.error);
-        throw new Error(data.error);
+
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error("No response stream");
+
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let fullText = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          const payload = line.slice(6).trim();
+          if (payload === "[DONE]") continue;
+
+          try {
+            const event = JSON.parse(payload);
+            if (event.type === "delta" && event.text) {
+              fullText += event.text;
+              setStreamingPolish(fullText);
+            } else if (event.type === "error") {
+              throw new Error(event.error);
+            }
+          } catch (parseErr) {
+            if (parseErr instanceof Error && parseErr.message !== "Unexpected end of JSON input") throw parseErr;
+          }
+        }
       }
-      setPolishedText(data.polished);
+
+      setPolishedText(fullText);
+      setStreamingPolish("");
     } catch (err) {
       console.error("[BlankRecall] Polish error:", err);
-      toast.error(
-        err instanceof Error ? err.message : "Failed to polish transcript. Please try again.",
-        { duration: 5000 }
-      );
+      const msg = err instanceof Error ? err.message : "Failed to polish transcript. Please try again.";
+      setPolishError(msg);
+      toast.error(msg, { duration: 5000 });
     } finally {
       setIsPolishing(false);
     }
