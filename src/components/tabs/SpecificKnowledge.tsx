@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { Textarea } from "@/components/ui/textarea";
-import { useFactDrillerForSpec } from "@/hooks/useRevisionData";
+import { useFactDrillerForSpec, useTopicNameForSpec } from "@/hooks/useRevisionData";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +9,7 @@ import {
   BookOpen, ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
+import { ReportIssueDialog, ReportFlagButton } from "@/components/ReportIssueDialog";
 import type { FactDrillerQuestion } from "@/types/revision";
 
 interface SpecificKnowledgeProps {
