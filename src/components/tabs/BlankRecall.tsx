@@ -690,11 +690,48 @@ export function BlankRecall({ specId, specTitle, onScoreRecord }: BlankRecallPro
           <CardContent className="flex items-center gap-3 p-4">
             <Loader2 className="h-5 w-5 shrink-0 animate-spin text-accent" />
             <div className="space-y-0.5">
-              <p className="text-sm font-medium text-foreground">Claude is thinking…</p>
+              <p className="text-sm font-medium text-foreground">Scribe is cross-referencing your transcript with the AQA 1H spec…</p>
               <p className="text-xs text-muted-foreground">
-                Cleaning your transcript, correcting names, and organising into sections.
+                Cleaning transcript, correcting names, and organising into sections.
               </p>
             </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Streaming polish preview */}
+      {isPolishing && streamingPolish && (
+        <Card className="relative overflow-hidden border-2 border-amber-600/30 bg-amber-50/80 shadow-md dark:border-amber-500/20 dark:bg-amber-950/20">
+          <CardContent className="p-4">
+            <div
+              className="prose prose-sm max-w-none font-serif leading-relaxed text-amber-950 dark:text-amber-100 opacity-70"
+              dangerouslySetInnerHTML={{
+                __html: streamingPolish
+                  .replace(/^## (.+)$/gm, '<h2 class="text-base font-bold mt-4 mb-2">$1</h2>')
+                  .replace(/^- (.+)$/gm, '<li>$1</li>')
+                  .replace(/(<li>.*<\/li>\n?)+/gs, (match) => `<ul class="list-disc pl-5 space-y-1">${match}</ul>`)
+                  .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                  .replace(/\n{2,}/g, '<br/><br/>')
+                  .replace(/\n/g, '<br/>')
+              }}
+            />
+            <span className="inline-block h-4 w-1 animate-pulse bg-amber-600 dark:bg-amber-400 ml-0.5" />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Polish retry on error */}
+      {polishError && !isPolishing && (
+        <Card className="border-destructive/30 bg-destructive/5">
+          <CardContent className="flex items-center justify-between gap-3 p-4">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 shrink-0 text-destructive" />
+              <p className="text-sm text-foreground">{polishError}</p>
+            </div>
+            <Button onClick={handlePolish} size="sm" variant="outline" className="shrink-0">
+              <RotateCcw className="mr-1.5 h-3.5 w-3.5" />
+              Retry
+            </Button>
           </CardContent>
         </Card>
       )}
