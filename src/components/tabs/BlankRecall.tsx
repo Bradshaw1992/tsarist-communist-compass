@@ -260,6 +260,7 @@ export function BlankRecall({ specId, specTitle, onScoreRecord }: BlankRecallPro
   const handleReveal = async () => {
     if (!recall?.key_concepts) return;
     trackEvent("analyse_recall", { mode: useAI ? "ai" : "local", spec_id: specId });
+    setAnalyseError(null);
 
     if (useAI) {
       setIsAnalysing(true);
@@ -270,10 +271,9 @@ export function BlankRecall({ specId, specTitle, onScoreRecord }: BlankRecallPro
         handleScoreRecord(result.mentioned.length, result.mentioned.length + result.missed.length);
       } catch (err) {
         console.error("AI analysis error:", err);
-        toast.error(
-          err instanceof Error ? err.message : "Claude is a bit busy! Please try again in 10 seconds or shorten your text.",
-          { duration: 6000 }
-        );
+        const msg = err instanceof Error ? err.message : "Claude is a bit busy! Please try again in 10 seconds or shorten your text.";
+        setAnalyseError(msg);
+        toast.error(msg, { duration: 6000 });
       } finally {
         setIsAnalysing(false);
       }
