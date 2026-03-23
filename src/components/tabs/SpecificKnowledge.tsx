@@ -37,6 +37,9 @@ interface HistoryEntry {
 
 export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgeProps) {
   const allQuestions = useFactDrillerForSpec(specId);
+  const topicName = useTopicNameForSpec(specId);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reportText, setReportText] = useState("");
 
   const [sessionSeed, setSessionSeed] = useState(0);
   const [retryMode, setRetryMode] = useState(false);
