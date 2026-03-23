@@ -71,7 +71,7 @@ function classifyError(error: unknown): string {
   if (lower.includes("rate limit") || lower.includes("429")) {
     return "Rate limit reached. Please wait a moment and try again.";
   }
-  return msg || "AI analysis failed. Try switching to local matching instead.";
+  return "Claude is a bit busy! Please try again in 10 seconds or shorten your text.";
 }
 
 async function analyseKeyConceptsAI(
