@@ -6,8 +6,8 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const PRIMARY_MODEL = "claude-3-5-haiku-20241022";
-const FALLBACK_MODELS = ["claude-3-5-haiku-latest", "claude-3-haiku-20240307"];
+const PRIMARY_MODEL = "claude-haiku-4-5-20251001";
+const FALLBACK_MODELS = ["claude-sonnet-4-5-20250929", "claude-sonnet-4-6"];
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX = 10;
 const MAX_USER_TEXT_LENGTH = 10_000;
