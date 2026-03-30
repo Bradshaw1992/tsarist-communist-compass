@@ -1,7 +1,6 @@
 import { useParams, Navigate } from "react-router-dom";
 import { getSpecBySlug } from "@/lib/slugify";
 import { SEOHead } from "@/components/SEOHead";
-import { slugify } from "@/lib/slugify";
 
 const TopicPage = () => {
   const { slug } = useParams<{ slug: string }>();
