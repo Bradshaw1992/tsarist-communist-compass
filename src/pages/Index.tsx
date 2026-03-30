@@ -93,8 +93,32 @@ const Index = () => {
     setMobileTab(tab);
   };
 
+  const homepageJsonLd = useMemo(() => ({
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "AQA 1H Russia Compass",
+    "url": "https://www.tsarist-communist-russia-1h.co.uk/",
+    "description": "AI-powered A-Level History revision for AQA 7042/1H: Tsarist and Communist Russia 1855–1964. Active recall, precision drilling, and exam practice.",
+    "applicationCategory": "EducationalApplication",
+    "operatingSystem": "Web",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "GBP" },
+    "educationalLevel": "A-Level",
+    "about": {
+      "@type": "Course",
+      "name": "AQA 7042/1H: Tsarist and Communist Russia, 1855–1964",
+      "provider": { "@type": "Organization", "name": "AQA" }
+    }
+  }), []);
+
   return (
     <div className="min-h-screen bg-background pb-16 sm:pb-0">
+      <SEOHead
+        title="AQA 1H Russia Compass | Tsarist & Communist Russia Revision"
+        description="AI-powered A-Level History revision for AQA 7042/1H: Tsarist and Communist Russia 1855–1964. Active recall, precision drilling, and exam practice grounded in the specification."
+        canonicalPath="/"
+        jsonLd={homepageJsonLd}
+      />
+
       {/* Sticky mini-header */}
       <div
         className={`fixed inset-x-0 top-0 z-50 border-b border-border bg-primary/95 px-4 py-2 text-center text-sm font-semibold text-primary-foreground backdrop-blur transition-transform duration-300 ${
