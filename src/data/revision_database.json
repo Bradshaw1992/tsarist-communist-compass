@@ -7,7 +7,7 @@
     "exam_question_count": 25,
     "driller_question_count": 379,
     "extract_vault_count": 11,
-    "fact_driller_count": 720
+    "fact_driller_count": 731
   },
   "spec_points": [
     {
@@ -14084,15 +14084,15 @@
     {
       "spec_point_id": 5,
       "question": "Into which two groups did Land and Liberty split in 1879?",
-      "answer": "The People's Will and Black Redistribution",
+      "answer": "The People's Will and Black Repartition",
       "valid_synonyms": [
-        "People's Will and Black Redistribution",
-        "Narodnaya Volya and Black Redistribution"
+        "People's Will and Black Repartition",
+        "Narodnaya Volya and Black Repartition"
       ]
     },
     {
       "spec_point_id": 5,
-      "question": "Who was the leader of Black Redistribution, later founding Russian Marxism?",
+      "question": "Who was the leader of Black Repartition, later founding Russian Marxism?",
       "answer": "Georgi Plekhanov",
       "valid_synonyms": [
         "Plekhanov",
@@ -14571,18 +14571,6 @@
         "4th",
         "5th",
         "fourth or fifth"
-      ]
-    },
-    {
-      "spec_point_id": 8,
-      "question": "What economic slump hit Russia between 1900 and 1908?",
-      "answer": "An industrial recession / depression",
-      "valid_synonyms": [
-        "recession",
-        "depression",
-        "industrial recession",
-        "economic slump",
-        "industrial depression"
       ]
     },
     {
@@ -17808,8 +17796,8 @@
     },
     {
       "spec_point_id": 5,
-      "question": "What was the difference between People's Will and Black Redistribution?",
-      "answer": "People's Will favoured terrorism and assassination; Black Redistribution favoured propaganda and gradual change",
+      "question": "What was the difference between People's Will and Black Repartition?",
+      "answer": "People's Will favoured terrorism and assassination; Black Repartition favoured propaganda and gradual change",
       "valid_synonyms": [
         "terrorism vs propaganda",
         "assassination vs education",
@@ -20965,6 +20953,126 @@
         "guns vs butter",
         "military or living standards",
         "couldn't do both"
+      ]
+    },
+    {
+      "spec_point_id": 2,
+      "question": "What was the name of the liberal group of reformers who advised Alexander II on emancipation?",
+      "answer": "The Party of St. Petersburg Progress",
+      "valid_synonyms": [
+        "Party of St Petersburg Progress",
+        "St Petersburg Progress",
+        "Petersburg Progress"
+      ]
+    },
+    {
+      "spec_point_id": 2,
+      "question": "Who was Alexander II's tutor, whose liberal influence shaped the Tsar's early reform programme?",
+      "answer": "Vasily Zhukovsky",
+      "valid_synonyms": [
+        "Zhukovsky",
+        "Vasily Andreyevich Zhukovsky"
+      ]
+    },
+    {
+      "spec_point_id": 2,
+      "question": "Who was appointed Minister of Education in 1866 and reversed liberal education reforms?",
+      "answer": "Dmitry Tolstoy",
+      "valid_synonyms": [
+        "Tolstoy",
+        "Count Dmitry Tolstoy",
+        "D.A. Tolstoy"
+      ]
+    },
+    {
+      "spec_point_id": 2,
+      "question": "What did Dmitry Tolstoy impose on secondary schools to restrict radical thinking?",
+      "answer": "A classical curriculum focused on Latin and Greek, replacing modern subjects that encouraged critical thought",
+      "valid_synonyms": [
+        "classical curriculum",
+        "Latin and Greek",
+        "classical education"
+      ]
+    },
+    {
+      "spec_point_id": 2,
+      "question": "What emergency courts were used to try political offences after Karakozov's assassination attempt?",
+      "answer": "Special military courts (courts martial) that could bypass the reformed judicial system",
+      "valid_synonyms": [
+        "military courts",
+        "courts martial",
+        "special tribunals"
+      ]
+    },
+    {
+      "spec_point_id": 2,
+      "question": "What powers did the government grant governors-general after 1866 to deal with political unrest?",
+      "answer": "The power to declare states of emergency, ban public meetings, and exile suspected dissidents without trial",
+      "valid_synonyms": [
+        "emergency powers",
+        "states of emergency",
+        "exile without trial"
+      ]
+    },
+    {
+      "spec_point_id": 2,
+      "question": "How did Alexander II's later reign contradict his reputation as the 'Tsar Liberator'?",
+      "answer": "He increasingly relied on repression — tightening censorship, using military courts, and restricting the reforms he had introduced",
+      "valid_synonyms": [
+        "repression",
+        "tightened censorship",
+        "restricted reforms"
+      ]
+    },
+    {
+      "spec_point_id": 12,
+      "question": "Who made up the first Sovnarkom, breaking the promise of 'All Power to the Soviets'?",
+      "answer": "It was entirely Bolshevik — no other socialist parties were included, despite the slogan suggesting soviet (multi-party) rule",
+      "valid_synonyms": [
+        "all Bolshevik",
+        "entirely Bolshevik",
+        "only Bolsheviks"
+      ]
+    },
+    {
+      "spec_point_id": 12,
+      "question": "How did the Sovnarkom bypass the soviets it claimed to represent?",
+      "answer": "Lenin issued decrees directly through Sovnarkom, governing by decree rather than through debate in the soviets",
+      "valid_synonyms": [
+        "rule by decree",
+        "governing by decree",
+        "decrees"
+      ]
+    },
+    {
+      "spec_point_id": 21,
+      "question": "What term describes Khrushchev's policy of transferring decision-making from Moscow to regional bodies?",
+      "answer": "Decentralisation — replacing central ministries with 105 regional sovnarkhozy (economic councils)",
+      "valid_synonyms": [
+        "decentralisation",
+        "decentralization",
+        "sovnarkhozy"
+      ]
+    },
+    {
+      "spec_point_id": 21,
+      "question": "How did Khrushchev attempt to democratise the Communist Party at the 22nd Party Congress in 1961?",
+      "answer": "He introduced compulsory rotation of party officials, requiring one-third of committee members to be replaced at each election",
+      "valid_synonyms": [
+        "compulsory rotation",
+        "rotation of officials",
+        "term limits"
+      ]
+    },
+    {
+      "spec_point_id": 21,
+      "question": "How did Khrushchev reduce the personal privileges of senior bureaucrats?",
+      "answer": "He cut the 'packet' system of secret salary supplements and closed some special shops and dachas reserved for the elite",
+      "valid_synonyms": [
+        "packet system",
+        "salary supplements",
+        "special shops",
+        "dachas"
       ]
     }
   ]
