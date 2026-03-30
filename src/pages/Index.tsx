@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { trackPageView } from "@/lib/analytics";
 import { useSearchParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SEOHead } from "@/components/SEOHead";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { BlankRecall } from "@/components/tabs/BlankRecall";
