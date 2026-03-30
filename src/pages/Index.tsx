@@ -178,7 +178,7 @@ const Index = () => {
             {/* Grid */}
             {filteredSections.map((section) => (
               <div key={section.title} className="mb-8">
-                <h2 className="mb-3 font-serif text-base font-semibold text-primary">
+                <h2 className="mb-3 font-serif text-base font-semibold text-primary" role="heading" aria-level={2}>
                   {section.title.replace(/^Part \d+ - /, "")}
                 </h2>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
