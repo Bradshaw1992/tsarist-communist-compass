@@ -200,9 +200,9 @@ const Index = () => {
                             {sp.id}
                           </span>
                           <div className="min-w-0 flex-1">
-                            <p className="text-sm font-medium leading-snug text-foreground group-hover:text-primary">
+                            <h3 className="text-sm font-medium leading-snug text-foreground group-hover:text-primary">
                               {sp.title}
-                            </p>
+                            </h3>
                           </div>
                           {isMastered && (
                             <Star className="h-4 w-4 shrink-0 fill-amber-400 text-amber-400" />
