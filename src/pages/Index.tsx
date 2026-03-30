@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { trackPageView } from "@/lib/analytics";
 import { useSearchParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SEOHead } from "@/components/SEOHead";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { BlankRecall } from "@/components/tabs/BlankRecall";
@@ -92,8 +93,32 @@ const Index = () => {
     setMobileTab(tab);
   };
 
+  const homepageJsonLd = useMemo(() => ({
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "AQA 1H Russia Compass",
+    "url": "https://www.tsarist-communist-russia-1h.co.uk/",
+    "description": "AI-powered A-Level History revision for AQA 7042/1H: Tsarist and Communist Russia 1855–1964. Active recall, precision drilling, and exam practice.",
+    "applicationCategory": "EducationalApplication",
+    "operatingSystem": "Web",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "GBP" },
+    "educationalLevel": "A-Level",
+    "about": {
+      "@type": "Course",
+      "name": "AQA 7042/1H: Tsarist and Communist Russia, 1855–1964",
+      "provider": { "@type": "Organization", "name": "AQA" }
+    }
+  }), []);
+
   return (
     <div className="min-h-screen bg-background pb-16 sm:pb-0">
+      <SEOHead
+        title="AQA 1H Russia Compass | Tsarist & Communist Russia Revision"
+        description="AI-powered A-Level History revision for AQA 7042/1H: Tsarist and Communist Russia 1855–1964. Active recall, precision drilling, and exam practice grounded in the specification."
+        canonicalPath="/"
+        jsonLd={homepageJsonLd}
+      />
+
       {/* Sticky mini-header */}
       <div
         className={`fixed inset-x-0 top-0 z-50 border-b border-border bg-primary/95 px-4 py-2 text-center text-sm font-semibold text-primary-foreground backdrop-blur transition-transform duration-300 ${
@@ -153,7 +178,7 @@ const Index = () => {
             {/* Grid */}
             {filteredSections.map((section) => (
               <div key={section.title} className="mb-8">
-                <h2 className="mb-3 font-serif text-base font-semibold text-primary">
+                <h2 className="mb-3 font-serif text-base font-semibold text-primary" role="heading" aria-level={2}>
                   {section.title.replace(/^Part \d+ - /, "")}
                 </h2>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -175,9 +200,9 @@ const Index = () => {
                             {sp.id}
                           </span>
                           <div className="min-w-0 flex-1">
-                            <p className="text-sm font-medium leading-snug text-foreground group-hover:text-primary">
+                            <h3 className="text-sm font-medium leading-snug text-foreground group-hover:text-primary">
                               {sp.title}
-                            </p>
+                            </h3>
                           </div>
                           {isMastered && (
                             <Star className="h-4 w-4 shrink-0 fill-amber-400 text-amber-400" />
