@@ -1003,6 +1003,163 @@
           {
             "heading": "Overview",
             "content": [
+              "Opposition: Ideas, Ideologies, Individuals, Liberals and Radical Groups, and the Tsarist Reaction",
+              "Opposition to the Tsarist regime between 1855 and 1894 took many forms, ranging from liberal demands for constitutional reform to revolutionary movements seeking the complete overthrow of the autocracy. The key ideological debates, the rise of radical groups, and the Tsarist reaction to these threats are central to understanding this period.",
+              "Liberal Opposition Liberals sought gradual reform within the existing system rather than revolution. Their main platform was the zemstva, where professionals and progressive nobles campaigned for a national consultative assembly and civil rights. However, the zemstva had no real political power, and liberal opposition remained weak, fragmented, and dominated by the nobility. The intellectual debate between Westernisers (who believed Russia should adopt European parliamentary models) and Slavophiles (who argued Russia had a unique spiritual and communal destiny) shaped much of the broader reform discourse.",
+              "The Populist (Narodnik) Movement The most significant radical movement of this period was Populism. Populists believed that Russia could bypass capitalism and build a socialist society based on the peasant commune (mir). In the early 1870s, the 'Going to the People' movement saw around 2,000 idealistic students travel to the countryside to educate and radicalise the peasantry. It was a complete failure — peasants were deeply conservative, suspicious of outsiders, and loyal to the Tsar. Around 1,600 students were arrested, leading to the mass 'Trial of the 193' and the 'Trial of the 50', which backfired on the government when defendants used them as platforms for revolutionary propaganda.",
+              "Land and Liberty, People's Will, and Black Repartition In 1876, the secret revolutionary organisation Land and Liberty (Zemlya i Volya) was founded. It split in 1879 into two groups: the People's Will (Narodnaya Volya), which adopted terrorism and targeted assassination as its primary strategy, and Black Repartition (Chyorny Peredel), led by Georgi Plekhanov, which favoured propaganda and gradual change. The People's Will made at least seven attempts on Alexander II's life before successfully assassinating him with a bomb in March 1881. However, rather than sparking revolution, the assassination led to a wave of repression under Alexander III and the effective destruction of the People's Will by the Okhrana.",
+              "The Significance of Vera Zasulich In 1878, Vera Zasulich shot and wounded the Military Governor of St Petersburg. At her trial, the jury acquitted her despite clear evidence, humiliating the government and demonstrating public sympathy for revolutionary violence against authority. This event prompted the regime to move political cases out of the reformed courts and into military tribunals.",
+              "The Emergence of Marxism By the 1880s, Marxist ideas began to influence Russian opposition. Plekhanov founded the Emancipation of Labour group abroad in 1883, arguing that revolution would come from the industrial proletariat, not the peasantry. This marked a decisive shift in Russian revolutionary thought, laying the intellectual foundations for the later Social Democratic movement. Karl Marx's Das Kapital became the key theoretical text for a new generation of revolutionaries.",
+              "The Tsarist Reaction The Tsarist state responded to opposition with a combination of repression and surveillance. The Third Section (replaced by the Okhrana in 1880) used agents provocateurs, infiltration, surveillance, interception of mail, and exile to Siberia to combat revolutionary movements. Under Alexander III, the 1881 Statute of State Security granted emergency powers, censorship was tightened, and the counter-reforms aimed to roll back the liberalising changes of Alexander II. This repression was largely effective in the short term — driving opposition underground — but it failed to address the underlying grievances that fuelled it."
+            ]
+          }
+        ]
+      },
+      "key_concepts": [
+        {
+          "concept": "Liberal opposition sought gradual reform through the zemstva, campaigning for a national consultative assembly and civil rights, but remained weak, fragmented, and dominated by the nobility with no real political power.",
+          "trigger_keywords": [
+            "liberal",
+            "zemstva",
+            "consultative assembly",
+            "gradual reform",
+            "civil rights"
+          ]
+        },
+        {
+          "concept": "The intellectual debate between Westernisers (who believed Russia should adopt European parliamentary models) and Slavophiles (who argued Russia had a unique spiritual and communal destiny) shaped the broader reform discourse.",
+          "trigger_keywords": [
+            "Westernisers",
+            "Slavophiles",
+            "European models",
+            "unique destiny",
+            "intellectual debate"
+          ]
+        },
+        {
+          "concept": "Populists (Narodniks) believed Russia could bypass capitalism and build socialism based on the peasant commune (mir), seeing the peasantry rather than the proletariat as the revolutionary class.",
+          "trigger_keywords": [
+            "Populists",
+            "Narodniks",
+            "mir",
+            "peasant commune",
+            "bypass capitalism"
+          ]
+        },
+        {
+          "concept": "The 'Going to the People' movement of the 1870s saw around 2,000 students travel to the countryside to radicalise the peasantry, but it failed completely — peasants were suspicious and hostile, and around 1,600 students were arrested.",
+          "trigger_keywords": [
+            "Going to the People",
+            "1870s",
+            "students",
+            "peasants",
+            "arrested",
+            "1600"
+          ]
+        },
+        {
+          "concept": "Land and Liberty (Zemlya i Volya) was founded in 1876 and split in 1879 into the People's Will (terrorism and assassination) and Black Repartition (propaganda and gradual change, led by Plekhanov).",
+          "trigger_keywords": [
+            "Land and Liberty",
+            "Zemlya i Volya",
+            "1879",
+            "People's Will",
+            "Black Repartition",
+            "Plekhanov"
+          ]
+        },
+        {
+          "concept": "The People's Will made at least seven attempts on Alexander II's life before successfully assassinating him with a bomb in March 1881, but rather than sparking revolution, it triggered harsh repression under Alexander III.",
+          "trigger_keywords": [
+            "People's Will",
+            "assassination",
+            "Alexander II",
+            "1881",
+            "bomb",
+            "repression"
+          ]
+        },
+        {
+          "concept": "Vera Zasulich shot the Military Governor of St Petersburg in 1878 and was acquitted by a jury, humiliating the government and showing public sympathy for revolutionary violence against authority.",
+          "trigger_keywords": [
+            "Vera Zasulich",
+            "1878",
+            "acquitted",
+            "jury",
+            "humiliated"
+          ]
+        },
+        {
+          "concept": "The mass political trials — the 'Trial of the 193' and the 'Trial of the 50' — backfired on the government when defendants used them as platforms for revolutionary propaganda.",
+          "trigger_keywords": [
+            "Trial of the 193",
+            "Trial of the 50",
+            "propaganda",
+            "political trials"
+          ]
+        },
+        {
+          "concept": "Georgi Plekhanov founded the Emancipation of Labour group abroad in 1883, arguing that revolution would come from the industrial proletariat rather than the peasantry, marking the emergence of Russian Marxism.",
+          "trigger_keywords": [
+            "Plekhanov",
+            "Emancipation of Labour",
+            "1883",
+            "proletariat",
+            "Marxism"
+          ]
+        },
+        {
+          "concept": "Karl Marx's Das Kapital became the key theoretical text for Russian revolutionaries, shifting focus from peasant-based revolution to the industrial working class as the revolutionary agent.",
+          "trigger_keywords": [
+            "Das Kapital",
+            "Marx",
+            "proletariat",
+            "working class",
+            "revolutionary"
+          ]
+        },
+        {
+          "concept": "The Third Section (replaced by the Okhrana in 1880) used agents provocateurs, infiltration, surveillance, interception of mail, and exile to Siberia to combat revolutionary movements.",
+          "trigger_keywords": [
+            "Third Section",
+            "Okhrana",
+            "agents provocateurs",
+            "infiltration",
+            "exile",
+            "Siberia"
+          ]
+        },
+        {
+          "concept": "Alexander III's 1881 Statute of State Security granted emergency powers to arrest, detain without trial, and ban public gatherings, while censorship was tightened and counter-reforms rolled back Alexander II's liberalising changes.",
+          "trigger_keywords": [
+            "Statute of State Security",
+            "emergency powers",
+            "censorship",
+            "counter-reforms",
+            "Alexander III"
+          ]
+        },
+        {
+          "concept": "The Populist movement's long-term legacy was the inspiration it provided for the Socialist Revolutionary Party (SRs), which became the largest revolutionary party by 1905.",
+          "trigger_keywords": [
+            "Populist legacy",
+            "Socialist Revolutionary",
+            "SRs",
+            "1905"
+          ]
+        }
+      ]
+    },
+    {
+      "spec_id": 6,
+      "title": "Economic and social developments: industrial developments and the land issue; social divisions; nobles, landowners and position of the peasantry; the cultural influence of the Church",
+      "section": "Part 1 - Trying to preserve autocracy, 1855-1894",
+      "source_file": "02_Priority_Templates/Part 1 - Trying to preserve autocracy, 1855–1894/6. Economic and social developments_ industrial developments and the land issue_ social divisions_ nobles, landowners and position of the peasantry_ the cultural influence of the Church.docx",
+      "summary": {
+        "sections": [
+          {
+            "heading": "Overview",
+            "content": [
               "Economic and social developments: industrial developments and the land issue; social divisions; nobles, landowners and position of the peasantry; the cultural influence of the Church",
               "Here is a summary of the key points for your specification topic, focusing on economic and social developments in Russia between 1855 and 1894, including the land issue, social divisions, and the cultural influence of the Church.",
               "Economic Developments: Industrialisation Following the Crimean War, the government realised that industrialisation was essential to maintain Russia's 'Great Power' status. Because Russia lacked a strong entrepreneurial middle class, industrialisation was heavily state-directed.",
@@ -1220,187 +1377,6 @@
             "Under",
             "Over-Procurator",
             "Konstantin"
-          ]
-        }
-      ]
-    },
-    {
-      "spec_id": 6,
-      "title": "Economic and social developments: industrial developments and the land issue; social divisions; nobles, landowners and position of the peasantry; the cultural influence of the Church",
-      "section": "Part 1 - Trying to preserve autocracy, 1855-1894",
-      "source_file": "02_Priority_Templates/Part 1 - Trying to preserve autocracy, 1855–1894/6. Economic and social developments_ industrial developments and the land issue_ social divisions_ nobles, landowners and position of the peasantry_ the cultural influence of the Church.docx",
-      "summary": {
-        "sections": [
-          {
-            "heading": "Overview",
-            "content": [
-              "2. Political authority and attempts at reform: Alexander II; emancipation of the serfs and attempts at domestic and military reform",
-              "Political Authority and the Motivation for Reform Alexander II (1855–1881) came to power during the disastrous Crimean War, which glaringly exposed the backwardness of the Russian state, its outdated military, and its failing infrastructure. Recognising that Russia could not maintain its 'Great Power' status without modernising, Alexander concluded that the foundation of the empire—serfdom—had to be dismantled. In a famous 1856 address to the Moscow nobility, he declared his intention to abolish serfdom, warning that it was far better to implement \"reform from above\" than to wait for a peasant revolution \"from below\".",
-              "The Emancipation of the Serfs (1861) Often hailed as the greatest single piece of state-directed social engineering in 19th-century Europe, the Emancipation Edict granted legal freedom to roughly 51 million serfs.",
-              "The Terms: Serfs were legally free to marry, travel, vote in local elections, and trade. They were also allocated land (their homestead and a share of village strips).",
-              "Redemption Payments: The land was not free. The government compensated the nobles with bonds, and the peasants were required to buy their land by making annual \"redemption payments\" to the state over a period of 49 years.",
-              "The Role of the Mir: To ensure these payments were made and to maintain order, the power of the mir (the peasant village commune) was strengthened. The mir collected taxes, issued internal passports, and periodically redistributed land strips, which actively discouraged peasants from improving their land or adopting modern farming techniques.",
-              "Consequences: The edict satisfied almost no one. Peasants felt cheated because they received less land than they had previously worked, often overvalued, and were trapped in debt. Nobles resented the loss of their free labour and status, and many struggled to adapt to commercial farming. Rather than instantly transforming the economy, emancipation largely perpetuated subsistence farming and rural poverty.",
-              "Military Reforms (1861–1881) Led by the Minister of War, Dmitry Milyutin, these reforms aimed to create a smaller, more efficient, and professional army.",
-              "Universal Conscription: In 1874, conscription was made compulsory for all social classes (including the nobility) at the age of 21.",
-              "Reduced Service: The dreaded 25-year active service term was radically reduced to 15 years (6 years of active service and 9 years in the reserve). Service length was further reduced for those with higher education.",
-              "Professionalisation: Severe corporal punishment and flogging were abolished. Specialised military colleges were opened to non-nobles to improve the quality of the officer corps, and modern weaponry was gradually introduced.",
-              "Domestic Reforms To address the administrative and social vacuum left by the removal of noble control over the serfs, Alexander enacted several sweeping domestic changes:",
-              "Local Government (1864): The government created elected local councils known as zemstva (singular: zemstvo) to run aspects of local government such as public health, road maintenance, and primary education. While they genuinely improved local services and gave rise to a new professional class of teachers and doctors (the 'third element'), the voting system was heavily weighted to ensure that the nobility dominated the councils (holding roughly 74% of provincial seats).",
-              "Judicial Reforms (1864): The notoriously corrupt and secretive old court system was entirely replaced with a Western-style model. The new system introduced equality before the law, open and public courts, independent and salaried judges, and trial by jury for serious criminal cases. It created a fairer system but also fostered a new class of articulate, liberal lawyers who were often highly critical of the regime.",
-              "Education (1863–1864): Under the liberal Minister of Education, Alexander Golovnin, universities were granted significant autonomy to govern themselves and design their own curricula. The zemstva took over the running of many rural schools from the Orthodox Church, leading to a massive expansion in primary education (pupil numbers grew from 8,000 in 1856 to over a million by 1878).",
-              "Censorship (1865): The rigid system of prior (preventative) censorship was relaxed. Books and newspapers no longer had to be submitted for government approval before publication, which led to a huge explosion in the press and the formation of a much bolder, critical public opinion.",
-              "Assessment of the Reforms Alexander II earned the title of the \"Tsar Liberator\" for these monumental changes, which set Russia on the path to modernisation. However, historians frequently debate whether these reforms were ultimately \"half-hearted and ineffective\". Because Alexander's primary goal was always to preserve the autocracy, he consistently compromised his reforms whenever they threatened to give too much power to the people. Consequently, his attempts to modernise without sacrificing absolute power unwittingly unleashed new radical ideologies and opposition groups, eventually culminating in his own assassination in 1881"
-            ]
-          }
-        ],
-        "full_text": "2. Political authority and attempts at reform: Alexander II; emancipation of the serfs and attempts at domestic and military reform\nPolitical Authority and the Motivation for Reform Alexander II (1855–1881) came to power during the disastrous Crimean War, which glaringly exposed the backwardness of the Russian state, its outdated military, and its failing infrastructure. Recognising that Russia could not maintain its 'Great Power' status without modernising, Alexander concluded that the foundation of the empire—serfdom—had to be dismantled. In a famous 1856 address to the Moscow nobility, he declared his intention to abolish serfdom, warning that it was far better to implement \"reform from above\" than to wait for a peasant revolution \"from below\".\nThe Emancipation of the Serfs (1861) Often hailed as the greatest single piece of state-directed social engineering in 19th-century Europe, the Emancipation Edict granted legal freedom to roughly 51 million serfs.\nThe Terms: Serfs were legally free to marry, travel, vote in local elections, and trade. They were also allocated land (their homestead and a share of village strips).\nRedemption Payments: The land was not free. The government compensated the nobles with bonds, and the peasants were required to buy their land by making annual \"redemption payments\" to the state over a period of 49 years.\nThe Role of the Mir: To ensure these payments were made and to maintain order, the power of the mir (the peasant village commune) was strengthened. The mir collected taxes, issued internal passports, and periodically redistributed land strips, which actively discouraged peasants from improving their land or adopting modern farming techniques.\nConsequences: The edict satisfied almost no one. Peasants felt cheated because they received less land than they had previously worked, often overvalued, and were trapped in debt. Nobles resented the loss of their free labour and status, and many struggled to adapt to commercial farming. Rather than instantly transforming the economy, emancipation largely perpetuated subsistence farming and rural poverty.\nMilitary Reforms (1861–1881) Led by the Minister of War, Dmitry Milyutin, these reforms aimed to create a smaller, more efficient, and professional army.\nUniversal Conscription: In 1874, conscription was made compulsory for all social classes (including the nobility) at the age of 21.\nReduced Service: The dreaded 25-year active service term was radically reduced to 15 years (6 years of active service and 9 years in the reserve). Service length was further reduced for those with higher education.\nProfessionalisation: Severe corporal punishment and flogging were abolished. Specialised military colleges were opened to non-nobles to improve the quality of the officer corps, and modern weaponry was gradually introduced.\nDomestic Reforms To address the administrative and social vacuum left by the removal of noble control over the serfs, Alexander enacted several sweeping domestic changes:\nLocal Government (1864): The government created elected local councils known as zemstva (singular: zemstvo) to run aspects of local government such as public health, road maintenance, and primary education. While they genuinely improved local services and gave rise to a new professional class of teachers and doctors (the 'third element'), the voting system was heavily weighted to ensure that the nobility dominated the councils (holding roughly 74% of provincial seats).\nJudicial Reforms (1864): The notoriously corrupt and secretive old court system was entirely replaced with a Western-style model. The new system introduced equality before the law, open and public courts, independent and salaried judges, and trial by jury for serious criminal cases. It created a fairer system but also fostered a new class of articulate, liberal lawyers who were often highly critical of the regime.\nEducation (1863–1864): Under the liberal Minister of Education, Alexander Golovnin, universities were granted significant autonomy to govern themselves and design their own curricula. The zemstva took over the running of many rural schools from the Orthodox Church, leading to a massive expansion in primary education (pupil numbers grew from 8,000 in 1856 to over a million by 1878).\nCensorship (1865): The rigid system of prior (preventative) censorship was relaxed. Books and newspapers no longer had to be submitted for government approval before publication, which led to a huge explosion in the press and the formation of a much bolder, critical public opinion.\nAssessment of the Reforms Alexander II earned the title of the \"Tsar Liberator\" for these monumental changes, which set Russia on the path to modernisation. However, historians frequently debate whether these reforms were ultimately \"half-hearted and ineffective\". Because Alexander's primary goal was always to preserve the autocracy, he consistently compromised his reforms whenever they threatened to give too much power to the people. Consequently, his attempts to modernise without sacrificing absolute power unwittingly unleashed new radical ideologies and opposition groups, eventually culminating in his own assassination in 1881"
-      },
-      "key_concepts": [
-        {
-          "concept": "2. Political authority and attempts at reform: Alexander II; emancipation of the serfs and attempts at domestic and military reform",
-          "trigger_keywords": [
-            "Political",
-            "Alexander"
-          ]
-        },
-        {
-          "concept": "Political Authority and the Motivation for Reform Alexander II (1855–1881) came to power during the disastrous Crimean War, which glaringly exposed the backwardness of the Russian state, its outdated military, and its failing infrastructure. Recognising that Russia could not maintain its 'Great Power' status without modernising, Alexander concluded that the foundation of the empire—serfdom—had to be dismantled. In a famous 1856 address to the Moscow nobility, he declared his intention to abolish serfdom, warning that it was far better to implement \"reform from above\" than to wait for a peasant revolution \"from below\".",
-          "trigger_keywords": [
-            "1855",
-            "1881",
-            "1856",
-            "Authority",
-            "Motivation",
-            "Reform",
-            "Alexander",
-            "Crimean"
-          ]
-        },
-        {
-          "concept": "The Emancipation of the Serfs (1861) Often hailed as the greatest single piece of state-directed social engineering in 19th-century Europe, the Emancipation Edict granted legal freedom to roughly 51 million serfs.",
-          "trigger_keywords": [
-            "1861",
-            "Emancipation",
-            "Serfs",
-            "Often",
-            "Europe",
-            "Edict"
-          ]
-        },
-        {
-          "concept": "The Terms: Serfs were legally free to marry, travel, vote in local elections, and trade. They were also allocated land (their homestead and a share of village strips).",
-          "trigger_keywords": [
-            "Terms",
-            "Serfs"
-          ]
-        },
-        {
-          "concept": "Redemption Payments: The land was not free. The government compensated the nobles with bonds, and the peasants were required to buy their land by making annual \"redemption payments\" to the state over a period of 49 years.",
-          "trigger_keywords": [
-            "Payments"
-          ]
-        },
-        {
-          "concept": "The Role of the Mir: To ensure these payments were made and to maintain order, the power of the mir (the peasant village commune) was strengthened. The mir collected taxes, issued internal passports, and periodically redistributed land strips, which actively discouraged peasants from improving their land or adopting modern farming techniques.",
-          "trigger_keywords": [
-            "Role",
-            "Mir"
-          ]
-        },
-        {
-          "concept": "Consequences: The edict satisfied almost no one. Peasants felt cheated because they received less land than they had previously worked, often overvalued, and were trapped in debt. Nobles resented the loss of their free labour and status, and many struggled to adapt to commercial farming. Rather than instantly transforming the economy, emancipation largely perpetuated subsistence farming and rural poverty.",
-          "trigger_keywords": [
-            "Peasants",
-            "Nobles",
-            "Rather"
-          ]
-        },
-        {
-          "concept": "Military Reforms (1861–1881) Led by the Minister of War, Dmitry Milyutin, these reforms aimed to create a smaller, more efficient, and professional army.",
-          "trigger_keywords": [
-            "1861",
-            "1881",
-            "Reforms",
-            "Led",
-            "Minister",
-            "War",
-            "Dmitry",
-            "Milyutin"
-          ]
-        },
-        {
-          "concept": "Universal Conscription: In 1874, conscription was made compulsory for all social classes (including the nobility) at the age of 21.",
-          "trigger_keywords": [
-            "1874",
-            "Conscription"
-          ]
-        },
-        {
-          "concept": "Reduced Service: The dreaded 25-year active service term was radically reduced to 15 years (6 years of active service and 9 years in the reserve). Service length was further reduced for those with higher education.",
-          "trigger_keywords": [
-            "Service"
-          ]
-        },
-        {
-          "concept": "Professionalisation: Severe corporal punishment and flogging were abolished. Specialised military colleges were opened to non-nobles to improve the quality of the officer corps, and modern weaponry was gradually introduced.",
-          "trigger_keywords": [
-            "Severe",
-            "Specialised"
-          ]
-        },
-        {
-          "concept": "Domestic Reforms To address the administrative and social vacuum left by the removal of noble control over the serfs, Alexander enacted several sweeping domestic changes:",
-          "trigger_keywords": [
-            "Reforms",
-            "Alexander"
-          ]
-        },
-        {
-          "concept": "Local Government (1864): The government created elected local councils known as zemstva (singular: zemstvo) to run aspects of local government such as public health, road maintenance, and primary education. While they genuinely improved local services and gave rise to a new professional class of teachers and doctors (the 'third element'), the voting system was heavily weighted to ensure that the nobility dominated the councils (holding roughly 74% of provincial seats).",
-          "trigger_keywords": [
-            "1864",
-            "74%",
-            "Government",
-            "While",
-            "third element"
-          ]
-        },
-        {
-          "concept": "Judicial Reforms (1864): The notoriously corrupt and secretive old court system was entirely replaced with a Western-style model. The new system introduced equality before the law, open and public courts, independent and salaried judges, and trial by jury for serious criminal cases. It created a fairer system but also fostered a new class of articulate, liberal lawyers who were often highly critical of the regime.",
-          "trigger_keywords": [
-            "1864",
-            "Reforms",
-            "Western-style"
-          ]
-        },
-        {
-          "concept": "Education (1863–1864): Under the liberal Minister of Education, Alexander Golovnin, universities were granted significant autonomy to govern themselves and design their own curricula. The zemstva took over the running of many rural schools from the Orthodox Church, leading to a massive expansion in primary education (pupil numbers grew from 8,000 in 1856 to over a million by 1878).",
-          "trigger_keywords": [
-            "Orthodox Church",
-            "social control",
-            "obedience",
-            "traditional values"
-          ]
-        },
-        {
-          "concept": "Censorship (1865): The rigid system of prior (preventative) censorship was relaxed. Books and newspapers no longer had to be submitted for government approval before publication, which led to a huge explosion in the press and the formation of a much bolder, critical public opinion.",
-          "trigger_keywords": [
-            "1865",
-            "Books"
-          ]
-        },
-        {
-          "concept": "Assessment of the Reforms Alexander II earned the title of the \"Tsar Liberator\" for these monumental changes, which set Russia on the path to modernisation. However, historians frequently debate whether these reforms were ultimately \"half-hearted and ineffective\". Because Alexander's primary goal was always to preserve the autocracy, he consistently compromised his reforms whenever they threatened to give too much power to the people. Consequently, his attempts to modernise without sacrificing absolute power unwittingly unleashed new radical ideologies and opposition groups, eventually culminating in his own assassination in 1881",
-          "trigger_keywords": [
-            "1881",
-            "Reforms",
-            "Alexander",
-            "Tsar",
-            "Liberator",
-            "Russia",
-            "However",
-            "Because"
           ]
         }
       ]
