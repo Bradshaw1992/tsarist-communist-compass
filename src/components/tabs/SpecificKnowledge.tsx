@@ -20,6 +20,17 @@ interface SpecificKnowledgeProps {
   specTitle?: string;
   onSessionComplete?: (session: DrillerSessionInput) => void | Promise<void>;
   onAssessment?: (input: AssessmentInput) => void | Promise<void>;
+  /**
+   * When provided, the driller ignores its own Supabase-backed question pool
+   * and runs through exactly this list instead. Used by the Blank Recall
+   * follow-up flow to target concepts the student missed.
+   */
+  questionsOverride?: FactDrillerQuestion[];
+  /** Optional label shown under the page title (e.g. "Follow-up from Blank Recall"). */
+  headerLabel?: string;
+  /** Called when the student clicks "Done" from the completion screen. Used by
+   * the follow-up flow to close the inline driller and return to Blank Recall. */
+  onExit?: () => void;
 }
 
 const DEFAULT_SESSION_SIZE = 20;
@@ -45,8 +56,13 @@ export function SpecificKnowledge({
   specTitle,
   onSessionComplete,
   onAssessment,
+  questionsOverride,
+  headerLabel,
+  onExit,
 }: SpecificKnowledgeProps) {
-  const allQuestions = useFactDrillerForSpec(specId);
+  const hookQuestions = useFactDrillerForSpec(specId);
+  const allQuestions = questionsOverride ?? hookQuestions;
+  const isOverride = !!questionsOverride;
   const topicName = useTopicNameForSpec(specId);
   const [reportOpen, setReportOpen] = useState(false);
   const [reportText, setReportText] = useState("");
@@ -58,11 +74,16 @@ export function SpecificKnowledge({
   const [sessionSize, setSessionSize] = useState(DEFAULT_SESSION_SIZE);
 
   const initialQuestions = useMemo(
-    () => shuffle(allQuestions).slice(0, Math.min(sessionSize, allQuestions.length)),
+    () => {
+      // Override mode: use the pre-built list as-is. The Blank Recall
+      // follow-up already decided what should go in here.
+      if (isOverride) return allQuestions;
+      return shuffle(allQuestions).slice(0, Math.min(sessionSize, allQuestions.length));
+    },
     // Include allQuestions so the session reshuffles once Supabase data
     // lands (the array reference changes when the query resolves).
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [specId, sessionSeed, allQuestions, sessionSize]
+    [specId, sessionSeed, allQuestions, sessionSize, isOverride]
   );
 
   const questions = retryMode ? retryQuestions : initialQuestions;
@@ -218,7 +239,13 @@ export function SpecificKnowledge({
   if (sessionComplete) {
     return (
       <div className="space-y-6">
-        <Header questionsCount={questions.length} allCount={allQuestions.length} stats={stats} retryMode={retryMode} />
+        <Header
+          questionsCount={questions.length}
+          allCount={allQuestions.length}
+          stats={stats}
+          retryMode={retryMode}
+          label={headerLabel}
+        />
         <Card className="mx-auto max-w-2xl border-2 shadow-lg">
           <CardContent className="flex flex-col items-center gap-5 p-8 sm:p-10 text-center">
             {isMastered ? (
@@ -254,7 +281,7 @@ export function SpecificKnowledge({
                 </p>
               </>
             )}
-            <div className="flex gap-3 pt-2">
+            <div className="flex flex-wrap justify-center gap-3 pt-2">
               {hasMissed && (
                 <Button onClick={handleRetryMissed} className="bg-primary text-primary-foreground hover:bg-primary/90">
                   <RotateCcw className="mr-1.5 h-4 w-4" />
@@ -265,6 +292,11 @@ export function SpecificKnowledge({
                 <RotateCcw className="mr-1.5 h-4 w-4" />
                 Restart
               </Button>
+              {onExit && (
+                <Button onClick={onExit} variant="outline">
+                  Back to Blank Recall
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -276,9 +308,10 @@ export function SpecificKnowledge({
   if (!question) return null;
 
   // Show the session-length chooser only before the student has locked in by
-  // revealing or assessing anything on Q1, and never during retry runs.
+  // revealing or assessing anything on Q1, and never during retry runs or when
+  // the question set is pre-built by a follow-up flow.
   const showChooser =
-    !retryMode && currentIndex === 0 && !revealed && !prevEntry?.assessment && allQuestions.length > 0;
+    !retryMode && !isOverride && currentIndex === 0 && !revealed && !prevEntry?.assessment && allQuestions.length > 0;
 
   return (
     <div className="space-y-6">
@@ -414,13 +447,20 @@ export function SpecificKnowledge({
 
 /* ---- Sub-components ---- */
 
-function Header({ questionsCount, allCount, stats, retryMode }: {
-  questionsCount: number; allCount: number; stats: { correct: number; missed: number }; retryMode: boolean;
+function Header({ questionsCount, allCount, stats, retryMode, label }: {
+  questionsCount: number;
+  allCount: number;
+  stats: { correct: number; missed: number };
+  retryMode: boolean;
+  label?: string;
 }) {
   return (
     <div className="flex items-start justify-between">
       <div className="space-y-1">
         <h2 className="font-serif text-2xl font-bold text-primary">Knowledge Driller</h2>
+        {label ? (
+          <p className="text-sm font-medium text-accent">{label}</p>
+        ) : null}
         <p className="text-sm text-muted-foreground">
           {retryMode ? `Retrying ${questionsCount} missed` : `${questionsCount} of ${allCount} questions`} · shuffled each session
         </p>

@@ -368,6 +368,8 @@ const Index = () => {
                     specId={selectedSpecId}
                     specTitle={selectedSpec?.title || ""}
                     onBlankRecallComplete={logBlankRecall}
+                    onSessionComplete={logSession}
+                    onAssessment={recordAssessment}
                   />
                 </TabsContent>
                 <TabsContent value="concept">

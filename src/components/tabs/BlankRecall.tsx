@@ -1,6 +1,8 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import confetti from "canvas-confetti";
-import { useRecallForSpec } from "@/hooks/useRevisionData";
+import { useRecallForSpec, useFactDrillerForSpec } from "@/hooks/useRevisionData";
+import { buildFollowUpFactQuestions } from "@/lib/followup";
+import { SpecificKnowledge } from "@/components/tabs/SpecificKnowledge";
 import { useSpeechToText } from "@/hooks/useSpeechToText";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,8 +15,9 @@ import { fuzzyKeywordInText } from "@/lib/fuzzyMatcher";
 
 import { toast } from "sonner";
 import { trackEvent } from "@/lib/analytics";
-import type { KeyConcept } from "@/types/revision";
-import type { BlankRecallInput } from "@/hooks/useHighScores";
+import type { KeyConcept, FactDrillerQuestion } from "@/types/revision";
+import type { BlankRecallInput, DrillerSessionInput } from "@/hooks/useHighScores";
+import type { AssessmentInput } from "@/hooks/useWrongAnswers";
 
 interface BlankRecallProps {
   specId: number;
@@ -22,6 +25,12 @@ interface BlankRecallProps {
   onBlankRecallComplete?: (
     recall: BlankRecallInput
   ) => void | Promise<void>;
+  /** Forwarded to the inline follow-up Knowledge Driller so its completion
+   * logs a session row like any other driller run. */
+  onSessionComplete?: (session: DrillerSessionInput) => void | Promise<void>;
+  /** Forwarded to the inline follow-up Knowledge Driller so its per-question
+   * assessments feed the wrong-answers queue. */
+  onAssessment?: (input: AssessmentInput) => void | Promise<void>;
 }
 
 interface AnalysedConcept {
@@ -214,9 +223,21 @@ function highlightKeywords(text: string, matchedWords: string[]) {
 
 // ─── Component ─────────────────────────────────────────────────────────────
 
-export function BlankRecall({ specId, specTitle, onBlankRecallComplete }: BlankRecallProps) {
+export function BlankRecall({
+  specId,
+  specTitle,
+  onBlankRecallComplete,
+  onSessionComplete,
+  onAssessment,
+}: BlankRecallProps) {
   const recall = useRecallForSpec(specId);
+  const factQuestions = useFactDrillerForSpec(specId);
   const storageKey = `blank-recall-${specId}`;
+
+  // Follow-up driller state. When `followUpQuestions` is set the rest of the
+  // Blank Recall UI is replaced by an inline Knowledge Driller running
+  // through exactly those questions.
+  const [followUpQuestions, setFollowUpQuestions] = useState<FactDrillerQuestion[] | null>(null);
 
   const [userText, setUserText] = useState(() => {
     try { return localStorage.getItem(storageKey) ?? ""; } catch { return ""; }
@@ -425,11 +446,49 @@ export function BlankRecall({ specId, specTitle, onBlankRecallComplete }: BlankR
     }
   };
 
+  // Build the follow-up question set from the current missed concepts.
+  const launchFollowUp = () => {
+    if (!recall || !analysis || analysis.missed.length === 0) return;
+    const { questions, matchedCount, toppedUpCount } = buildFollowUpFactQuestions({
+      missedConcepts: analysis.missed,
+      allConcepts: recall.key_concepts,
+      factQuestions,
+      maxCount: 10,
+    });
+    if (questions.length === 0) {
+      toast.info("No rapid-fire questions available to drill right now.");
+      return;
+    }
+    trackEvent("blank_recall_followup_launch", {
+      spec_id: specId,
+      missed_concepts: analysis.missed.length,
+      matched: matchedCount,
+      topped_up: toppedUpCount,
+      total: questions.length,
+    });
+    setFollowUpQuestions(questions);
+  };
+
   if (!recall) {
     return (
       <div className="flex items-center justify-center py-20 text-muted-foreground">
         No recall data available for this specification point.
       </div>
+    );
+  }
+
+  // Follow-up driller takes over the entire tab until the student exits.
+  if (followUpQuestions) {
+    return (
+      <SpecificKnowledge
+        specId={specId}
+        specTitle={specTitle}
+        questionsOverride={followUpQuestions}
+        headerLabel="Follow-up from Blank Recall"
+        onSessionComplete={onSessionComplete}
+        onAssessment={onAssessment}
+        onExit={() => setFollowUpQuestions(null)}
+      />
     );
   }
 
@@ -697,27 +756,52 @@ export function BlankRecall({ specId, specTitle, onBlankRecallComplete }: BlankR
 
           {/* Key Material Missed */}
           {analysis.missed.length > 0 ? (
-            <Card className="border-destructive/30">
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 font-serif text-lg text-destructive">
-                  <AlertTriangle className="h-5 w-5" />
-                  Key Material Missed
-                </CardTitle>
-                <p className="text-xs text-muted-foreground">
-                  These concepts were not detected in your response.
-                </p>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-1.5 pl-1">
-                  {analysis.missed.map((concept, i) => (
-                    <li key={i} className="flex gap-2 text-sm leading-relaxed text-foreground/80">
-                      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-destructive/60" />
-                      <span>{concept}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
+            <>
+              <Card className="border-destructive/30">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 font-serif text-lg text-destructive">
+                    <AlertTriangle className="h-5 w-5" />
+                    Key Material Missed
+                  </CardTitle>
+                  <p className="text-xs text-muted-foreground">
+                    These concepts were not detected in your response.
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-1.5 pl-1">
+                    {analysis.missed.map((concept, i) => (
+                      <li key={i} className="flex gap-2 text-sm leading-relaxed text-foreground/80">
+                        <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-destructive/60" />
+                        <span>{concept}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+
+              {/* Phase 3: targeted follow-up driller */}
+              {factQuestions.length > 0 && (
+                <Card className="border-accent/40 bg-accent/5">
+                  <CardContent className="flex flex-col items-start gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="min-w-0 flex-1 space-y-1">
+                      <h3 className="font-serif text-base font-semibold text-primary">
+                        🎯 Want to fix the gaps?
+                      </h3>
+                      <p className="text-xs leading-relaxed text-muted-foreground">
+                        I'll pull up to 10 rapid-fire questions from the Knowledge
+                        Driller that target exactly the concepts you missed.
+                      </p>
+                    </div>
+                    <Button
+                      onClick={launchFollowUp}
+                      className="shrink-0 bg-primary text-primary-foreground hover:bg-primary/90"
+                    >
+                      Drill these now →
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+            </>
           ) : (
             <Card className="border-success/30">
               <CardContent className="flex items-center gap-3 p-6">
