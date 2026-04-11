@@ -12,6 +12,14 @@ dist
 dist-ssr
 *.local
 
+# Environment variables — contain Supabase URL and publishable key.
+# Publishable keys are designed to be public (protected by RLS), but
+# they still shouldn't be committed to git. Lovable / production hosts
+# should inject these at build time instead.
+.env
+.env.local
+.env.*.local
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
