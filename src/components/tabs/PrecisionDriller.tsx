@@ -46,10 +46,11 @@ export function PrecisionDriller({ specId }: PrecisionDrillerProps) {
   const [firstTryPerfect, setFirstTryPerfect] = useState(true);
 
   // Shuffle and pick SESSION_SIZE questions; re-shuffles when sessionSeed changes
+  // or when allQuestions resolves from Supabase (new array reference).
   const initialQuestions = useMemo(
     () => shuffleArray(allQuestions).slice(0, SESSION_SIZE),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [specId, sessionSeed]
+    [specId, sessionSeed, allQuestions]
   );
 
   const questions = retryMode ? retryQuestions : initialQuestions;

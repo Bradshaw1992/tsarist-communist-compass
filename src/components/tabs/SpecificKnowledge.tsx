@@ -48,8 +48,10 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
 
   const initialQuestions = useMemo(
     () => shuffle(allQuestions).slice(0, SESSION_SIZE),
+    // Include allQuestions so the session reshuffles once Supabase data
+    // lands (the array reference changes when the query resolves).
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [specId, sessionSeed]
+    [specId, sessionSeed, allQuestions]
   );
 
   const questions = retryMode ? retryQuestions : initialQuestions;

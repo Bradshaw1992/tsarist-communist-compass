@@ -9,7 +9,7 @@ import { BlankRecall } from "@/components/tabs/BlankRecall";
 import { ExamArchitect } from "@/components/tabs/ExamArchitect";
 import { PrecisionDriller } from "@/components/tabs/PrecisionDriller";
 import { SpecificKnowledge } from "@/components/tabs/SpecificKnowledge";
-import { useRevisionData, useSpecPointSections } from "@/hooks/useRevisionData";
+import { useSpecPoints, useSpecPointSections } from "@/hooks/useRevisionData";
 import { useHighScores } from "@/hooks/useHighScores";
 import {
   PenLine, FileText, Crosshair, Zap, Search, X, BookOpen, Star,
@@ -28,13 +28,13 @@ const Index = () => {
   const [search, setSearch] = useState("");
   const [scrolled, setScrolled] = useState(false);
   const [mobileTab, setMobileTab] = useState<"home" | "driller" | "scribe" | "stats">("home");
-  const db = useRevisionData();
+  const specPoints = useSpecPoints();
   const sections = useSpecPointSections();
   const { scores, recordScore } = useHighScores();
   const headerRef = useRef<HTMLElement>(null);
 
   const selectedSpec = selectedSpecId
-    ? db.spec_points.find((sp) => sp.id === selectedSpecId)
+    ? specPoints.find((sp) => sp.id === selectedSpecId)
     : undefined;
 
   // Sticky mini-header on scroll
@@ -65,7 +65,7 @@ const Index = () => {
     setSelectedSpecId(id);
     // Track last studied topic
     try { localStorage.setItem("russia-last-studied", String(id)); } catch {}
-    const spec = db.spec_points.find((sp) => sp.id === id);
+    const spec = specPoints.find((sp) => sp.id === id);
     if (spec) {
       trackPageView(`/topic/${id}`, `${spec.title} | AQA 1H Russia Compass`);
     }
@@ -79,7 +79,7 @@ const Index = () => {
         handleSelect(parseInt(lastId, 10));
       } else {
         // Open first topic if none studied yet
-        handleSelect(db.spec_points[0]?.id ?? 1);
+        handleSelect(specPoints[0]?.id ?? 1);
       }
       return;
     }
@@ -131,7 +131,7 @@ const Index = () => {
 
       {mobileTab === "stats" ? (
         <div className="sm:hidden">
-          <StatsPanel scores={scores} totalTopics={db.spec_points.length} />
+          <StatsPanel scores={scores} totalTopics={specPoints.length} />
         </div>
       ) : null}
 

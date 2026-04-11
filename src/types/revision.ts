@@ -1,24 +1,10 @@
-export interface SpecPoint {
-  id: number;
-  section: string;
-  title: string;
-  ko_file: string;
-}
+// Domain types used by tab components. These are the "legacy shapes" returned
+// by the useRevisionData hooks — the hooks translate Supabase rows into these
+// shapes so the tab components can stay largely unchanged during the migration.
 
 export interface KeyConcept {
   concept: string;
   trigger_keywords: string[];
-}
-
-export interface RecallSummary {
-  spec_id: number;
-  title: string;
-  section: string;
-  summary: {
-    sections: { heading: string; content: string[] }[];
-    full_text: string;
-  };
-  key_concepts: KeyConcept[];
 }
 
 export interface ExamQuestion {
@@ -57,22 +43,4 @@ export interface FactDrillerQuestion {
   question: string;
   answer: string;
   valid_synonyms: string[];
-}
-
-export interface RevisionDatabase {
-  meta: {
-    version: string;
-    generated: string;
-    syllabus: string;
-    spec_point_count: number;
-    exam_question_count: number;
-    driller_question_count: number;
-    extract_vault_count?: number;
-    fact_driller_count?: number;
-  };
-  spec_points: SpecPoint[];
-  tab_recall: RecallSummary[];
-  tab_exam: ExamQuestion[];
-  tab_driller: QuizQuestion[];
-  fact_driller: FactDrillerQuestion[];
 }
