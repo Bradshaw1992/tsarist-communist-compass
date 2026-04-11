@@ -4,7 +4,11 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { InstallPrompt } from "@/components/InstallPrompt";
+import { AnonymousBanner } from "@/components/AnonymousBanner";
+import { UserMenu } from "@/components/UserMenu";
+import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index.tsx";
+import LoginPage from "./pages/LoginPage.tsx";
 import TopicPage from "./pages/TopicPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
@@ -16,12 +20,17 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/topic/:slug" element={<TopicPage />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AuthProvider>
+          <AnonymousBanner />
+          <UserMenu />
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/topic/:slug" element={<TopicPage />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
       <InstallPrompt />
     </TooltipProvider>
