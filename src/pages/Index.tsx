@@ -7,7 +7,7 @@ import { useSpecPoints, useSpecPointSections } from "@/hooks/useRevisionData";
 import { useHighScores } from "@/hooks/useHighScores";
 import { useWrongAnswers } from "@/hooks/useWrongAnswers";
 import {
-  Search, X, BookOpen, Star, ClipboardList,
+  Search, X, BookOpen, Star, ClipboardList, Compass,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -184,6 +184,28 @@ const Index = () => {
                 </button>
               )}
             </div>
+
+            {/* Chronology banner — whole-course mode, sits above the spec grid */}
+            <Link
+              to="/chronology"
+              className="group mb-8 flex items-center gap-4 rounded-lg border border-rose-500/40 bg-gradient-to-r from-rose-500/10 via-rose-500/5 to-transparent p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-rose-500/60 hover:shadow-md dark:border-rose-500/30 dark:from-rose-500/15 dark:via-rose-500/5"
+            >
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-rose-500/15 text-rose-600 dark:text-rose-400">
+                <Compass className="h-6 w-6" />
+              </span>
+              <div className="min-w-0 flex-1">
+                <h2 className="font-serif text-base font-bold text-primary sm:text-lg">
+                  General Knowledge & Chronology
+                </h2>
+                <p className="text-xs leading-relaxed text-muted-foreground sm:text-sm">
+                  Test your grip on the whole course 1855–1964 · place events in
+                  time · identify key people & events · sequence moments
+                </p>
+              </div>
+              <span className="hidden shrink-0 text-sm font-semibold text-rose-600 transition-transform group-hover:translate-x-0.5 sm:block dark:text-rose-400">
+                Open →
+              </span>
+            </Link>
 
             {/* Grid */}
             {filteredSections.map((section) => (

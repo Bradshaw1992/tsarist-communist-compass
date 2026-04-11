@@ -13,6 +13,8 @@ import TopicPage from "./pages/TopicPage.tsx";
 import ReviewPage from "./pages/ReviewPage.tsx";
 import SpecPage from "./pages/SpecPage.tsx";
 import SpecActivityPage from "./pages/SpecActivityPage.tsx";
+import ChronologyPage from "./pages/ChronologyPage.tsx";
+import ChronologyModePage from "./pages/ChronologyModePage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -32,6 +34,8 @@ const App = () => (
             <Route path="/review" element={<ReviewPage />} />
             <Route path="/spec/:specId" element={<SpecPage />} />
             <Route path="/spec/:specId/:activity" element={<SpecActivityPage />} />
+            <Route path="/chronology" element={<ChronologyPage />} />
+            <Route path="/chronology/:mode" element={<ChronologyModePage />} />
             <Route path="/topic/:slug" element={<TopicPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
