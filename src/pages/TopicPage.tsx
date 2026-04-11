@@ -16,7 +16,7 @@ const TopicPage = () => {
         description={`Revise ${spec.title} for AQA 7042/1H: Tsarist and Communist Russia 1855–1964. Active recall, precision drilling, and exam-style questions.`}
         canonicalPath={`/topic/${slug}`}
       />
-      <Navigate to={`/?topic=${spec.id}`} replace />
+      <Navigate to={`/spec/${spec.id}`} replace />
     </>
   );
 };

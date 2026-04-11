@@ -193,7 +193,7 @@ const ReviewPage = () => {
                 size="sm"
                 className="text-xs"
               >
-                <Link to={`/?topic=${specId}`}>
+                <Link to={`/spec/${specId}`}>
                   Drill this topic →
                 </Link>
               </Button>

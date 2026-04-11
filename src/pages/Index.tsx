@@ -1,19 +1,13 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { trackPageView } from "@/lib/analytics";
-import { Link, useSearchParams } from "react-router-dom";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { SEOHead } from "@/components/SEOHead";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { BlankRecall } from "@/components/tabs/BlankRecall";
-import { ExamArchitect } from "@/components/tabs/ExamArchitect";
-import { PrecisionDriller } from "@/components/tabs/PrecisionDriller";
-import { SpecificKnowledge } from "@/components/tabs/SpecificKnowledge";
 import { useSpecPoints, useSpecPointSections } from "@/hooks/useRevisionData";
 import { useHighScores } from "@/hooks/useHighScores";
 import { useWrongAnswers } from "@/hooks/useWrongAnswers";
 import {
-  PenLine, FileText, Crosshair, Zap, Search, X, BookOpen, Star, ClipboardList,
+  Search, X, BookOpen, Star, ClipboardList,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -22,24 +16,27 @@ import { StatsPanel } from "@/components/StatsPanel";
 
 const Index = () => {
   const [searchParams] = useSearchParams();
-  const initialTopic = searchParams.get("topic");
-  const [selectedSpecId, setSelectedSpecId] = useState<number | null>(
-    initialTopic ? parseInt(initialTopic, 10) : null
-  );
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [scrolled, setScrolled] = useState(false);
   const [mobileTab, setMobileTab] = useState<"home" | "driller" | "scribe" | "stats">("home");
   const specPoints = useSpecPoints();
   const sections = useSpecPointSections();
-  const { scores, logSession, logBlankRecall } = useHighScores();
-  const { recordAssessment, countsBySpec } = useWrongAnswers();
+  const { scores } = useHighScores();
+  const { countsBySpec } = useWrongAnswers();
   const reviewCounts = countsBySpec();
   const totalToReview = Object.values(reviewCounts).reduce((a, b) => a + b, 0);
   const headerRef = useRef<HTMLElement>(null);
 
-  const selectedSpec = selectedSpecId
-    ? specPoints.find((sp) => sp.id === selectedSpecId)
-    : undefined;
+  // Backwards compat: old links used /?topic=N to auto-open the modal.
+  // Now we redirect straight to the topic page at /spec/N.
+  useEffect(() => {
+    const t = searchParams.get("topic");
+    if (t) {
+      const id = parseInt(t, 10);
+      if (!Number.isNaN(id)) navigate(`/spec/${id}`, { replace: true });
+    }
+  }, [searchParams, navigate]);
 
   // Sticky mini-header on scroll
   useEffect(() => {
@@ -66,25 +63,19 @@ const Index = () => {
   }, [sections, search]);
 
   const handleSelect = (id: number) => {
-    setSelectedSpecId(id);
-    // Track last studied topic
     try { localStorage.setItem("russia-last-studied", String(id)); } catch {}
     const spec = specPoints.find((sp) => sp.id === id);
     if (spec) {
-      trackPageView(`/topic/${id}`, `${spec.title} | AQA 1H Russia Compass`);
+      trackPageView(`/spec/${id}`, `${spec.title} | AQA 1H Russia Compass`);
     }
+    navigate(`/spec/${id}`);
   };
-  const handleClose = () => setSelectedSpecId(null);
 
   const handleMobileNav = (tab: "home" | "driller" | "scribe" | "stats") => {
     if (tab === "driller") {
       const lastId = localStorage.getItem("russia-last-studied");
-      if (lastId) {
-        handleSelect(parseInt(lastId, 10));
-      } else {
-        // Open first topic if none studied yet
-        handleSelect(specPoints[0]?.id ?? 1);
-      }
+      const targetId = lastId ? parseInt(lastId, 10) : specPoints[0]?.id ?? 1;
+      handleSelect(targetId);
       return;
     }
     if (tab === "scribe") {
@@ -321,81 +312,6 @@ const Index = () => {
 
       {/* Mobile bottom nav */}
       <MobileBottomNav activeTab={mobileTab} onNavigate={handleMobileNav} />
-
-      {/* Full-screen revision modal */}
-      <Dialog open={!!selectedSpecId} onOpenChange={(open) => !open && handleClose()}>
-        <DialogContent className="flex h-[95vh] max-h-[95vh] w-[95vw] max-w-6xl flex-col gap-0 overflow-hidden p-0">
-          {/* Modal header */}
-          <div className="flex items-center gap-3 border-b border-border px-5 py-3">
-            <div className="min-w-0 flex-1">
-              <h2 className="truncate font-serif text-base font-bold text-primary sm:text-lg">
-                {selectedSpec?.title}
-              </h2>
-              <p className="truncate text-xs text-muted-foreground">
-                {selectedSpec?.section}
-              </p>
-            </div>
-            <Button variant="ghost" size="icon" onClick={handleClose}>
-              <X className="h-5 w-5" />
-            </Button>
-          </div>
-
-          {/* Tabs */}
-          {selectedSpecId && (
-            <div className="flex-1 overflow-y-auto px-5 py-5">
-              <Tabs defaultValue="recall" className="space-y-5">
-                <TabsList className="grid w-full max-w-2xl grid-cols-4 bg-secondary">
-                  <TabsTrigger value="recall" className="gap-1.5 text-xs sm:text-sm">
-                    <PenLine className="h-3.5 w-3.5" />
-                    <span className="hidden sm:inline">Blank</span> Recall
-                  </TabsTrigger>
-                  <TabsTrigger value="concept" className="gap-1.5 text-xs sm:text-sm">
-                    <Crosshair className="h-3.5 w-3.5" />
-                    <span className="hidden sm:inline">Concept</span> Driller
-                  </TabsTrigger>
-                  <TabsTrigger value="knowledge" className="gap-1.5 text-xs sm:text-sm">
-                    <Zap className="h-3.5 w-3.5" />
-                    <span className="hidden sm:inline">Knowledge</span> Driller
-                  </TabsTrigger>
-                  <TabsTrigger value="essays" className="gap-1.5 text-xs sm:text-sm">
-                    <FileText className="h-3.5 w-3.5" />
-                    <span className="hidden sm:inline">Essay</span> Bank
-                  </TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="recall">
-                  <BlankRecall
-                    specId={selectedSpecId}
-                    specTitle={selectedSpec?.title || ""}
-                    onBlankRecallComplete={logBlankRecall}
-                    onSessionComplete={logSession}
-                    onAssessment={recordAssessment}
-                  />
-                </TabsContent>
-                <TabsContent value="concept">
-                  <PrecisionDriller
-                    specId={selectedSpecId}
-                    specTitle={selectedSpec?.title ?? ""}
-                    onSessionComplete={logSession}
-                    onAssessment={recordAssessment}
-                  />
-                </TabsContent>
-                <TabsContent value="knowledge">
-                  <SpecificKnowledge
-                    specId={selectedSpecId}
-                    specTitle={selectedSpec?.title ?? ""}
-                    onSessionComplete={logSession}
-                    onAssessment={recordAssessment}
-                  />
-                </TabsContent>
-                <TabsContent value="essays">
-                  <ExamArchitect specId={selectedSpecId} />
-                </TabsContent>
-              </Tabs>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
