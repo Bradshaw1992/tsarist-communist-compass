@@ -1,22 +1,38 @@
 // =============================================================================
-// Sequence — "Put these events in chronological order"
+// Sequence — "Put these events in chronological order" (drag to reorder)
 // =============================================================================
 // Each question has 3-6 events with real dates. The UI shows them in a
-// shuffled order with up/down arrow buttons to reorder. When the student is
-// happy they click "Check Order" and each row is marked ✅ (correct position)
-// or ❌ (wrong position), with the real date revealed next to every event.
+// shuffled order; the student drags rows up and down (via @dnd-kit) until
+// they're happy, then clicks "Check Order". Each row is marked ✅ or ❌ with
+// the real date revealed next to every event.
 //
-// Drag-to-reorder would be nicer but requires a DnD dependency we don't have
-// yet. Arrow buttons are a pragmatic v1: accessible, mobile-friendly, no
-// new packages. Each "question" = one sequence, so a session is typically
-// 5 sequences to cover a decent spread of the course.
+// Sequences span at least a full time period (e.g. 1855-1894) and often the
+// whole course (1855-1964) — the point is breadth, not "Sovnarkhozy vs
+// Sputnik" level precision.
 // =============================================================================
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  DndContext,
+  DragEndEvent,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { ArrowDown, ArrowUp, Check, RotateCw, X } from "lucide-react";
+import { Check, GripVertical, RotateCw, X } from "lucide-react";
 import type { ChronologyRow } from "@/hooks/useChronology";
 import type { ChronologySequenceItem } from "@/integrations/supabase/types";
 
@@ -34,8 +50,6 @@ function shuffle<T>(arr: T[]): T[] {
 /**
  * Parse the date string on a sequence item into a sortable numeric key.
  * Dates in the data are strings like "1861", "March 1917", "1917–18" etc.
- * We strip out the first 4-digit year and, optionally, a month name so
- * same-year events order by month when the data provides one.
  */
 function sortKey(s: string): number {
   const yearMatch = s.match(/\d{4}/);
@@ -54,12 +68,82 @@ function correctOrder(items: ChronologySequenceItem[]): ChronologySequenceItem[]
   return [...items].sort((a, b) => sortKey(a.date) - sortKey(b.date));
 }
 
-interface SequenceProps {
-  questions: ChronologyRow[];
+interface OrderedItem extends ChronologySequenceItem {
+  id: string; // stable @dnd-kit id for this row
 }
 
-interface OrderedItem extends ChronologySequenceItem {
-  key: string;
+interface SortableRowProps {
+  item: OrderedItem;
+  index: number;
+  checked: boolean;
+  expected: ChronologySequenceItem | null;
+}
+
+function SortableRow({ item, index, checked, expected }: SortableRowProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: item.id, disabled: checked });
+
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 10 : undefined,
+  };
+
+  const isRight = expected ? item.event === expected.event : false;
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`flex items-center gap-3 rounded-md border px-3 py-2.5 text-sm transition-colors ${
+        checked
+          ? isRight
+            ? "border-green-500 bg-green-50/60 dark:bg-green-950/30"
+            : "border-red-500 bg-red-50/60 dark:bg-red-950/30"
+          : isDragging
+          ? "border-accent bg-card shadow-md"
+          : "border-border bg-card hover:border-accent/60"
+      }`}
+    >
+      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-muted text-[11px] font-bold text-foreground">
+        {index + 1}
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="font-medium text-foreground">{item.event}</p>
+        {checked && (
+          <p className="mt-0.5 text-[11px] text-muted-foreground">
+            {isRight
+              ? `✓ ${item.date}`
+              : `✗ actually ${item.date} — should be ${expected?.event} (${expected?.date})`}
+          </p>
+        )}
+      </div>
+      {!checked ? (
+        <button
+          {...attributes}
+          {...listeners}
+          className="cursor-grab touch-none rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground active:cursor-grabbing"
+          aria-label="Drag to reorder"
+        >
+          <GripVertical className="h-4 w-4" />
+        </button>
+      ) : isRight ? (
+        <Check className="h-4 w-4 shrink-0 text-green-600" />
+      ) : (
+        <X className="h-4 w-4 shrink-0 text-red-600" />
+      )}
+    </div>
+  );
+}
+
+interface SequenceProps {
+  questions: ChronologyRow[];
 }
 
 export function Sequence({ questions }: SequenceProps) {
@@ -79,17 +163,32 @@ export function Sequence({ questions }: SequenceProps) {
   const [totalCorrect, setTotalCorrect] = useState(0);
   const [totalPositions, setTotalPositions] = useState(0);
 
-  // Lazily initialise order when the session/current question changes.
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 5 },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
   const q = session[currentIndex];
-  const needsInit =
-    q && (order.length === 0 || order[0].key !== `${currentIndex}-0`);
-  if (needsInit) {
+
+  // Initialise `order` whenever the session or current question changes.
+  // Using useEffect (not setState-during-render) keeps React happy in strict
+  // mode and avoids the classic "updating state during render" warning.
+  useEffect(() => {
+    if (!q) {
+      setOrder([]);
+      return;
+    }
     const shuffled = shuffle(q.sequence_data!).map((it, i) => ({
       ...it,
-      key: `${currentIndex}-${i}`,
+      id: `${currentIndex}-${i}-${it.event}`,
     }));
     setOrder(shuffled);
-  }
+    setChecked(false);
+  }, [currentIndex, q, version]);
 
   if (session.length === 0) {
     return (
@@ -141,13 +240,14 @@ export function Sequence({ questions }: SequenceProps) {
     );
   }
 
-  const move = (from: number, to: number) => {
+  const handleDragEnd = (event: DragEndEvent) => {
     if (checked) return;
-    if (to < 0 || to >= order.length) return;
-    const next = [...order];
-    const [picked] = next.splice(from, 1);
-    next.splice(to, 0, picked);
-    setOrder(next);
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIdx = order.findIndex((i) => i.id === active.id);
+    const newIdx = order.findIndex((i) => i.id === over.id);
+    if (oldIdx < 0 || newIdx < 0) return;
+    setOrder((items) => arrayMove(items, oldIdx, newIdx));
   };
 
   const handleCheck = () => {
@@ -162,8 +262,6 @@ export function Sequence({ questions }: SequenceProps) {
   };
 
   const handleNext = () => {
-    setChecked(false);
-    setOrder([]); // trigger re-init on next render
     setCurrentIndex((i) => i + 1);
   };
 
@@ -194,65 +292,31 @@ export function Sequence({ questions }: SequenceProps) {
           <p className="mb-5 text-xs text-muted-foreground">
             {checked
               ? "Here's how your order compared to the correct chronology."
-              : "Use the arrows to reorder from earliest to latest, then Check Order."}
+              : "Drag rows to reorder from earliest to latest, then Check Order."}
           </p>
 
-          <div className="space-y-2">
-            {order.map((item, idx) => {
-              const expected = correct ? correct[idx] : null;
-              const isRight = expected ? item.event === expected.event : false;
-              return (
-                <div
-                  key={item.key}
-                  className={`flex items-center gap-3 rounded-md border px-3 py-2.5 text-sm transition-colors ${
-                    checked
-                      ? isRight
-                        ? "border-green-500 bg-green-50/60 dark:bg-green-950/30"
-                        : "border-red-500 bg-red-50/60 dark:bg-red-950/30"
-                      : "border-border bg-card"
-                  }`}
-                >
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-muted text-[11px] font-bold text-foreground">
-                    {idx + 1}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-medium text-foreground">{item.event}</p>
-                    {checked && (
-                      <p className="mt-0.5 text-[11px] text-muted-foreground">
-                        {isRight
-                          ? `✓ ${item.date}`
-                          : `✗ actually ${item.date} — should be ${expected?.event} (${expected?.date})`}
-                      </p>
-                    )}
-                  </div>
-                  {!checked ? (
-                    <div className="flex flex-col gap-1">
-                      <button
-                        onClick={() => move(idx, idx - 1)}
-                        disabled={idx === 0}
-                        className="rounded border border-border bg-background p-1 text-muted-foreground hover:text-foreground disabled:opacity-30"
-                        aria-label="Move up"
-                      >
-                        <ArrowUp className="h-3 w-3" />
-                      </button>
-                      <button
-                        onClick={() => move(idx, idx + 1)}
-                        disabled={idx === order.length - 1}
-                        className="rounded border border-border bg-background p-1 text-muted-foreground hover:text-foreground disabled:opacity-30"
-                        aria-label="Move down"
-                      >
-                        <ArrowDown className="h-3 w-3" />
-                      </button>
-                    </div>
-                  ) : isRight ? (
-                    <Check className="h-4 w-4 shrink-0 text-green-600" />
-                  ) : (
-                    <X className="h-4 w-4 shrink-0 text-red-600" />
-                  )}
-                </div>
-              );
-            })}
-          </div>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={order.map((i) => i.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <div className="space-y-2">
+                {order.map((item, idx) => (
+                  <SortableRow
+                    key={item.id}
+                    item={item}
+                    index={idx}
+                    checked={checked}
+                    expected={correct ? correct[idx] : null}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
 
           <div className="mt-6 flex justify-center">
             {!checked ? (

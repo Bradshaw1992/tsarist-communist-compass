@@ -242,6 +242,8 @@ export type Database = {
           correct_part: number | null
           correct_answer: string | null
           sequence_data: ChronologySequenceItem[] | null
+          options: string[] | null
+          correct_option_index: number | null
           hint_date: string | null
           source: string | null
           created_at: string
@@ -253,6 +255,8 @@ export type Database = {
           correct_part?: number | null
           correct_answer?: string | null
           sequence_data?: ChronologySequenceItem[] | null
+          options?: string[] | null
+          correct_option_index?: number | null
           hint_date?: string | null
           source?: string | null
           created_at?: string

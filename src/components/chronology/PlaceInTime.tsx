@@ -1,28 +1,30 @@
 // =============================================================================
-// PlaceInTime — "Which period does X belong to?" 4-option multiple choice
+// PlaceInTime — 4-option MCQ "What was X, and when?"
 // =============================================================================
-// Fixed 4 options: Part 1 (1855–94), Part 2 (1894–1917), Part 3 (1917–41),
-// Part 4 (1941–64). Tap the correct button and the question auto-advances
-// after a short pause; tap wrong and the correct button turns green so the
-// student sees the right answer before moving on.
+// Each question names a subject (a person, event, policy, or argument) and
+// offers four descriptions as options. Three are plausibly wrong — they share
+// a keyword with the subject but belong to a different period; one is both
+// the correct identification AND implicitly locates the subject in the right
+// time period. This tests knowledge + chronology in a single question.
 //
-// Session length defaults to 20 (capped by pool size). Final score screen
-// offers "Go again" and "Back to Chronology".
+// Example:
+//   Q: What was the NEP?
+//   A1: Lenin's more moderate policies from 1921, reacting to War Communism
+//   A2: Stalin's industrialisation drive from 1928 built around Five Year Plans
+//   A3: A name for Witte's economic reforms beginning in 1892
+//   A4: A set of policies including grain requisitioning and forced labour
+//
+// Answers are shuffled per-question. Session defaults to 20 questions. Correct
+// → auto-advance after 900ms; wrong → pause 2200ms so the student sees which
+// option was right.
 // =============================================================================
 
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Check, X, RotateCw } from "lucide-react";
+import { Check, RotateCw, X } from "lucide-react";
 import type { ChronologyRow } from "@/hooks/useChronology";
-
-const PART_LABELS: { id: number; name: string; dates: string }[] = [
-  { id: 1, name: "Part 1", dates: "1855–1894" },
-  { id: 2, name: "Part 2", dates: "1894–1917" },
-  { id: 3, name: "Part 3", dates: "1917–1941" },
-  { id: 4, name: "Part 4", dates: "1941–1964" },
-];
 
 const DEFAULT_SESSION_SIZE = 20;
 
@@ -35,17 +37,44 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
+interface SessionQuestion {
+  id: string;
+  question_text: string;
+  options: string[]; // shuffled
+  correctIndex: number; // index within shuffled options
+}
+
+function buildSessionQuestion(q: ChronologyRow): SessionQuestion | null {
+  if (!q.options || q.correct_option_index == null) return null;
+  const correctText = q.options[q.correct_option_index];
+  const shuffled = shuffle(q.options);
+  const correctIndex = shuffled.indexOf(correctText);
+  return {
+    id: q.id,
+    question_text: q.question_text,
+    options: shuffled,
+    correctIndex,
+  };
+}
+
 interface PlaceInTimeProps {
   questions: ChronologyRow[];
 }
 
 export function PlaceInTime({ questions }: PlaceInTimeProps) {
   const [version, setVersion] = useState(0);
-  const session = useMemo(() => {
-    return shuffle(questions.filter((q) => q.correct_part != null)).slice(
-      0,
-      DEFAULT_SESSION_SIZE
+
+  const session = useMemo<SessionQuestion[]>(() => {
+    const valid = questions.filter(
+      (q) =>
+        Array.isArray(q.options) &&
+        q.options.length >= 2 &&
+        q.correct_option_index != null
     );
+    return shuffle(valid)
+      .slice(0, DEFAULT_SESSION_SIZE)
+      .map(buildSessionQuestion)
+      .filter((x): x is SessionQuestion => x != null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [questions, version]);
 
@@ -66,17 +95,17 @@ export function PlaceInTime({ questions }: PlaceInTimeProps) {
   const finished = currentIndex >= session.length;
   const q = session[currentIndex];
 
-  const handlePick = (partId: number) => {
+  const handlePick = (optionIndex: number) => {
     if (picked != null) return;
-    setPicked(partId);
-    if (partId === q.correct_part) setCorrectCount((c) => c + 1);
-    // Pause so student can see the feedback, then advance.
+    setPicked(optionIndex);
+    const isRight = optionIndex === q.correctIndex;
+    if (isRight) setCorrectCount((c) => c + 1);
     window.setTimeout(
       () => {
         setPicked(null);
         setCurrentIndex((i) => i + 1);
       },
-      partId === q.correct_part ? 900 : 1800
+      isRight ? 900 : 2200
     );
   };
 
@@ -101,12 +130,10 @@ export function PlaceInTime({ questions }: PlaceInTimeProps) {
             </p>
             <p className="text-sm text-muted-foreground">{pct}% correct</p>
           </div>
-          <div className="flex gap-2">
-            <Button onClick={handleRestart} className="gap-1.5">
-              <RotateCw className="h-4 w-4" />
-              Go again
-            </Button>
-          </div>
+          <Button onClick={handleRestart} className="gap-1.5">
+            <RotateCw className="h-4 w-4" />
+            Go again
+          </Button>
         </CardContent>
       </Card>
     );
@@ -128,45 +155,44 @@ export function PlaceInTime({ questions }: PlaceInTimeProps) {
 
       {/* Question */}
       <Card className="border-2 shadow-sm">
-        <CardContent className="py-10 text-center sm:py-14">
+        <CardContent className="py-8 text-center sm:py-10">
           <p className="mx-auto max-w-xl font-serif text-xl font-semibold leading-snug text-primary sm:text-2xl">
             {q.question_text}
           </p>
-          {q.hint_date && picked != null && (
-            <p className="mt-3 text-sm font-medium text-muted-foreground">
-              {q.hint_date}
-            </p>
-          )}
         </CardContent>
       </Card>
 
-      {/* Options */}
-      <div className="grid grid-cols-2 gap-3 sm:gap-4">
-        {PART_LABELS.map((p) => {
-          const isPicked = picked === p.id;
-          const isCorrect = picked != null && p.id === q.correct_part;
-          const isWrong = isPicked && p.id !== q.correct_part;
+      {/* Options — stacked full-width because descriptions can be long */}
+      <div className="flex flex-col gap-3">
+        {q.options.map((opt, idx) => {
+          const isPicked = picked === idx;
+          const isCorrect = picked != null && idx === q.correctIndex;
+          const isWrongPick = isPicked && idx !== q.correctIndex;
           return (
             <button
-              key={p.id}
-              onClick={() => handlePick(p.id)}
+              key={idx}
+              onClick={() => handlePick(idx)}
               disabled={picked != null}
-              className={`flex flex-col items-center gap-0.5 rounded-lg border-2 px-4 py-5 text-center transition-all ${
+              className={`flex items-start gap-3 rounded-lg border-2 px-4 py-4 text-left text-sm leading-relaxed transition-all sm:text-[15px] ${
                 isCorrect
                   ? "border-green-500 bg-green-50 dark:bg-green-950/40"
-                  : isWrong
+                  : isWrongPick
                   ? "border-red-500 bg-red-50 dark:bg-red-950/40"
                   : picked != null
                   ? "border-border bg-card opacity-60"
                   : "border-border bg-card hover:border-accent hover:-translate-y-0.5 hover:shadow-sm"
               } disabled:cursor-default`}
             >
-              <span className="flex items-center gap-1.5 font-serif text-base font-bold text-primary">
-                {p.name}
-                {isCorrect && <Check className="h-4 w-4 text-green-600" />}
-                {isWrong && <X className="h-4 w-4 text-red-600" />}
+              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded border border-border bg-background font-serif text-[11px] font-bold text-primary">
+                {String.fromCharCode(65 + idx)}
               </span>
-              <span className="text-xs text-muted-foreground">{p.dates}</span>
+              <span className="flex-1 text-foreground">{opt}</span>
+              {isCorrect && (
+                <Check className="mt-0.5 h-4 w-4 shrink-0 text-green-600" />
+              )}
+              {isWrongPick && (
+                <X className="mt-0.5 h-4 w-4 shrink-0 text-red-600" />
+              )}
             </button>
           );
         })}

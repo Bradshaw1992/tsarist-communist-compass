@@ -112,11 +112,8 @@ export function Identify({ questions }: IdentifyProps) {
           <p className="mx-auto max-w-xl font-serif text-xl font-semibold leading-snug text-primary sm:text-2xl">
             {q.question_text}
           </p>
-          {q.hint_date && (
-            <p className="mt-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              {q.hint_date}
-            </p>
-          )}
+          {/* Hint date intentionally not rendered — the date would give the
+              whole game away for an identify question. */}
 
           {!revealed ? (
             <div className="mt-8">

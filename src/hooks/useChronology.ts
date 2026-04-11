@@ -24,9 +24,11 @@ export interface ChronologyRow {
   id: string;
   mode: ChronologyMode;
   question_text: string;
-  correct_part: number | null; // only for place_in_time
+  correct_part: number | null; // legacy field — kept for backwards compat, unused by new MCQ UI
   correct_answer: string | null; // only for identify
   sequence_data: ChronologySequenceItem[] | null; // only for sequence
+  options: string[] | null; // only for place_in_time (4 option descriptions)
+  correct_option_index: number | null; // only for place_in_time (0–3)
   hint_date: string | null;
   source: string | null;
 }
