@@ -228,6 +228,7 @@ export function useFactDrillerForSpec(specId: number): FactDrillerQuestion[] {
   return useMemo(() => {
     if (!data) return [];
     return data.map<FactDrillerQuestion>((q) => ({
+      id: q.id,
       spec_point_id: q.spec_id,
       question: q.question,
       answer: q.answer,

@@ -30,7 +30,7 @@ const Index = () => {
   const [mobileTab, setMobileTab] = useState<"home" | "driller" | "scribe" | "stats">("home");
   const specPoints = useSpecPoints();
   const sections = useSpecPointSections();
-  const { scores, recordScore } = useHighScores();
+  const { scores, logSession, logBlankRecall } = useHighScores();
   const headerRef = useRef<HTMLElement>(null);
 
   const selectedSpec = selectedSpecId
@@ -337,16 +337,26 @@ const Index = () => {
                 </TabsList>
 
                 <TabsContent value="recall">
-                  <BlankRecall specId={selectedSpecId} specTitle={selectedSpec?.title || ""} onScoreRecord={recordScore} />
+                  <BlankRecall
+                    specId={selectedSpecId}
+                    specTitle={selectedSpec?.title || ""}
+                    onBlankRecallComplete={logBlankRecall}
+                  />
                 </TabsContent>
                 <TabsContent value="exam">
                   <ExamArchitect specId={selectedSpecId} />
                 </TabsContent>
                 <TabsContent value="driller">
-                  <PrecisionDriller specId={selectedSpecId} />
+                  <PrecisionDriller
+                    specId={selectedSpecId}
+                    onSessionComplete={logSession}
+                  />
                 </TabsContent>
                 <TabsContent value="knowledge">
-                  <SpecificKnowledge specId={selectedSpecId} onScoreRecord={recordScore} />
+                  <SpecificKnowledge
+                    specId={selectedSpecId}
+                    onSessionComplete={logSession}
+                  />
                 </TabsContent>
               </Tabs>
             </div>

@@ -11,10 +11,12 @@ import {
 import { trackEvent } from "@/lib/analytics";
 import { ReportIssueDialog, ReportFlagButton } from "@/components/ReportIssueDialog";
 import type { FactDrillerQuestion } from "@/types/revision";
+import type { DrillerSessionInput } from "@/hooks/useHighScores";
+import type { PerQuestionEntry } from "@/integrations/supabase/types";
 
 interface SpecificKnowledgeProps {
   specId: number;
-  onScoreRecord?: (specId: number, correct: number, total: number) => void;
+  onSessionComplete?: (session: DrillerSessionInput) => void | Promise<void>;
 }
 
 const SESSION_SIZE = 10;
@@ -35,7 +37,7 @@ interface HistoryEntry {
   assessment?: Assessment;
 }
 
-export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgeProps) {
+export function SpecificKnowledge({ specId, onSessionComplete }: SpecificKnowledgeProps) {
   const allQuestions = useFactDrillerForSpec(specId);
   const topicName = useTopicNameForSpec(specId);
   const [reportOpen, setReportOpen] = useState(false);
@@ -71,11 +73,38 @@ export function SpecificKnowledge({ specId, onScoreRecord }: SpecificKnowledgePr
   useEffect(() => {
     if (allAnswered && questions.length > 0) {
       setSessionComplete(true);
-      if (!retryMode && onScoreRecord) {
-        onScoreRecord(specId, stats.correct, questions.length);
+      // Only log the first run through — retry sessions should not overwrite
+      // the original percentage for aggregate high-score purposes.
+      if (!retryMode && onSessionComplete) {
+        const perQuestion: PerQuestionEntry[] = questions.map((q, i) => {
+          const entry = history[i];
+          return {
+            question_id: q.id,
+            question_text: q.question,
+            user_input: userAnswers[i] ?? undefined,
+            result: entry?.assessment === "correct" ? "correct" : "missed",
+          };
+        });
+        void onSessionComplete({
+          activity_type: "knowledge_driller",
+          spec_id: specId,
+          total_questions: questions.length,
+          correct_count: stats.correct,
+          per_question: perQuestion,
+          metadata: { session_length: questions.length },
+        });
       }
     }
-  }, [allAnswered, questions.length, retryMode, onScoreRecord, specId, stats.correct]);
+  }, [
+    allAnswered,
+    questions,
+    retryMode,
+    onSessionComplete,
+    specId,
+    stats.correct,
+    history,
+    userAnswers,
+  ]);
 
   const handleReveal = () => setRevealed(true);
 

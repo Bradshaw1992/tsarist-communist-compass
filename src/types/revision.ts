@@ -39,6 +39,7 @@ export interface QuizQuestion {
 }
 
 export interface FactDrillerQuestion {
+  id: string;
   spec_point_id: number;
   question: string;
   answer: string;

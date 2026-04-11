@@ -11,9 +11,12 @@ import {
 import { trackEvent } from "@/lib/analytics";
 import { ReportIssueDialog, ReportFlagButton } from "@/components/ReportIssueDialog";
 import type { QuizQuestion } from "@/types/revision";
+import type { DrillerSessionInput } from "@/hooks/useHighScores";
+import type { PerQuestionEntry } from "@/integrations/supabase/types";
 
 interface PrecisionDrillerProps {
   specId: number;
+  onSessionComplete?: (session: DrillerSessionInput) => void | Promise<void>;
 }
 
 type Assessment = "knew" | "missed";
@@ -34,7 +37,7 @@ function shuffleArray<T>(arr: T[]): T[] {
   return a;
 }
 
-export function PrecisionDriller({ specId }: PrecisionDrillerProps) {
+export function PrecisionDriller({ specId, onSessionComplete }: PrecisionDrillerProps) {
   const allQuestions = useQuizQuestionsForSpec(specId);
   const topicName = useTopicNameForSpec(specId);
   const [reportOpen, setReportOpen] = useState(false);
@@ -72,8 +75,37 @@ export function PrecisionDriller({ specId }: PrecisionDrillerProps) {
   useEffect(() => {
     if (allAnswered && questions.length > 0) {
       setSessionComplete(true);
+      // Skip retry runs — only the first pass should update aggregates.
+      if (!retryMode && onSessionComplete) {
+        const perQuestion: PerQuestionEntry[] = questions.map((q, i) => {
+          const entry = history[i];
+          return {
+            question_id: q.id,
+            question_text: q.question_text,
+            user_input: userAnswers[i] ?? undefined,
+            result: entry?.assessment === "knew" ? "correct" : "missed",
+          };
+        });
+        void onSessionComplete({
+          activity_type: "concept_driller",
+          spec_id: specId,
+          total_questions: questions.length,
+          correct_count: stats.knew,
+          per_question: perQuestion,
+          metadata: { session_length: questions.length },
+        });
+      }
     }
-  }, [allAnswered, questions.length]);
+  }, [
+    allAnswered,
+    questions,
+    retryMode,
+    onSessionComplete,
+    specId,
+    stats.knew,
+    history,
+    userAnswers,
+  ]);
 
   const handleReveal = () => setRevealed(true);
 

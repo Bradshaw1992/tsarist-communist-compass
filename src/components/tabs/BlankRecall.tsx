@@ -14,11 +14,14 @@ import { fuzzyKeywordInText } from "@/lib/fuzzyMatcher";
 import { toast } from "sonner";
 import { trackEvent } from "@/lib/analytics";
 import type { KeyConcept } from "@/types/revision";
+import type { BlankRecallInput } from "@/hooks/useHighScores";
 
 interface BlankRecallProps {
   specId: number;
   specTitle: string;
-  onScoreRecord?: (specId: number, correct: number, total: number) => void;
+  onBlankRecallComplete?: (
+    recall: BlankRecallInput
+  ) => void | Promise<void>;
 }
 
 interface AnalysedConcept {
@@ -211,7 +214,7 @@ function highlightKeywords(text: string, matchedWords: string[]) {
 
 // ─── Component ─────────────────────────────────────────────────────────────
 
-export function BlankRecall({ specId, specTitle, onScoreRecord }: BlankRecallProps) {
+export function BlankRecall({ specId, specTitle, onBlankRecallComplete }: BlankRecallProps) {
   const recall = useRecallForSpec(specId);
   const storageKey = `blank-recall-${specId}`;
 
@@ -263,14 +266,41 @@ export function BlankRecall({ specId, specTitle, onScoreRecord }: BlankRecallPro
     setTimeout(() => confetti({ particleCount: 80, spread: 100, origin: { y: 0.5 } }), 300);
   };
 
-  const handleScoreRecord = (mentioned: number, total: number) => {
-    if (onScoreRecord && total > 0) {
-      onScoreRecord(specId, mentioned, total);
-      const pct = Math.round((mentioned / total) * 100);
-      if (pct >= 90) {
-        fireConfetti();
-        toast.success(`🌟 Topic Mastered! You scored ${pct}%`, { duration: 5000 });
-      }
+  /**
+   * Persist a full blank-recall submission. The `mentioned` / `missed`
+   * lists come from either the AI edge function or the local keyword
+   * matcher — they are merged back into a single ordered list matching
+   * the spec's key_concepts[] so teachers can see exactly what was
+   * covered and what was missed.
+   */
+  const handleRecallResult = (
+    mentioned: AnalysedConcept[],
+    missed: string[]
+  ) => {
+    const total = mentioned.length + missed.length;
+    if (total === 0) return;
+
+    const mentionedSet = new Set(mentioned.map((m) => m.text));
+    const concept_results = (recall?.key_concepts ?? []).map((kc) => ({
+      concept: kc.concept,
+      covered: mentionedSet.has(kc.concept),
+    }));
+
+    if (onBlankRecallComplete) {
+      void onBlankRecallComplete({
+        spec_id: specId,
+        written_text: userText,
+        concepts_total: total,
+        concepts_covered: mentioned.length,
+        concept_results,
+        ai_feedback: null,
+      });
+    }
+
+    const pct = Math.round((mentioned.length / total) * 100);
+    if (pct >= 90) {
+      fireConfetti();
+      toast.success(`🌟 Topic Mastered! You scored ${pct}%`, { duration: 5000 });
     }
   };
 
@@ -285,7 +315,7 @@ export function BlankRecall({ specId, specTitle, onScoreRecord }: BlankRecallPro
         const result = await analyseKeyConceptsAI(userText, recall.key_concepts);
         setAnalysis(result);
         setRevealed(true);
-        handleScoreRecord(result.mentioned.length, result.mentioned.length + result.missed.length);
+        handleRecallResult(result.mentioned, result.missed);
       } catch (err) {
         console.error("AI analysis error:", err);
         const msg = err instanceof Error ? err.message : "Claude is a bit busy! Please try again in 10 seconds or shorten your text.";
@@ -298,7 +328,7 @@ export function BlankRecall({ specId, specTitle, onScoreRecord }: BlankRecallPro
       const result = analyseKeyConceptsLocal(userText, recall.key_concepts);
       setAnalysis(result);
       setRevealed(true);
-      handleScoreRecord(result.mentioned.length, result.mentioned.length + result.missed.length);
+      handleRecallResult(result.mentioned, result.missed);
     }
   };
 
