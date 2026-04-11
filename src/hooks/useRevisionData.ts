@@ -190,7 +190,9 @@ export function useQuizQuestionsForSpec(specId: number): QuizQuestion[] {
   return useMemo(() => {
     if (!data) return [];
     return data.map<QuizQuestion>((q) => ({
-      id: q.legacy_id ?? q.id,
+      // Always use the real Supabase UUID, not legacy_id. Wrong-answer and
+      // session rows need a real UUID for the foreign key.
+      id: q.id,
       spec_id: q.spec_id,
       question_type: q.question_type ?? "significance",
       question_text: q.question_text,

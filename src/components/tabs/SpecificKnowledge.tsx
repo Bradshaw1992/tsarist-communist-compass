@@ -12,11 +12,14 @@ import { trackEvent } from "@/lib/analytics";
 import { ReportIssueDialog, ReportFlagButton } from "@/components/ReportIssueDialog";
 import type { FactDrillerQuestion } from "@/types/revision";
 import type { DrillerSessionInput } from "@/hooks/useHighScores";
+import type { AssessmentInput } from "@/hooks/useWrongAnswers";
 import type { PerQuestionEntry } from "@/integrations/supabase/types";
 
 interface SpecificKnowledgeProps {
   specId: number;
+  specTitle?: string;
   onSessionComplete?: (session: DrillerSessionInput) => void | Promise<void>;
+  onAssessment?: (input: AssessmentInput) => void | Promise<void>;
 }
 
 const DEFAULT_SESSION_SIZE = 20;
@@ -37,7 +40,12 @@ interface HistoryEntry {
   assessment?: Assessment;
 }
 
-export function SpecificKnowledge({ specId, onSessionComplete }: SpecificKnowledgeProps) {
+export function SpecificKnowledge({
+  specId,
+  specTitle,
+  onSessionComplete,
+  onAssessment,
+}: SpecificKnowledgeProps) {
   const allQuestions = useFactDrillerForSpec(specId);
   const topicName = useTopicNameForSpec(specId);
   const [reportOpen, setReportOpen] = useState(false);
@@ -131,13 +139,30 @@ export function SpecificKnowledge({ specId, onSessionComplete }: SpecificKnowled
       correct: prev.correct + (gotIt ? 1 : 0),
       missed: prev.missed + (gotIt ? 0 : 1),
     }));
+
+    // Push the assessment into the Wrong Answers queue. Retry runs also
+    // feed in — a resolve during retry rewards the student by clearing
+    // their previous miss.
+    const q = questions[currentIndex];
+    if (q && onAssessment) {
+      void onAssessment({
+        question_table: "fact_questions",
+        question_id: q.id,
+        spec_id: specId,
+        question_text: q.question,
+        answer: q.answer,
+        spec_title: specTitle,
+        correct: gotIt,
+      });
+    }
+
     if (currentIndex + 1 < questions.length) {
       const nextIdx = currentIndex + 1;
       setCurrentIndex(nextIdx);
       const next = history[nextIdx];
       setRevealed(next?.revealed ?? false);
     }
-  }, [currentIndex, questions.length, history, specId]);
+  }, [currentIndex, questions, history, specId, specTitle, onAssessment]);
 
   const navigateTo = useCallback((index: number) => {
     setCurrentIndex(index);

@@ -10,6 +10,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index.tsx";
 import LoginPage from "./pages/LoginPage.tsx";
 import TopicPage from "./pages/TopicPage.tsx";
+import ReviewPage from "./pages/ReviewPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/review" element={<ReviewPage />} />
             <Route path="/topic/:slug" element={<TopicPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

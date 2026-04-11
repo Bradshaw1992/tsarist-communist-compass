@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { trackPageView } from "@/lib/analytics";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SEOHead } from "@/components/SEOHead";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -11,8 +11,9 @@ import { PrecisionDriller } from "@/components/tabs/PrecisionDriller";
 import { SpecificKnowledge } from "@/components/tabs/SpecificKnowledge";
 import { useSpecPoints, useSpecPointSections } from "@/hooks/useRevisionData";
 import { useHighScores } from "@/hooks/useHighScores";
+import { useWrongAnswers } from "@/hooks/useWrongAnswers";
 import {
-  PenLine, FileText, Crosshair, Zap, Search, X, BookOpen, Star,
+  PenLine, FileText, Crosshair, Zap, Search, X, BookOpen, Star, ClipboardList,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -31,6 +32,9 @@ const Index = () => {
   const specPoints = useSpecPoints();
   const sections = useSpecPointSections();
   const { scores, logSession, logBlankRecall } = useHighScores();
+  const { recordAssessment, countsBySpec } = useWrongAnswers();
+  const reviewCounts = countsBySpec();
+  const totalToReview = Object.values(reviewCounts).reduce((a, b) => a + b, 0);
   const headerRef = useRef<HTMLElement>(null);
 
   const selectedSpec = selectedSpecId
@@ -151,6 +155,21 @@ const Index = () => {
           <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
             AI-powered active recall and precision drilling grounded in the 7042 Specification.
           </p>
+          {totalToReview > 0 && (
+            <div className="mt-5 flex justify-center">
+              <Button
+                asChild
+                size="sm"
+                variant="outline"
+                className="gap-2 border-amber-400/60 bg-amber-50/40 text-amber-700 hover:bg-amber-50 dark:border-amber-500/40 dark:bg-amber-950/30 dark:text-amber-300"
+              >
+                <Link to="/review">
+                  <ClipboardList className="h-4 w-4" />
+                  {totalToReview} question{totalToReview === 1 ? "" : "s"} to review
+                </Link>
+              </Button>
+            </div>
+          )}
         </header>
 
         {/* Topic Grid */}
@@ -185,6 +204,7 @@ const Index = () => {
                   {section.points.map((sp) => {
                     const progress = scores[sp.id];
                     const isMastered = progress && progress.highScore >= 90;
+                    const toReview = reviewCounts[sp.id] ?? 0;
                     return (
                       <button
                         key={sp.id}
@@ -219,6 +239,12 @@ const Index = () => {
                             }`}>
                               {progress.highScore}%
                             </span>
+                          </div>
+                        )}
+                        {toReview > 0 && (
+                          <div className="flex items-center gap-1 text-[11px] font-medium text-destructive">
+                            <ClipboardList className="h-3 w-3" />
+                            {toReview} to review
                           </div>
                         )}
                       </button>
@@ -347,13 +373,17 @@ const Index = () => {
                 <TabsContent value="concept">
                   <PrecisionDriller
                     specId={selectedSpecId}
+                    specTitle={selectedSpec?.title ?? ""}
                     onSessionComplete={logSession}
+                    onAssessment={recordAssessment}
                   />
                 </TabsContent>
                 <TabsContent value="knowledge">
                   <SpecificKnowledge
                     specId={selectedSpecId}
+                    specTitle={selectedSpec?.title ?? ""}
                     onSessionComplete={logSession}
+                    onAssessment={recordAssessment}
                   />
                 </TabsContent>
                 <TabsContent value="essays">
