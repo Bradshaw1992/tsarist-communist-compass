@@ -19,7 +19,7 @@ interface SpecificKnowledgeProps {
   onSessionComplete?: (session: DrillerSessionInput) => void | Promise<void>;
 }
 
-const SESSION_SIZE = 10;
+const DEFAULT_SESSION_SIZE = 20;
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -47,13 +47,14 @@ export function SpecificKnowledge({ specId, onSessionComplete }: SpecificKnowled
   const [retryMode, setRetryMode] = useState(false);
   const [retryQuestions, setRetryQuestions] = useState<FactDrillerQuestion[]>([]);
   const [firstTryPerfect, setFirstTryPerfect] = useState(true);
+  const [sessionSize, setSessionSize] = useState(DEFAULT_SESSION_SIZE);
 
   const initialQuestions = useMemo(
-    () => shuffle(allQuestions).slice(0, SESSION_SIZE),
+    () => shuffle(allQuestions).slice(0, Math.min(sessionSize, allQuestions.length)),
     // Include allQuestions so the session reshuffles once Supabase data
     // lands (the array reference changes when the query resolves).
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [specId, sessionSeed, allQuestions]
+    [specId, sessionSeed, allQuestions, sessionSize]
   );
 
   const questions = retryMode ? retryQuestions : initialQuestions;
@@ -249,9 +250,22 @@ export function SpecificKnowledge({ specId, onSessionComplete }: SpecificKnowled
   // --- QUIZ PHASE ---
   if (!question) return null;
 
+  // Show the session-length chooser only before the student has locked in by
+  // revealing or assessing anything on Q1, and never during retry runs.
+  const showChooser =
+    !retryMode && currentIndex === 0 && !revealed && !prevEntry?.assessment && allQuestions.length > 0;
+
   return (
     <div className="space-y-6">
       <Header questionsCount={questions.length} allCount={allQuestions.length} stats={stats} retryMode={retryMode} />
+
+      {showChooser && (
+        <SessionLengthChooser
+          value={sessionSize}
+          onChange={setSessionSize}
+          maxCount={allQuestions.length}
+        />
+      )}
 
       <div className="text-center text-xs text-muted-foreground">
         {retryMode && <span className="text-destructive font-medium mr-1">Retry ·</span>}
@@ -381,7 +395,7 @@ function Header({ questionsCount, allCount, stats, retryMode }: {
   return (
     <div className="flex items-start justify-between">
       <div className="space-y-1">
-        <h2 className="font-serif text-2xl font-bold text-primary">Specific Knowledge</h2>
+        <h2 className="font-serif text-2xl font-bold text-primary">Knowledge Driller</h2>
         <p className="text-sm text-muted-foreground">
           {retryMode ? `Retrying ${questionsCount} missed` : `${questionsCount} of ${allCount} questions`} · shuffled each session
         </p>
@@ -393,6 +407,58 @@ function Header({ questionsCount, allCount, stats, retryMode }: {
         <span className="flex items-center gap-1 text-destructive">
           <XCircle className="h-3.5 w-3.5" /> {stats.missed}
         </span>
+      </div>
+    </div>
+  );
+}
+
+export function SessionLengthChooser({ value, onChange, maxCount }: {
+  value: number;
+  onChange: (n: number) => void;
+  maxCount: number;
+}) {
+  // Offer 10 / 20 / 30 as presets where the pool is large enough, then always
+  // an "All" option at the tail. "All" collapses into 30 (etc.) automatically
+  // if the pool is exactly that size.
+  const options = useMemo(() => {
+    const presets = [10, 20, 30].filter((n) => n < maxCount);
+    const all = maxCount;
+    const final = [...presets, all];
+    return final.map((n) => ({
+      value: n,
+      label: n === all ? `All (${n})` : String(n),
+    }));
+  }, [maxCount]);
+
+  // Clamp the active value to the largest available option so a stale 20 on a
+  // small pool still shows a reasonable selection.
+  const effective = Math.min(value, maxCount);
+
+  if (options.length <= 1) return null;
+
+  return (
+    <div className="mx-auto flex max-w-2xl flex-col items-center gap-2 rounded-lg border border-border bg-card/50 px-4 py-3 text-center sm:flex-row sm:justify-center sm:gap-4">
+      <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+        Session length
+      </span>
+      <div className="flex flex-wrap items-center justify-center gap-1.5">
+        {options.map((opt) => {
+          const active = opt.value === effective;
+          return (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => onChange(opt.value)}
+              className={
+                active
+                  ? "rounded-md bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground shadow-sm"
+                  : "rounded-md border border-border bg-background px-3 py-1 text-xs font-medium text-foreground/70 hover:border-primary/40 hover:text-foreground"
+              }
+            >
+              {opt.label}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

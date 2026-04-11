@@ -259,17 +259,18 @@ const Index = () => {
                 you've missed.
               </p>
               <p>
-                The <strong>Precision Driller</strong> targets the "sniper facts" that
+                The <strong>Knowledge Driller</strong> targets the "sniper facts" that
                 differentiate top-band answers: specific dates, edicts, statistics, and named
                 individuals from the reigns of Alexander&nbsp;II, Alexander&nbsp;III, Nicholas&nbsp;II,
-                Lenin, Stalin, and Khrushchev. Each question is tagged to its specification point,
-                and your results feed into a personalised revision report that identifies your
-                weakest areas.
+                Lenin, Stalin, and Khrushchev. The <strong>Concept Driller</strong> goes one level
+                deeper, testing significance, causation, and the key historiographical ideas that
+                separate a B from an A*. Each question is tagged to its specification point, and
+                your results feed a personalised revision report that surfaces your weakest areas.
               </p>
               <p>
-                The <strong>Exam Architect</strong> provides real past-paper questions with full
-                indicative content from AQA mark schemes, allowing you to practise 25-mark essay
-                planning under timed conditions. Combined with the <strong>Handwriting Bridge</strong>—which
+                The <strong>Essay Bank</strong> collects real past-paper questions with full
+                indicative content from AQA mark schemes, so you can practise 25-mark essay
+                planning under timed conditions. Combined with the <strong>Potemkin Scribe</strong>—which
                 converts photographed handwritten notes into analysable digital text—this platform
                 supports the complete active-recall workflow recommended by cognitive science research.
               </p>
@@ -322,17 +323,17 @@ const Index = () => {
                     <PenLine className="h-3.5 w-3.5" />
                     <span className="hidden sm:inline">Blank</span> Recall
                   </TabsTrigger>
-                  <TabsTrigger value="exam" className="gap-1.5 text-xs sm:text-sm">
-                    <FileText className="h-3.5 w-3.5" />
-                    <span className="hidden sm:inline">Exam</span> Architect
-                  </TabsTrigger>
-                  <TabsTrigger value="driller" className="gap-1.5 text-xs sm:text-sm">
+                  <TabsTrigger value="concept" className="gap-1.5 text-xs sm:text-sm">
                     <Crosshair className="h-3.5 w-3.5" />
-                    <span className="hidden sm:inline">Precision</span> Driller
+                    <span className="hidden sm:inline">Concept</span> Driller
                   </TabsTrigger>
                   <TabsTrigger value="knowledge" className="gap-1.5 text-xs sm:text-sm">
                     <Zap className="h-3.5 w-3.5" />
-                    <span className="hidden sm:inline">Specific</span> Knowledge
+                    <span className="hidden sm:inline">Knowledge</span> Driller
+                  </TabsTrigger>
+                  <TabsTrigger value="essays" className="gap-1.5 text-xs sm:text-sm">
+                    <FileText className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">Essay</span> Bank
                   </TabsTrigger>
                 </TabsList>
 
@@ -343,10 +344,7 @@ const Index = () => {
                     onBlankRecallComplete={logBlankRecall}
                   />
                 </TabsContent>
-                <TabsContent value="exam">
-                  <ExamArchitect specId={selectedSpecId} />
-                </TabsContent>
-                <TabsContent value="driller">
+                <TabsContent value="concept">
                   <PrecisionDriller
                     specId={selectedSpecId}
                     onSessionComplete={logSession}
@@ -357,6 +355,9 @@ const Index = () => {
                     specId={selectedSpecId}
                     onSessionComplete={logSession}
                   />
+                </TabsContent>
+                <TabsContent value="essays">
+                  <ExamArchitect specId={selectedSpecId} />
                 </TabsContent>
               </Tabs>
             </div>

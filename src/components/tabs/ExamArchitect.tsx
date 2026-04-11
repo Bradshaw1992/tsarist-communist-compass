@@ -130,9 +130,9 @@ export function ExamArchitect({ specId }: ExamArchitectProps) {
   return (
     <div className="space-y-6">
       <div className="space-y-1">
-        <h2 className="font-serif text-2xl font-bold text-primary">Exam Architect</h2>
+        <h2 className="font-serif text-2xl font-bold text-primary">Essay Bank</h2>
         <p className="text-sm text-muted-foreground">
-          Strategic planning — study real AQA essay questions and indicative content.
+          Past-paper reference — real AQA essay questions with full indicative content.
         </p>
       </div>
 

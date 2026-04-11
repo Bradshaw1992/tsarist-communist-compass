@@ -13,6 +13,7 @@ import { ReportIssueDialog, ReportFlagButton } from "@/components/ReportIssueDia
 import type { QuizQuestion } from "@/types/revision";
 import type { DrillerSessionInput } from "@/hooks/useHighScores";
 import type { PerQuestionEntry } from "@/integrations/supabase/types";
+import { SessionLengthChooser } from "@/components/tabs/SpecificKnowledge";
 
 interface PrecisionDrillerProps {
   specId: number;
@@ -26,7 +27,7 @@ interface HistoryEntry {
   assessment?: Assessment;
 }
 
-const SESSION_SIZE = 10;
+const DEFAULT_SESSION_SIZE = 10;
 
 function shuffleArray<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -47,13 +48,15 @@ export function PrecisionDriller({ specId, onSessionComplete }: PrecisionDriller
   const [retryMode, setRetryMode] = useState(false);
   const [retryQuestions, setRetryQuestions] = useState<QuizQuestion[]>([]);
   const [firstTryPerfect, setFirstTryPerfect] = useState(true);
+  const [sessionSize, setSessionSize] = useState(DEFAULT_SESSION_SIZE);
 
-  // Shuffle and pick SESSION_SIZE questions; re-shuffles when sessionSeed changes
-  // or when allQuestions resolves from Supabase (new array reference).
+  // Shuffle and pick up to sessionSize questions; re-shuffles when sessionSeed
+  // changes, when allQuestions resolves from Supabase, or when the length chooser
+  // toggles.
   const initialQuestions = useMemo(
-    () => shuffleArray(allQuestions).slice(0, SESSION_SIZE),
+    () => shuffleArray(allQuestions).slice(0, Math.min(sessionSize, allQuestions.length)),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [specId, sessionSeed, allQuestions]
+    [specId, sessionSeed, allQuestions, sessionSize]
   );
 
   const questions = retryMode ? retryQuestions : initialQuestions;
@@ -248,9 +251,20 @@ export function PrecisionDriller({ specId, onSessionComplete }: PrecisionDriller
     );
   }
 
+  const showChooser =
+    !retryMode && currentIndex === 0 && !revealed && !prevEntry?.assessment && allQuestions.length > 0;
+
   return (
     <div className="space-y-6">
       <Header questionsCount={questions.length} allCount={allQuestions.length} stats={stats} retryMode={retryMode} />
+
+      {showChooser && (
+        <SessionLengthChooser
+          value={sessionSize}
+          onChange={setSessionSize}
+          maxCount={allQuestions.length}
+        />
+      )}
 
       <div className="text-center text-xs text-muted-foreground">
         {retryMode && <span className="text-destructive font-medium mr-1">Retry ·</span>}
@@ -379,7 +393,7 @@ function Header({ questionsCount, allCount, stats, retryMode }: {
   return (
     <div className="flex items-start justify-between">
       <div className="space-y-1">
-        <h2 className="font-serif text-2xl font-bold text-primary">Precision Driller</h2>
+        <h2 className="font-serif text-2xl font-bold text-primary">Concept Driller</h2>
         <p className="text-sm text-muted-foreground">
           {retryMode ? `Retrying ${questionsCount} missed` : `${questionsCount} of ${allCount} questions`} · shuffled each session
         </p>
