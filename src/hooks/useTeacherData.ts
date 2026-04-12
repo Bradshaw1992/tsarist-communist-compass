@@ -267,7 +267,7 @@ export function useClassStudents(classId: string | undefined) {
       );
 
       const result: ClassStudent[] = studentIds.map((uid) => {
-        const p = profileMap.get(uid);
+        const p = profileMap.get(uid) as any;
         const sa = sessionAgg.get(uid);
         const rc = recallCounts.get(uid);
         const wc = wrongCounts.get(uid) ?? 0;
