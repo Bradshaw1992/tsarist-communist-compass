@@ -11,14 +11,17 @@ export interface ChronologySequenceItem {
 export interface PerQuestionEntry {
   question_id: string;
   question_text: string;
-  correct_answer: string;
-  user_answer: string;
-  is_correct: boolean;
+  user_input?: string;
+  result: string;
+  // Alternative field names used in some contexts
+  correct_answer?: string;
+  user_answer?: string;
+  is_correct?: boolean;
 }
 
 /** Shape of a concept result stored in user_blank_recalls.concept_results JSONB. */
 export interface ConceptResult {
   concept: string;
   covered: boolean;
-  trigger_keywords: string[];
+  trigger_keywords?: string[];
 }
