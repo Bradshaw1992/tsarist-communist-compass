@@ -16,6 +16,10 @@ import SpecPage from "./pages/SpecPage.tsx";
 import SpecActivityPage from "./pages/SpecActivityPage.tsx";
 import ChronologyPage from "./pages/ChronologyPage.tsx";
 import ChronologyModePage from "./pages/ChronologyModePage.tsx";
+import TeacherDashboard from "./pages/TeacherDashboard.tsx";
+import TeacherClassPage from "./pages/TeacherClassPage.tsx";
+import TeacherStudentPage from "./pages/TeacherStudentPage.tsx";
+import TeacherQuestionsPage from "./pages/TeacherQuestionsPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -42,6 +46,20 @@ const App = () => (
               <Route path="/review" element={<ReviewPage />} />
               <Route path="/spec/:specId" element={<SpecPage />} />
               <Route path="/topic/:slug" element={<TopicPage />} />
+              {/* Teacher routes */}
+              <Route path="/teacher" element={<TeacherDashboard />} />
+              <Route
+                path="/teacher/class/:classId"
+                element={<TeacherClassPage />}
+              />
+              <Route
+                path="/teacher/class/:classId/student/:studentId"
+                element={<TeacherStudentPage />}
+              />
+              <Route
+                path="/teacher/questions"
+                element={<TeacherQuestionsPage />}
+              />
             </Route>
 
             {/* Full-bleed pages — no shell */}
