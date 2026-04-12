@@ -10,18 +10,30 @@
 // =============================================================================
 
 import { NavLink, Link } from "react-router-dom";
-import { LayoutDashboard, BookOpen, Compass, Dices } from "lucide-react";
+import { LayoutDashboard, BookOpen, Compass, Dices, GraduationCap } from "lucide-react";
 import { UserMenu } from "@/components/UserMenu";
+import { useAuth } from "@/contexts/AuthContext";
 import { useWrongAnswers } from "@/hooks/useWrongAnswers";
 
-const tabs = [
+interface Tab {
+  to: string;
+  label: string;
+  shortLabel: string;
+  icon: React.ComponentType<{ className?: string }>;
+  end: boolean;
+  teacherOnly?: boolean;
+}
+
+const tabs: Tab[] = [
   { to: "/", label: "Dashboard", shortLabel: "Home", icon: LayoutDashboard, end: true },
   { to: "/topics", label: "Topics", shortLabel: "Topics", icon: BookOpen, end: false },
   { to: "/general", label: "General", shortLabel: "General", icon: Compass, end: false },
   { to: "/random", label: "Random", shortLabel: "Random", icon: Dices, end: false },
+  { to: "/teacher", label: "Teacher", shortLabel: "Teach", icon: GraduationCap, end: false, teacherOnly: true },
 ];
 
 export function TopNav() {
+  const { isTeacher } = useAuth();
   const { dueCount, items: wrongAnswers } = useWrongAnswers();
   const totalReview = wrongAnswers.length;
 
@@ -41,7 +53,7 @@ export function TopNav() {
 
         {/* Tabs — chunky */}
         <nav className="flex flex-1 items-center gap-0.5 overflow-x-auto sm:gap-1">
-          {tabs.map((tab) => {
+          {tabs.filter((t) => !t.teacherOnly || isTeacher).map((tab) => {
             const Icon = tab.icon;
             return (
               <NavLink

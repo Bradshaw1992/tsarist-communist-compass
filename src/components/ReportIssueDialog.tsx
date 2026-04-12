@@ -4,19 +4,10 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
 import { Flag, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
-
-const ISSUE_TYPES = [
-  { value: "factual_error", label: "Factual Error" },
-  { value: "typo_spelling", label: "Typo / Spelling" },
-  { value: "confusing_vague", label: "Confusing / Vague" },
-  { value: "not_relevant", label: "Not Relevant" },
-] as const;
 
 interface ReportIssueDialogProps {
   open: boolean;
@@ -24,33 +15,50 @@ interface ReportIssueDialogProps {
   section: string;
   topicName: string;
   originalText: string;
+  /** New: if provided, writes to question_flags instead of content_reports */
+  questionId?: string;
+  questionTable?: "fact_questions" | "concept_questions";
+  specId?: number;
 }
 
 export function ReportIssueDialog({
   open, onOpenChange, section, topicName, originalText,
+  questionId, questionTable, specId,
 }: ReportIssueDialogProps) {
-  const [issueType, setIssueType] = useState("");
+  const { user } = useAuth();
   const [comment, setComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async () => {
-    if (!issueType) return;
     setSubmitting(true);
     try {
-      const { error } = await supabase.from("content_reports" as any).insert({
-        section,
-        topic_name: topicName,
-        original_text: originalText,
-        issue_type: issueType,
-        student_comment: comment,
-      } as any);
-      if (error) throw error;
-      toast({ title: "Report received", description: "The Scribe will review this!" });
-      setIssueType("");
+      // If we have question details AND a signed-in user, use the new question_flags table
+      if (questionId && questionTable && user) {
+        const { error } = await supabase.from("question_flags").insert({
+          question_table: questionTable,
+          question_id: questionId,
+          spec_id: specId ?? null,
+          flagged_by: user.id,
+          reason: comment.trim() || null,
+        });
+        // Ignore duplicate flag errors (unique constraint)
+        if (error && error.code !== "23505") throw error;
+      } else {
+        // Fallback: legacy content_reports table (for anonymous users or non-driller content)
+        const { error } = await supabase.from("content_reports" as any).insert({
+          section,
+          topic_name: topicName,
+          original_text: originalText,
+          issue_type: "flagged",
+          student_comment: comment,
+        } as any);
+        if (error) throw error;
+      }
+      toast({ title: "Flagged", description: "Your teacher will review this question." });
       setComment("");
       onOpenChange(false);
     } catch (err) {
-      console.error("Report submission failed:", err);
+      console.error("Flag submission failed:", err);
       toast({ title: "Failed to submit", description: "Please try again.", variant: "destructive" });
     } finally {
       setSubmitting(false);
@@ -63,10 +71,10 @@ export function ReportIssueDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Flag className="h-4 w-4 text-destructive" />
-            Report an Issue
+            Flag this question
           </DialogTitle>
           <DialogDescription>
-            Flag a problem with this content so it can be reviewed.
+            Think something's wrong? Flag it and your teacher will review it.
           </DialogDescription>
         </DialogHeader>
 
@@ -75,32 +83,21 @@ export function ReportIssueDialog({
             <p className="text-xs text-muted-foreground line-clamp-3">{originalText}</p>
           </div>
 
-          <Select value={issueType} onValueChange={setIssueType}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select issue type..." />
-            </SelectTrigger>
-            <SelectContent>
-              {ISSUE_TYPES.map((t) => (
-                <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
           <Textarea
             value={comment}
             onChange={(e) => setComment(e.target.value)}
-            placeholder="Optional: describe the issue..."
+            placeholder="What's wrong with this question? (optional)"
             className="resize-none text-sm"
             rows={3}
           />
 
           <Button
             onClick={handleSubmit}
-            disabled={!issueType || submitting}
+            disabled={submitting}
             className="w-full"
           >
             {submitting && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}
-            Submit Report
+            Flag question
           </Button>
         </div>
       </DialogContent>
@@ -113,7 +110,7 @@ export function ReportFlagButton({ onClick }: { onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      title="Report an issue"
+      title="Flag this question"
       className="inline-flex items-center justify-center rounded p-1 text-muted-foreground/40 transition-colors hover:text-destructive"
     >
       <Flag className="h-3.5 w-3.5" />
