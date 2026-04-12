@@ -200,7 +200,7 @@ export function useClassStudents(classId: string | undefined) {
       if (cancelled) return;
 
       const profileMap = new Map(
-        (profiles ?? []).map((p) => [p.id, p])
+        (profiles ?? []).map((p: any) => [p.id, p])
       );
 
       // 3. Sessions per student
