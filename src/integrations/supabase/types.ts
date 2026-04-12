@@ -242,6 +242,8 @@ export type Database = {
           correct_part: number | null
           correct_answer: string | null
           sequence_data: ChronologySequenceItem[] | null
+          options: string[] | null
+          correct_option_index: number | null
           hint_date: string | null
           source: string | null
           created_at: string
@@ -253,6 +255,8 @@ export type Database = {
           correct_part?: number | null
           correct_answer?: string | null
           sequence_data?: ChronologySequenceItem[] | null
+          options?: string[] | null
+          correct_option_index?: number | null
           hint_date?: string | null
           source?: string | null
           created_at?: string
@@ -468,6 +472,41 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: 'question_review_queue_spec_id_fkey'
+            columns: ['spec_id']
+            referencedRelation: 'spec_points'
+            referencedColumns: ['id']
+          }
+        ]
+      }
+
+      // --------- Question flags (student-reported issues) -------------------
+      question_flags: {
+        Row: {
+          id: string
+          question_table: 'fact_questions' | 'concept_questions'
+          question_id: string
+          spec_id: number | null
+          flagged_by: string
+          reason: string | null
+          created_at: string
+          resolved_at: string | null
+          resolved_by: string | null
+        }
+        Insert: {
+          id?: string
+          question_table: 'fact_questions' | 'concept_questions'
+          question_id: string
+          spec_id?: number | null
+          flagged_by: string
+          reason?: string | null
+          created_at?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+        }
+        Update: Partial<Database['public']['Tables']['question_flags']['Insert']>
+        Relationships: [
+          {
+            foreignKeyName: 'question_flags_spec_id_fkey'
             columns: ['spec_id']
             referencedRelation: 'spec_points'
             referencedColumns: ['id']
