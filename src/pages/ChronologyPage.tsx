@@ -10,16 +10,9 @@
 // 1855–1964 course.
 // =============================================================================
 
-import { Link, useNavigate } from "react-router-dom";
-import {
-  ArrowLeft,
-  Compass,
-  Clock,
-  Search,
-  ListOrdered,
-} from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Compass, Clock, Search, ListOrdered } from "lucide-react";
 import { SEOHead } from "@/components/SEOHead";
-import { Button } from "@/components/ui/button";
 import { useChronologyStats, useChronologyLoading } from "@/hooks/useChronology";
 
 const ChronologyPage = () => {
@@ -54,74 +47,57 @@ const ChronologyPage = () => {
     },
   ];
 
-  const accentBorder: Record<string, string> = {
-    rose: "border-l-4 border-l-rose-500",
-    blue: "border-l-4 border-l-blue-500",
-    purple: "border-l-4 border-l-purple-500",
+  const accentSurface: Record<string, string> = {
+    rose:
+      "bg-rose-50/60 ring-rose-200/60 hover:bg-rose-50 dark:bg-rose-950/20 dark:ring-rose-800/40",
+    blue:
+      "bg-blue-50/60 ring-blue-200/60 hover:bg-blue-50 dark:bg-blue-950/20 dark:ring-blue-800/40",
+    purple:
+      "bg-purple-50/60 ring-purple-200/60 hover:bg-purple-50 dark:bg-purple-950/20 dark:ring-purple-800/40",
   };
   const accentIcon: Record<string, string> = {
-    rose: "bg-rose-500/10 text-rose-600 dark:text-rose-400",
-    blue: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
-    purple: "bg-purple-500/10 text-purple-600 dark:text-purple-400",
+    rose: "bg-rose-500/15 text-rose-700 dark:text-rose-300",
+    blue: "bg-blue-500/15 text-blue-700 dark:text-blue-300",
+    purple: "bg-purple-500/15 text-purple-700 dark:text-purple-300",
   };
 
   return (
-    <div className="min-h-screen bg-background pb-16">
+    <div>
       <SEOHead
-        title="Chronology | AQA 1H Russia Compass"
+        title="General & Chronology | AQA 1H Russia Compass"
         description="Test your chronology across the whole AQA 1H course: 1855–1964. Place events in time, identify people and events, and sequence key moments in Tsarist and Communist Russia."
-        canonicalPath="/chronology"
+        canonicalPath="/general"
       />
 
-      {/* Breadcrumb strip */}
-      <div className="border-b border-border bg-card/60 px-4 py-2 sm:px-6">
-        <div className="mx-auto flex max-w-5xl items-center gap-2 text-xs text-muted-foreground">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 gap-1.5 px-2"
-            onClick={() => navigate("/")}
-          >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            Topics
-          </Button>
-          <span className="text-muted-foreground/50">/</span>
-          <span className="font-medium text-foreground">Chronology</span>
-        </div>
-      </div>
-
-      {/* Header */}
-      <header className="border-b border-border bg-card px-4 py-10 sm:px-6 sm:py-14">
-        <div className="mx-auto max-w-5xl">
+      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12">
+        {/* Header */}
+        <header className="mb-8">
           <div className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-rose-500/10">
-              <Compass className="h-5 w-5 text-rose-600 dark:text-rose-400" />
+            <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-rose-500/15">
+              <Compass className="h-5 w-5 text-rose-600 dark:text-rose-300" />
             </span>
-            <div className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+            <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
               1855 – 1964 · Whole course
             </div>
           </div>
-          <h1 className="mt-4 max-w-3xl font-serif text-2xl font-bold leading-tight text-primary sm:text-3xl lg:text-[2rem]">
-            General Knowledge & Chronology
+          <h1 className="mt-3 max-w-3xl font-serif text-2xl font-bold leading-tight text-primary sm:text-3xl">
+            General Knowledge &amp; Chronology
           </h1>
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-            The zoom-out view of the whole AQA 1H course. Test whether you can
-            place events in the right period, identify the people and policies
-            that shaped Tsarist and Communist Russia, and sequence the moments
-            that changed everything.
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+            The zoom-out view of the whole AQA 1H course. Place events in the
+            right period, identify the people and policies, sequence the
+            moments that changed everything.
           </p>
           <p className="mt-2 text-xs font-medium text-muted-foreground">
             {loading
               ? "Loading question pool…"
               : `${stats.total} questions across 3 modes`}
           </p>
-        </div>
-      </header>
+        </header>
 
-      {/* Mode grid */}
-      <section className="px-4 py-10 sm:px-6">
-        <div className="mx-auto max-w-5xl">
-          <h2 className="mb-4 font-serif text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+        {/* Mode grid */}
+        <section>
+          <h2 className="mb-3 font-serif text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground">
             Pick a mode
           </h2>
           <div className="grid gap-4 md:grid-cols-3">
@@ -132,18 +108,16 @@ const ChronologyPage = () => {
                   key={m.key}
                   onClick={() => navigate(`/chronology/${m.key}`)}
                   disabled={m.count === 0}
-                  className={`group flex min-h-[200px] flex-col gap-3 rounded-lg border border-border bg-card p-5 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-accent/50 hover:shadow-md disabled:opacity-50 ${accentBorder[m.accent]}`}
+                  className={`group flex flex-col gap-3 rounded-xl p-5 text-left shadow-card ring-1 transition-all hover:-translate-y-0.5 hover:shadow-card-hover disabled:opacity-50 ${accentSurface[m.accent]}`}
                 >
-                  <div className="flex items-center gap-3">
-                    <span
-                      className={`flex h-10 w-10 items-center justify-center rounded-lg ${accentIcon[m.accent]}`}
-                    >
-                      <Icon className="h-5 w-5" />
-                    </span>
-                    <h3 className="font-serif text-base font-bold text-primary">
-                      {m.name}
-                    </h3>
+                  <div
+                    className={`flex h-10 w-10 items-center justify-center rounded-lg ${accentIcon[m.accent]}`}
+                  >
+                    <Icon className="h-5 w-5" />
                   </div>
+                  <h3 className="font-serif text-base font-bold text-primary">
+                    {m.name}
+                  </h3>
                   <p className="text-sm leading-relaxed text-muted-foreground">
                     {m.description}
                   </p>
@@ -151,7 +125,7 @@ const ChronologyPage = () => {
                     <span className="text-xs font-medium text-foreground/80">
                       {m.count} question{m.count === 1 ? "" : "s"}
                     </span>
-                    <span className="text-xs font-semibold text-accent opacity-0 transition-opacity group-hover:opacity-100">
+                    <span className="text-xs font-semibold text-muted-foreground group-hover:text-primary">
                       Open →
                     </span>
                   </div>
@@ -161,22 +135,13 @@ const ChronologyPage = () => {
           </div>
 
           {!loading && stats.total === 0 && (
-            <div className="mt-6 rounded-lg border border-dashed border-border bg-card p-6 text-center text-sm text-muted-foreground">
+            <div className="mt-6 rounded-xl border border-dashed border-border bg-card p-6 text-center text-sm text-muted-foreground">
               No chronology questions loaded yet. The curated pool is stored in
               Supabase — check your network tab if this sticks.
             </div>
           )}
-        </div>
-      </section>
-
-      {/* Back to topics */}
-      <section className="px-4 pb-10 sm:px-6">
-        <div className="mx-auto max-w-5xl text-center">
-          <Button asChild variant="outline" size="sm">
-            <Link to="/">← Back to topics</Link>
-          </Button>
-        </div>
-      </section>
+        </section>
+      </div>
     </div>
   );
 };
