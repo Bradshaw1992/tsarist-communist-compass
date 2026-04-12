@@ -440,9 +440,6 @@ export function SpecificKnowledge({
         section="Knowledge"
         topicName={topicName}
         originalText={reportText}
-        questionId={question?.id}
-        questionTable="fact_questions"
-        specId={specId}
       />
     </div>
   );
