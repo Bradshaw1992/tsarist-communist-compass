@@ -41,7 +41,7 @@ function useChronologyQuery() {
         .from("chronology_questions")
         .select("*");
       if (error) throw error;
-      return (data ?? []) as ChronologyRow[];
+      return (data ?? []) as unknown as ChronologyRow[];
     },
     staleTime: Infinity,
     gcTime: Infinity,
