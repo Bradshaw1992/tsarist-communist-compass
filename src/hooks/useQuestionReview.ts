@@ -62,7 +62,7 @@ export function useQuestionReview() {
       }
       setLoading(true);
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("question_review_queue")
         .select("*")
         .eq("status", status)
@@ -100,15 +100,15 @@ export function useQuestionReview() {
     if (!user || !isTeacher) return;
 
     const [pendingRes, approvedRes, rejectedRes] = await Promise.all([
-      supabase
+      (supabase as any)
         .from("question_review_queue")
         .select("id", { count: "exact", head: true })
         .eq("status", "pending"),
-      supabase
+      (supabase as any)
         .from("question_review_queue")
         .select("id", { count: "exact", head: true })
         .eq("status", "approved"),
-      supabase
+      (supabase as any)
         .from("question_review_queue")
         .select("id", { count: "exact", head: true })
         .eq("status", "rejected"),
@@ -140,7 +140,7 @@ export function useQuestionReview() {
     // Insert into the live table
     if (item.targetTable === "fact_questions") {
       const fd = data as FactQuestionData;
-      const { error: insertErr } = await supabase
+      const { error: insertErr } = await (supabase as any)
         .from("fact_questions")
         .insert({
           spec_id: item.specId,
@@ -155,7 +155,7 @@ export function useQuestionReview() {
       }
     } else {
       const cd = data as ConceptQuestionData;
-      const { error: insertErr } = await supabase
+      const { error: insertErr } = await (supabase as any)
         .from("concept_questions")
         .insert({
           spec_id: item.specId,
@@ -175,7 +175,7 @@ export function useQuestionReview() {
     }
 
     // Mark as approved in the queue
-    const { error: updateErr } = await supabase
+    const { error: updateErr } = await (supabase as any)
       .from("question_review_queue")
       .update({
         status: "approved",
@@ -204,7 +204,7 @@ export function useQuestionReview() {
   const reject = async (id: string, reason?: string): Promise<boolean> => {
     if (!user) return false;
 
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from("question_review_queue")
       .update({
         status: "rejected",
@@ -238,7 +238,7 @@ export function useQuestionReview() {
 
     if (targetTable === "fact_questions") {
       const fd = data as FactQuestionData;
-      const { error } = await supabase.from("fact_questions").insert({
+      const { error } = await (supabase as any).from("fact_questions").insert({
         spec_id: specId,
         question: fd.question,
         answer: fd.answer,
@@ -251,7 +251,7 @@ export function useQuestionReview() {
       }
     } else {
       const cd = data as ConceptQuestionData;
-      const { error } = await supabase.from("concept_questions").insert({
+      const { error } = await (supabase as any).from("concept_questions").insert({
         spec_id: specId,
         question_text: cd.question_text,
         correct_answer: cd.correct_answer,

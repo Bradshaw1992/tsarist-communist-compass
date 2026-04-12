@@ -26,7 +26,7 @@ function useSpecPointsQuery() {
   return useQuery({
     queryKey: ["spec_points"],
     queryFn: async (): Promise<SpecPoint[]> => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("spec_points")
         .select("*")
         .order("sort_order", { ascending: true });
@@ -91,7 +91,7 @@ export function useRecallForSpec(specId: number): LegacyRecall | undefined {
   const { data } = useQuery({
     queryKey: ["recall_content", specId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("recall_content")
         .select("*")
         .eq("spec_id", specId)
@@ -127,7 +127,7 @@ export function useExamQuestionsForSpec(specId: number): ExamQuestion[] {
   const { data } = useQuery({
     queryKey: ["exam_questions"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("exam_questions")
         .select("*")
         .order("year", { ascending: false });
@@ -140,9 +140,9 @@ export function useExamQuestionsForSpec(specId: number): ExamQuestion[] {
 
   return useMemo(() => {
     if (!data) return [];
-    return data
-      .filter((q) => Array.isArray(q.spec_ids) && q.spec_ids.includes(specId))
-      .map<ExamQuestion>((q) => {
+    return (data as any[])
+      .filter((q: any) => Array.isArray(q.spec_ids) && q.spec_ids.includes(specId))
+      .map((q: any) => {
         const sf =
           ((q.source_files as unknown) as
             | { question_paper?: string; mark_scheme?: string }
@@ -175,7 +175,7 @@ export function useQuizQuestionsForSpec(specId: number): QuizQuestion[] {
   const { data } = useQuery({
     queryKey: ["concept_questions", specId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("concept_questions")
         .select("*")
         .eq("spec_id", specId);
@@ -189,7 +189,7 @@ export function useQuizQuestionsForSpec(specId: number): QuizQuestion[] {
 
   return useMemo(() => {
     if (!data) return [];
-    return data.map<QuizQuestion>((q) => ({
+    return data.map((q: any) => ({
       // Always use the real Supabase UUID, not legacy_id. Wrong-answer and
       // session rows need a real UUID for the foreign key.
       id: q.id,
@@ -215,7 +215,7 @@ export function useFactDrillerForSpec(specId: number): FactDrillerQuestion[] {
   const { data } = useQuery({
     queryKey: ["fact_questions", specId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("fact_questions")
         .select("*")
         .eq("spec_id", specId);
@@ -229,7 +229,7 @@ export function useFactDrillerForSpec(specId: number): FactDrillerQuestion[] {
 
   return useMemo(() => {
     if (!data) return [];
-    return data.map<FactDrillerQuestion>((q) => ({
+    return data.map((q: any) => ({
       id: q.id,
       spec_point_id: q.spec_id,
       question: q.question,
