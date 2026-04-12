@@ -13,7 +13,7 @@ import { ReportIssueDialog, ReportFlagButton } from "@/components/ReportIssueDia
 import type { QuizQuestion } from "@/types/revision";
 import type { DrillerSessionInput } from "@/hooks/useHighScores";
 import type { AssessmentInput } from "@/hooks/useWrongAnswers";
-import type { PerQuestionEntry } from "@/integrations/supabase/types";
+import type { PerQuestionEntry } from "@/types/supabase-helpers";
 import { SessionLengthChooser } from "@/components/tabs/SpecificKnowledge";
 
 interface PrecisionDrillerProps {

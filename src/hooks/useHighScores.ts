@@ -29,11 +29,8 @@
 import { useState, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import type {
-  ConceptResult,
-  Json,
-  PerQuestionEntry,
-} from "@/integrations/supabase/types";
+import type { Json } from "@/integrations/supabase/types";
+import type { ConceptResult, PerQuestionEntry } from "@/types/supabase-helpers";
 
 export interface TopicProgress {
   highScore: number; // percentage 0-100
