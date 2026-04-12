@@ -404,9 +404,6 @@ export function PrecisionDriller({
         section="Driller"
         topicName={topicName}
         originalText={reportText}
-        questionId={question?.id}
-        questionTable="concept_questions"
-        specId={specId}
       />
     </div>
   );

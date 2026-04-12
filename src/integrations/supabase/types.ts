@@ -479,41 +479,6 @@ export type Database = {
         ]
       }
 
-      // --------- Question flags (student-reported issues) -------------------
-      question_flags: {
-        Row: {
-          id: string
-          question_table: 'fact_questions' | 'concept_questions'
-          question_id: string
-          spec_id: number | null
-          flagged_by: string
-          reason: string | null
-          created_at: string
-          resolved_at: string | null
-          resolved_by: string | null
-        }
-        Insert: {
-          id?: string
-          question_table: 'fact_questions' | 'concept_questions'
-          question_id: string
-          spec_id?: number | null
-          flagged_by: string
-          reason?: string | null
-          created_at?: string
-          resolved_at?: string | null
-          resolved_by?: string | null
-        }
-        Update: Partial<Database['public']['Tables']['question_flags']['Insert']>
-        Relationships: [
-          {
-            foreignKeyName: 'question_flags_spec_id_fkey'
-            columns: ['spec_id']
-            referencedRelation: 'spec_points'
-            referencedColumns: ['id']
-          }
-        ]
-      }
-
       // --------- Student content reports ------------------------------------
       content_reports: {
         Row: {
