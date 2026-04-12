@@ -190,7 +190,7 @@ export function useHighScores() {
 
       if (!user) return;
 
-      const { error } = await supabase.from("user_sessions").insert({
+      const { error } = await (supabase.from("user_sessions") as any).insert({
         user_id: user.id,
         activity_type: input.activity_type,
         spec_id: input.spec_id,
@@ -218,7 +218,7 @@ export function useHighScores() {
 
       if (!user) return;
 
-      const { error } = await supabase.from("user_blank_recalls").insert({
+      const { error } = await (supabase.from("user_blank_recalls") as any).insert({
         user_id: user.id,
         spec_id: input.spec_id,
         written_text: input.written_text,
