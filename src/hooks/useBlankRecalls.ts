@@ -39,7 +39,7 @@ export function useBlankRecalls() {
     setLoading(true);
 
     (async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("user_blank_recalls")
         .select("id, spec_id, concepts_total, concepts_covered, submitted_at")
         .eq("user_id", user.id)

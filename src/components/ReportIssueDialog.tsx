@@ -34,7 +34,7 @@ export function ReportIssueDialog({
     try {
       // If we have question details AND a signed-in user, use the new question_flags table
       if (questionId && questionTable && user) {
-        const { error } = await supabase.from("question_flags").insert({
+        const { error } = await (supabase as any).from("question_flags").insert({
           question_table: questionTable,
           question_id: questionId,
           spec_id: specId ?? null,
