@@ -140,9 +140,9 @@ export function useExamQuestionsForSpec(specId: number): ExamQuestion[] {
 
   return useMemo(() => {
     if (!data) return [];
-    return data
-      .filter((q) => Array.isArray(q.spec_ids) && q.spec_ids.includes(specId))
-      .map<ExamQuestion>((q) => {
+    return (data as any[])
+      .filter((q: any) => Array.isArray(q.spec_ids) && q.spec_ids.includes(specId))
+      .map((q: any) => {
         const sf =
           ((q.source_files as unknown) as
             | { question_paper?: string; mark_scheme?: string }
@@ -189,7 +189,7 @@ export function useQuizQuestionsForSpec(specId: number): QuizQuestion[] {
 
   return useMemo(() => {
     if (!data) return [];
-    return data.map<QuizQuestion>((q) => ({
+    return data.map((q: any) => ({
       // Always use the real Supabase UUID, not legacy_id. Wrong-answer and
       // session rows need a real UUID for the foreign key.
       id: q.id,
@@ -229,7 +229,7 @@ export function useFactDrillerForSpec(specId: number): FactDrillerQuestion[] {
 
   return useMemo(() => {
     if (!data) return [];
-    return data.map<FactDrillerQuestion>((q) => ({
+    return data.map((q: any) => ({
       id: q.id,
       spec_point_id: q.spec_id,
       question: q.question,

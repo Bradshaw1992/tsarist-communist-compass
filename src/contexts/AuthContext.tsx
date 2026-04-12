@@ -180,7 +180,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     () => ({
       user,
       profile,
-      isTeacher: profile?.role === "teacher" ?? false,
+      isTeacher: profile?.role === "teacher",
       loading,
       signInWithGoogle,
       signOut,

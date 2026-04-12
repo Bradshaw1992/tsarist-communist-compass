@@ -78,7 +78,7 @@ export function useTeacherClasses() {
     if (!user || !isTeacher) { setClasses([]); return; }
     setLoading(true);
 
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from("classes")
       .select("id, name, join_code, created_at")
       .eq("teacher_id", user.id)
@@ -95,7 +95,7 @@ export function useTeacherClasses() {
     let memberCounts: Record<string, number> = {};
 
     if (classIds.length > 0) {
-      const { data: members } = await supabase
+      const { data: members } = await (supabase as any)
         .from("class_members")
         .select("class_id")
         .in("class_id", classIds);
@@ -129,7 +129,7 @@ export function useTeacherClasses() {
     // Generate a simple 6-char join code
     const joinCode = Math.random().toString(36).substring(2, 8).toUpperCase();
 
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from("classes")
       .insert({
         teacher_id: user.id,
@@ -177,7 +177,7 @@ export function useClassStudents(classId: string | undefined) {
 
     (async () => {
       // 1. Get members + profiles
-      const { data: members, error: membersErr } = await supabase
+      const { data: members, error: membersErr } = await (supabase as any)
         .from("class_members")
         .select("student_id, joined_at")
         .eq("class_id", classId);
@@ -192,7 +192,7 @@ export function useClassStudents(classId: string | undefined) {
       const studentIds = members.map((m) => m.student_id);
 
       // 2. Profiles
-      const { data: profiles } = await supabase
+      const { data: profiles } = await (supabase as any)
         .from("user_profiles")
         .select("id, email, display_name, full_name")
         .in("id", studentIds);
@@ -204,7 +204,7 @@ export function useClassStudents(classId: string | undefined) {
       );
 
       // 3. Sessions per student
-      const { data: sessions } = await supabase
+      const { data: sessions } = await (supabase as any)
         .from("user_sessions")
         .select("user_id, total_questions, correct_count, completed_at")
         .in("user_id", studentIds)
@@ -213,7 +213,7 @@ export function useClassStudents(classId: string | undefined) {
       if (cancelled) return;
 
       // 4. Blank recalls per student
-      const { data: recalls } = await supabase
+      const { data: recalls } = await (supabase as any)
         .from("user_blank_recalls")
         .select("user_id, submitted_at")
         .in("user_id", studentIds);
@@ -221,7 +221,7 @@ export function useClassStudents(classId: string | undefined) {
       if (cancelled) return;
 
       // 5. Wrong answers per student (unresolved)
-      const { data: wrongs } = await supabase
+      const { data: wrongs } = await (supabase as any)
         .from("user_wrong_answers")
         .select("user_id")
         .in("user_id", studentIds)
@@ -348,7 +348,7 @@ export function useStudentDetail(studentId: string | undefined) {
     (async () => {
       const [sessResult, wrongResult, recallResult, profileResult] =
         await Promise.all([
-          supabase
+          (supabase as any)
             .from("user_sessions")
             .select(
               "id, activity_type, spec_id, total_questions, correct_count, completed_at"
@@ -357,7 +357,7 @@ export function useStudentDetail(studentId: string | undefined) {
             .not("completed_at", "is", null)
             .order("completed_at", { ascending: false })
             .limit(100),
-          supabase
+          (supabase as any)
             .from("user_wrong_answers")
             .select(
               "id, spec_id, question_snapshot, missed_at, resolved_at"
@@ -365,7 +365,7 @@ export function useStudentDetail(studentId: string | undefined) {
             .eq("user_id", studentId)
             .order("missed_at", { ascending: false })
             .limit(200),
-          supabase
+          (supabase as any)
             .from("user_blank_recalls")
             .select(
               "id, spec_id, concepts_total, concepts_covered, submitted_at"
@@ -373,7 +373,7 @@ export function useStudentDetail(studentId: string | undefined) {
             .eq("user_id", studentId)
             .order("submitted_at", { ascending: false })
             .limit(100),
-          supabase
+          (supabase as any)
             .from("user_profiles")
             .select("email, display_name, full_name")
             .eq("id", studentId)
