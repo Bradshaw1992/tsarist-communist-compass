@@ -34,7 +34,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Check, GripVertical, RotateCw, X } from "lucide-react";
 import type { ChronologyRow } from "@/hooks/useChronology";
-import type { ChronologySequenceItem } from "@/integrations/supabase/types";
+import type { ChronologySequenceItem } from "@/types/supabase-helpers";
 
 const DEFAULT_SESSION_SIZE = 5;
 

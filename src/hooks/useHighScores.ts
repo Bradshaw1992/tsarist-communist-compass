@@ -29,11 +29,8 @@
 import { useState, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import type {
-  ConceptResult,
-  Json,
-  PerQuestionEntry,
-} from "@/integrations/supabase/types";
+import type { Json } from "@/integrations/supabase/types";
+import type { ConceptResult, PerQuestionEntry } from "@/types/supabase-helpers";
 
 export interface TopicProgress {
   highScore: number; // percentage 0-100
@@ -193,7 +190,7 @@ export function useHighScores() {
 
       if (!user) return;
 
-      const { error } = await supabase.from("user_sessions").insert({
+      const { error } = await (supabase.from("user_sessions") as any).insert({
         user_id: user.id,
         activity_type: input.activity_type,
         spec_id: input.spec_id,
@@ -221,7 +218,7 @@ export function useHighScores() {
 
       if (!user) return;
 
-      const { error } = await supabase.from("user_blank_recalls").insert({
+      const { error } = await (supabase.from("user_blank_recalls") as any).insert({
         user_id: user.id,
         spec_id: input.spec_id,
         written_text: input.written_text,
