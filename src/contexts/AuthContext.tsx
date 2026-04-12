@@ -35,14 +35,7 @@ import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 
-export type UserProfile = {
-  id: string;
-  email: string | null;
-  display_name: string | null;
-  full_name: string | null;
-  role: string | null;
-  created_at: string;
-};
+export type UserProfile = Tables<"user_profiles">;
 
 interface AuthContextValue {
   user: User | null;
@@ -57,7 +50,7 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 async function fetchProfile(userId: string): Promise<UserProfile | null> {
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from("user_profiles")
     .select("*")
     .eq("id", userId)

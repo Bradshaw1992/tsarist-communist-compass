@@ -46,7 +46,7 @@ export function useRecentSessions(limit = 10) {
 
     Promise.all([
       // Driller sessions
-      (supabase as any)
+      supabase
         .from("user_sessions")
         .select("id, activity_type, spec_id, total_questions, correct_count, completed_at")
         .eq("user_id", user.id)
@@ -54,7 +54,7 @@ export function useRecentSessions(limit = 10) {
         .order("completed_at", { ascending: false })
         .limit(limit),
       // Blank recalls
-      (supabase as any)
+      supabase
         .from("user_blank_recalls")
         .select("id, spec_id, concepts_total, concepts_covered, submitted_at")
         .eq("user_id", user.id)

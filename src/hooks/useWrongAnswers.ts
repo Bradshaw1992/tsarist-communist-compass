@@ -90,7 +90,7 @@ export function useWrongAnswers() {
     setLoading(true);
 
     (async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from("user_wrong_answers")
         .select("id, question_table, question_id, spec_id, missed_at, question_snapshot")
         .eq("user_id", user.id)
@@ -135,7 +135,7 @@ export function useWrongAnswers() {
       if (input.correct) {
         // Resolve any existing unresolved row for this question. We don't care
         // if there isn't one — .update is a no-op in that case.
-        const { error } = await (supabase as any)
+        const { error } = await supabase
           .from("user_wrong_answers")
           .update({ resolved_at: new Date().toISOString() })
           .eq("user_id", user.id)
@@ -178,7 +178,7 @@ export function useWrongAnswers() {
         ...(input.spec_title ? { spec_title: input.spec_title } : {}),
       };
 
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from("user_wrong_answers")
         .insert({
           user_id: user.id,
@@ -223,7 +223,7 @@ export function useWrongAnswers() {
     async (rowId: string) => {
       if (!user) return;
 
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from("user_wrong_answers")
         .update({ resolved_at: new Date().toISOString() })
         .eq("id", rowId)

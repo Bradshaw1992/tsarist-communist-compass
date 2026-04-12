@@ -29,19 +29,11 @@
 import { useState, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import type { Json } from "@/integrations/supabase/types";
-
-export interface PerQuestionEntry {
-  question_id: string;
-  question_text: string;
-  user_input?: string;
-  result: "correct" | "missed";
-}
-
-export interface ConceptResult {
-  concept: string;
-  covered: boolean;
-}
+import type {
+  ConceptResult,
+  Json,
+  PerQuestionEntry,
+} from "@/integrations/supabase/types";
 
 export interface TopicProgress {
   highScore: number; // percentage 0-100
@@ -111,7 +103,7 @@ export function useHighScores() {
     let cancelled = false;
 
     (async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from("user_sessions")
         .select("spec_id, correct_count, total_questions, completed_at")
         .eq("user_id", user.id)
@@ -201,7 +193,7 @@ export function useHighScores() {
 
       if (!user) return;
 
-      const { error } = await (supabase as any).from("user_sessions").insert({
+      const { error } = await supabase.from("user_sessions").insert({
         user_id: user.id,
         activity_type: input.activity_type,
         spec_id: input.spec_id,
@@ -229,7 +221,7 @@ export function useHighScores() {
 
       if (!user) return;
 
-      const { error } = await (supabase as any).from("user_blank_recalls").insert({
+      const { error } = await supabase.from("user_blank_recalls").insert({
         user_id: user.id,
         spec_id: input.spec_id,
         written_text: input.written_text,

@@ -13,7 +13,7 @@ import { ReportIssueDialog, ReportFlagButton } from "@/components/ReportIssueDia
 import type { FactDrillerQuestion } from "@/types/revision";
 import type { DrillerSessionInput } from "@/hooks/useHighScores";
 import type { AssessmentInput } from "@/hooks/useWrongAnswers";
-import type { PerQuestionEntry } from "@/hooks/useHighScores";
+import type { PerQuestionEntry } from "@/integrations/supabase/types";
 
 interface SpecificKnowledgeProps {
   specId: number;

@@ -16,7 +16,7 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-export interface ChronologySequenceItem { event: string; date: string; }
+import type { ChronologySequenceItem } from "@/integrations/supabase/types";
 
 export type ChronologyMode = "place_in_time" | "identify" | "sequence";
 
@@ -37,11 +37,11 @@ function useChronologyQuery() {
   return useQuery({
     queryKey: ["chronology_questions"],
     queryFn: async (): Promise<ChronologyRow[]> => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from("chronology_questions")
         .select("*");
       if (error) throw error;
-      return (data ?? []) as unknown as ChronologyRow[];
+      return (data ?? []) as ChronologyRow[];
     },
     staleTime: Infinity,
     gcTime: Infinity,

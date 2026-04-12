@@ -26,7 +26,7 @@ export function useFlagQuestion() {
     ): Promise<boolean> => {
       if (!user) return false;
 
-      const { error } = await (supabase as any).from("question_flags").insert({
+      const { error } = await supabase.from("question_flags").insert({
         question_table: questionTable,
         question_id: questionId,
         spec_id: specId ?? undefined,
@@ -76,7 +76,7 @@ export function useTeacherFlags() {
     setLoading(true);
 
     // Get all unresolved flags
-    const { data, error } = await (supabase as any)
+    const { data, error } = await supabase
       .from("question_flags")
       .select("*")
       .is("resolved_at", null)
@@ -142,7 +142,7 @@ export function useTeacherFlags() {
     const questionTexts = new Map<string, { q: string; a: string }>();
 
     if (factIds.length > 0) {
-      const { data: facts } = await (supabase as any)
+      const { data: facts } = await supabase
         .from("fact_questions")
         .select("id, question, answer")
         .in("id", factIds);
@@ -152,7 +152,7 @@ export function useTeacherFlags() {
     }
 
     if (conceptIds.length > 0) {
-      const { data: concepts } = await (supabase as any)
+      const { data: concepts } = await supabase
         .from("concept_questions")
         .select("id, question_text, correct_answer")
         .in("id", conceptIds);
@@ -185,7 +185,7 @@ export function useTeacherFlags() {
   const resolveFlags = useCallback(
     async (flagIds: string[]): Promise<boolean> => {
       if (!user) return false;
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from("question_flags")
         .update({
           resolved_at: new Date().toISOString(),
@@ -215,7 +215,7 @@ export function useTeacherFlags() {
     ): Promise<boolean> => {
       if (!user) return false;
 
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from(questionTable)
         .delete()
         .eq("id", questionId);

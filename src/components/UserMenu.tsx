@@ -49,13 +49,13 @@ export function UserMenu({ inline = false }: UserMenuProps) {
   }
 
   const displayName =
-    profile?.display_name ??
-    profile?.full_name ??
-    user.email ??
+    profile?.display_name ||
+    profile?.full_name ||
+    user.email ||
     "Account";
 
   const initials = getInitials(
-    profile?.display_name ?? profile?.full_name ?? user.email ?? "U"
+    profile?.display_name || profile?.full_name || user.email || "U"
   );
 
   const handleSignOut = async () => {
