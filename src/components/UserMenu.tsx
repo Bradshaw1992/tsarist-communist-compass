@@ -1,4 +1,4 @@
-import { LogOut, Monitor, Moon, Sun, User as UserIcon } from "lucide-react";
+import { LogOut, Monitor, Moon, Sun, User as UserIcon, Users } from "lucide-react";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/hooks/useTheme";
+import { JoinClassDialog } from "@/components/JoinClassDialog";
 
 interface UserMenuProps {
   /**
@@ -139,6 +140,21 @@ export function UserMenu({ inline = false }: UserMenuProps) {
               <span className="ml-auto text-xs text-muted-foreground">✓</span>
             )}
           </DropdownMenuItem>
+
+          <DropdownMenuSeparator />
+
+          {/* Join a class — opens a dialog for entering a join code */}
+          <JoinClassDialog
+            trigger={
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onSelect={(e) => e.preventDefault()}
+              >
+                <Users className="mr-2 h-4 w-4" />
+                Join a class
+              </DropdownMenuItem>
+            }
+          />
 
           <DropdownMenuSeparator />
           <DropdownMenuItem

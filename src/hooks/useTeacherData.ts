@@ -165,6 +165,8 @@ export function useClassStudents(classId: string | undefined) {
   const { user, isTeacher } = useAuth();
   const [students, setStudents] = useState<ClassStudent[]>([]);
   const [loading, setLoading] = useState(false);
+  const [tick, setTick] = useState(0);
+  const refetch = () => setTick((t) => t + 1);
 
   useEffect(() => {
     if (!user || !isTeacher || !classId) {
@@ -314,9 +316,9 @@ export function useClassStudents(classId: string | undefined) {
     return () => {
       cancelled = true;
     };
-  }, [user, isTeacher, classId]);
+  }, [user, isTeacher, classId, tick]);
 
-  return { students, loading };
+  return { students, loading, refetch };
 }
 
 // ---- useStudentDetail -------------------------------------------------------

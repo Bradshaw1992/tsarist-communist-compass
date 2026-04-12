@@ -14,6 +14,7 @@ import {
   ChevronRight,
   Users,
 } from "lucide-react";
+import { AddStudentDialog } from "@/components/AddStudentDialog";
 import { SEOHead } from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -36,7 +37,7 @@ const TeacherClassPage = () => {
   const { isTeacher } = useAuth();
   const navigate = useNavigate();
   const { classes } = useTeacherClasses();
-  const { students, loading } = useClassStudents(classId);
+  const { students, loading, refetch } = useClassStudents(classId);
 
   const [sortKey, setSortKey] = useState<SortKey>("lastActive");
   const [sortAsc, setSortAsc] = useState(false);
@@ -120,7 +121,7 @@ const TeacherClassPage = () => {
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
               <Users className="h-5 w-5" />
             </div>
-            <div>
+            <div className="flex-1">
               <h1 className="font-serif text-2xl font-bold text-primary">
                 {cls?.name ?? "Class"}
               </h1>
@@ -132,6 +133,13 @@ const TeacherClassPage = () => {
                 </span>
               </p>
             </div>
+            {classId && cls && (
+              <AddStudentDialog
+                classId={classId}
+                className={cls.name}
+                onAdded={refetch}
+              />
+            )}
           </div>
         </header>
 
