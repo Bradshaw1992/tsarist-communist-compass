@@ -15,6 +15,7 @@ import { fuzzyKeywordInText } from "@/lib/fuzzyMatcher";
 
 import { toast } from "sonner";
 import { trackEvent } from "@/lib/analytics";
+import { SUPABASE_CONFIG } from "@/integrations/supabase/config";
 import type { KeyConcept, FactDrillerQuestion } from "@/types/revision";
 import type { BlankRecallInput, DrillerSessionInput } from "@/hooks/useHighScores";
 import type { AssessmentInput } from "@/hooks/useWrongAnswers";
@@ -91,8 +92,8 @@ async function analyseKeyConceptsAI(
   concepts: KeyConcept[],
   onProgress?: (charCount: number) => void
 ): Promise<{ mentioned: AnalysedConcept[]; missed: string[] }> {
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-  const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || SUPABASE_CONFIG.url;
+  const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || SUPABASE_CONFIG.anonKey;
 
   const url = `${supabaseUrl}/functions/v1/analyse-recall`;
 
@@ -380,8 +381,8 @@ export function BlankRecall({
     trackEvent("polish_transcript", { spec_id: specId });
 
     try {
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || SUPABASE_CONFIG.url;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || SUPABASE_CONFIG.anonKey;
       const url = `${supabaseUrl}/functions/v1/polish-transcript`;
 
       const response = await fetch(url, {
