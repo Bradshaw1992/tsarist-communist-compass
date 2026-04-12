@@ -21,7 +21,7 @@
 // instances would each hold their own copy of the queue.
 // =============================================================================
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Json } from "@/integrations/supabase/types";
@@ -251,47 +251,11 @@ export function useWrongAnswers() {
     return out;
   }, [items]);
 
-  // -------------------------------------------------------------------------
-  // Spaced repetition — client-side scheduling.
-  // An item is "due for review" when missed_at is more than 24h ago.
-  // This is a simple v1: miss → wait 1 day → review. Get it right →
-  // resolved. Get it wrong → stays in queue, missed_at resets.
-  // v2 will add server-side next_review_at + interval_days columns for
-  // a proper 1-day / 7-day / cleared schedule.
-  // -------------------------------------------------------------------------
-  const dueToday = useMemo<WrongAnswer[]>(() => {
-    const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
-    return items.filter((w) => new Date(w.missed_at).getTime() <= oneDayAgo);
-  }, [items]);
-
-  const dueCount = dueToday.length;
-
-  /** Items missed recently (< 24h) — not yet due but still in queue. */
-  const pendingCount = items.length - dueCount;
-
-  /** The single oldest due item — useful for "oldest: X days ago" display. */
-  const oldestDueAge = useMemo<number | null>(() => {
-    if (dueToday.length === 0) return null;
-    const oldest = dueToday.reduce((a, b) =>
-      new Date(a.missed_at).getTime() < new Date(b.missed_at).getTime()
-        ? a
-        : b
-    );
-    return Math.floor(
-      (Date.now() - new Date(oldest.missed_at).getTime()) / (24 * 60 * 60 * 1000)
-    );
-  }, [dueToday]);
-
   return {
     items,
     loading,
     recordAssessment,
     resolveById,
     countsBySpec,
-    // Spaced rep
-    dueToday,
-    dueCount,
-    pendingCount,
-    oldestDueAge,
   };
 }

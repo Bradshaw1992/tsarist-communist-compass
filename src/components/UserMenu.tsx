@@ -1,4 +1,4 @@
-import { LogOut, Monitor, Moon, Sun, User as UserIcon } from "lucide-react";
+import { LogOut, User as UserIcon } from "lucide-react";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -10,43 +10,17 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { useTheme } from "@/hooks/useTheme";
-
-interface UserMenuProps {
-  /**
-   * When true, the menu renders in place (for embedding inside a nav bar).
-   * When false/omitted, it pins itself to the top-right of the viewport —
-   * the legacy behaviour used on pages that don't have a shell.
-   */
-  inline?: boolean;
-}
 
 /**
- * "Who am I" button. Shows the user's initials in a circle; dropdown offers
- * theme switching and sign-out. Signed-out → a neat "Sign in" button.
- *
- * With `inline`, the component sits wherever it's placed. Without it,
- * the component is fixed to the top-right corner (used as a fallback).
+ * Tiny fixed-position "who am I" button, visible in the top-right when a
+ * user is signed in. Shows initials in a circle; dropdown offers sign-out.
+ * Intentionally unobtrusive — the full nav-bar/profile UX is planned for
+ * a later step.
  */
-export function UserMenu({ inline = false }: UserMenuProps) {
+export function UserMenu() {
   const { user, profile, isTeacher, signOut } = useAuth();
-  const { preference, setTheme } = useTheme();
 
-  // Signed-out users get a prominent "Sign in" button when inline, so the
-  // top bar still has something on the right.
-  if (!user) {
-    if (!inline) return null;
-    return (
-      <Button
-        asChild
-        size="sm"
-        variant="outline"
-        className="h-8 gap-1.5 border-primary/30 bg-card text-xs font-semibold text-primary hover:bg-primary hover:text-primary-foreground"
-      >
-        <a href="/login">Sign in</a>
-      </Button>
-    );
-  }
+  if (!user) return null;
 
   const displayName =
     profile?.display_name ||
@@ -67,12 +41,8 @@ export function UserMenu({ inline = false }: UserMenuProps) {
     }
   };
 
-  const wrapper = inline
-    ? ""
-    : "fixed right-3 top-3 z-50 sm:right-4 sm:top-4";
-
   return (
-    <div className={wrapper}>
+    <div className="fixed right-3 top-3 z-50 sm:right-4 sm:top-4">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -103,43 +73,6 @@ export function UserMenu({ inline = false }: UserMenuProps) {
               )}
             </div>
           </DropdownMenuLabel>
-          <DropdownMenuSeparator />
-
-          {/* Theme switcher — three-state: light / dark / system */}
-          <DropdownMenuLabel className="pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Appearance
-          </DropdownMenuLabel>
-          <DropdownMenuItem
-            onClick={() => setTheme("light")}
-            className="cursor-pointer"
-          >
-            <Sun className="mr-2 h-4 w-4" />
-            Light
-            {preference === "light" && (
-              <span className="ml-auto text-xs text-muted-foreground">✓</span>
-            )}
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => setTheme("dark")}
-            className="cursor-pointer"
-          >
-            <Moon className="mr-2 h-4 w-4" />
-            Dark
-            {preference === "dark" && (
-              <span className="ml-auto text-xs text-muted-foreground">✓</span>
-            )}
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => setTheme("system")}
-            className="cursor-pointer"
-          >
-            <Monitor className="mr-2 h-4 w-4" />
-            System
-            {preference === "system" && (
-              <span className="ml-auto text-xs text-muted-foreground">✓</span>
-            )}
-          </DropdownMenuItem>
-
           <DropdownMenuSeparator />
           <DropdownMenuItem
             onClick={handleSignOut}
