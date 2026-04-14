@@ -6,11 +6,12 @@
 // wrong answers (unresolved first), and blank recall submissions.
 // =============================================================================
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeft,
   BookOpen,
+  ChevronDown,
   ChevronRight,
   Clock,
   PenLine,
@@ -413,41 +414,16 @@ const TeacherStudentPage = () => {
               )}
             </Section>
 
-            {/* Wrong answers */}
+            {/* Wrong answers — grouped by spec, collapsible */}
             <Section title="Wrong answers" icon={TriangleAlert}>
               {wrongAnswers.length === 0 ? (
                 <EmptyNote>No wrong answers recorded.</EmptyNote>
               ) : (
-                <div className="space-y-2">
-                  {/* Unresolved first */}
-                  {unresolvedWrongAnswers.length > 0 && (
-                    <div className="mb-1 text-[11px] font-semibold uppercase tracking-widest text-amber-700 dark:text-amber-300">
-                      Unresolved ({unresolvedWrongAnswers.length})
-                    </div>
-                  )}
-                  {unresolvedWrongAnswers.slice(0, 30).map((w) => (
-                    <WrongAnswerCard key={w.id} w={w} specMap={specMap} />
-                  ))}
-
-                  {/* Resolved */}
-                  {wrongAnswers.filter((w) => w.resolvedAt).length > 0 && (
-                    <div className="mb-1 mt-4 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
-                      Resolved (
-                      {wrongAnswers.filter((w) => w.resolvedAt).length})
-                    </div>
-                  )}
-                  {wrongAnswers
-                    .filter((w) => w.resolvedAt)
-                    .slice(0, 20)
-                    .map((w) => (
-                      <WrongAnswerCard
-                        key={w.id}
-                        w={w}
-                        specMap={specMap}
-                        resolved
-                      />
-                    ))}
-                </div>
+                <WrongAnswersGrouped
+                  wrongAnswers={wrongAnswers}
+                  unresolvedWrongAnswers={unresolvedWrongAnswers}
+                  specMap={specMap}
+                />
               )}
             </Section>
           </>
@@ -524,6 +500,158 @@ function EmptyNote({ children }: { children: React.ReactNode }) {
   );
 }
 
+// ---- Wrong answers grouped by spec with collapsible sections ---------------
+
+type WrongAnswer = {
+  id: string;
+  specId: number | null;
+  questionSnapshot: { question: string; answer: string; spec_title?: string };
+  missedAt: string;
+  resolvedAt: string | null;
+};
+
+function WrongAnswersGrouped({
+  wrongAnswers,
+  unresolvedWrongAnswers,
+  specMap,
+}: {
+  wrongAnswers: WrongAnswer[];
+  unresolvedWrongAnswers: WrongAnswer[];
+  specMap: Map<number, SpecPoint>;
+}) {
+  const [openSections, setOpenSections] = useState<Set<string>>(new Set());
+
+  const toggle = (key: string) =>
+    setOpenSections((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+
+  // Group unresolved by spec
+  const unresolvedBySpec = useMemo(() => {
+    const map = new Map<number | null, WrongAnswer[]>();
+    for (const w of unresolvedWrongAnswers) {
+      const arr = map.get(w.specId) ?? [];
+      arr.push(w);
+      map.set(w.specId, arr);
+    }
+    // Sort by spec ID
+    return [...map.entries()].sort((a, b) => (a[0] ?? 999) - (b[0] ?? 999));
+  }, [unresolvedWrongAnswers]);
+
+  // Group resolved by spec
+  const resolvedBySpec = useMemo(() => {
+    const resolved = wrongAnswers.filter((w) => w.resolvedAt);
+    const map = new Map<number | null, WrongAnswer[]>();
+    for (const w of resolved) {
+      const arr = map.get(w.specId) ?? [];
+      arr.push(w);
+      map.set(w.specId, arr);
+    }
+    return [...map.entries()].sort((a, b) => (a[0] ?? 999) - (b[0] ?? 999));
+  }, [wrongAnswers]);
+
+  const resolvedCount = wrongAnswers.filter((w) => w.resolvedAt).length;
+
+  const specLabel = (specId: number | null) => {
+    if (specId == null) return "Unknown topic";
+    const sp = specMap.get(specId);
+    return sp ? `${specId}. ${sp.short_title ?? sp.title}` : `Spec ${specId}`;
+  };
+
+  return (
+    <div className="space-y-3">
+      {/* Unresolved */}
+      {unresolvedWrongAnswers.length > 0 && (
+        <div>
+          <div className="mb-2 text-[11px] font-semibold uppercase tracking-widest text-amber-700 dark:text-amber-300">
+            Unresolved ({unresolvedWrongAnswers.length})
+          </div>
+          <div className="space-y-1">
+            {unresolvedBySpec.map(([specId, items]) => {
+              const key = `unresolved-${specId}`;
+              const isOpen = openSections.has(key);
+              return (
+                <div key={key} className="rounded-xl bg-card ring-1 ring-border/60 overflow-hidden">
+                  <button
+                    onClick={() => toggle(key)}
+                    className="flex w-full items-center gap-2 px-4 py-3 text-left hover:bg-muted/50 transition-colors"
+                  >
+                    {isOpen ? (
+                      <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+                    )}
+                    <span className="flex-1 text-sm font-medium text-foreground">
+                      {specLabel(specId)}
+                    </span>
+                    <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
+                      {items.length}
+                    </span>
+                  </button>
+                  {isOpen && (
+                    <div className="border-t border-border/40 px-4 py-2 space-y-2">
+                      {items.map((w) => (
+                        <WrongAnswerCard key={w.id} w={w} specMap={specMap} />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Resolved */}
+      {resolvedCount > 0 && (
+        <div>
+          <div className="mb-2 mt-2 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+            Resolved ({resolvedCount})
+          </div>
+          <div className="space-y-1">
+            {resolvedBySpec.map(([specId, items]) => {
+              const key = `resolved-${specId}`;
+              const isOpen = openSections.has(key);
+              return (
+                <div key={key} className="rounded-xl bg-card ring-1 ring-border/60 overflow-hidden opacity-60">
+                  <button
+                    onClick={() => toggle(key)}
+                    className="flex w-full items-center gap-2 px-4 py-3 text-left hover:bg-muted/50 transition-colors"
+                  >
+                    {isOpen ? (
+                      <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+                    )}
+                    <span className="flex-1 text-sm font-medium text-foreground">
+                      {specLabel(specId)}
+                    </span>
+                    <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground">
+                      {items.length}
+                    </span>
+                  </button>
+                  {isOpen && (
+                    <div className="border-t border-border/40 px-4 py-2 space-y-2">
+                      {items.map((w) => (
+                        <WrongAnswerCard key={w.id} w={w} specMap={specMap} resolved />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ---- Individual wrong answer card -------------------------------------------
+
 function WrongAnswerCard({
   w,
   specMap,
@@ -545,11 +673,7 @@ function WrongAnswerCard({
 }) {
   const sp = w.specId ? specMap.get(w.specId) : null;
   return (
-    <div
-      className={`rounded-lg bg-card px-4 py-3 ring-1 ring-border/60 ${
-        resolved ? "opacity-60" : ""
-      }`}
-    >
+    <div className="rounded-lg px-3 py-2">
       <div className="text-sm font-medium text-foreground">
         {w.questionSnapshot.question || "—"}
       </div>
