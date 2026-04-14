@@ -43,6 +43,8 @@ interface AuthContextValue {
   isTeacher: boolean;
   loading: boolean;
   signInWithGoogle: () => Promise<void>;
+  signInWithMicrosoft: () => Promise<void>;
+  signInWithMagicLink: (email: string) => Promise<void>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -151,6 +153,33 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }, []);
 
+  const signInWithMicrosoft = useCallback(async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "azure",
+      options: {
+        redirectTo: `${window.location.origin}/`,
+        scopes: "email profile openid",
+      },
+    });
+    if (error) {
+      console.error("[AuthContext] Microsoft sign-in error:", error);
+      throw error;
+    }
+  }, []);
+
+  const signInWithMagicLink = useCallback(async (email: string) => {
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: `${window.location.origin}/`,
+      },
+    });
+    if (error) {
+      console.error("[AuthContext] Magic link error:", error);
+      throw error;
+    }
+  }, []);
+
   const signOut = useCallback(async () => {
     const { error } = await supabase.auth.signOut();
     if (error) {
@@ -176,10 +205,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
       isTeacher: profile?.role === "teacher",
       loading,
       signInWithGoogle,
+      signInWithMicrosoft,
+      signInWithMagicLink,
       signOut,
       refreshProfile,
     }),
-    [user, profile, loading, signInWithGoogle, signOut, refreshProfile]
+    [user, profile, loading, signInWithGoogle, signInWithMicrosoft, signInWithMagicLink, signOut, refreshProfile]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
