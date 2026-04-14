@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { BookOpen, Loader2, Mail } from "lucide-react";
+import { BookOpen, Eye, EyeOff, KeyRound, Loader2, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,13 +8,30 @@ import { useAuth } from "@/contexts/AuthContext";
 import { SEOHead } from "@/components/SEOHead";
 import { toast } from "sonner";
 
+type EmailMode = "magic" | "password";
+type PasswordView = "login" | "signup" | "forgot";
+
 const LoginPage = () => {
-  const { user, loading, signInWithGoogle, signInWithMagicLink } = useAuth();
+  const {
+    user,
+    loading,
+    signInWithGoogle,
+    signInWithMagicLink,
+    signInWithPassword,
+    signUpWithPassword,
+    resetPassword,
+  } = useAuth();
   const navigate = useNavigate();
-  const [signingIn, setSigningIn] = useState<"google" | null>(null);
+
+  const [signingIn, setSigningIn] = useState(false);
   const [email, setEmail] = useState("");
-  const [sendingLink, setSendingLink] = useState(false);
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [linkSent, setLinkSent] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
+  const [emailMode, setEmailMode] = useState<EmailMode>("magic");
+  const [passwordView, setPasswordView] = useState<PasswordView>("login");
 
   useEffect(() => {
     if (!loading && user) {
@@ -23,12 +40,12 @@ const LoginPage = () => {
   }, [user, loading, navigate]);
 
   const handleGoogleSignIn = async () => {
-    setSigningIn("google");
+    setSigningIn(true);
     try {
       await signInWithGoogle();
     } catch {
       toast.error("Sign-in failed. Please try again.");
-      setSigningIn(null);
+      setSigningIn(false);
     }
   };
 
@@ -39,15 +56,59 @@ const LoginPage = () => {
       toast.error("Please enter a valid email address.");
       return;
     }
-    setSendingLink(true);
+    setSubmitting(true);
     try {
       await signInWithMagicLink(trimmed);
       setLinkSent(true);
-      toast.success("Check your inbox — we've sent you a login link.");
+      toast.success("Check your inbox for your login link.");
     } catch {
       toast.error("Failed to send login link. Please try again.");
     } finally {
-      setSendingLink(false);
+      setSubmitting(false);
+    }
+  };
+
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = email.trim();
+    if (!trimmed || !trimmed.includes("@")) {
+      toast.error("Please enter a valid email address.");
+      return;
+    }
+
+    if (passwordView === "forgot") {
+      setSubmitting(true);
+      try {
+        await resetPassword(trimmed);
+        setResetSent(true);
+        toast.success("Password reset link sent. Check your inbox.");
+      } catch {
+        toast.error("Failed to send reset link. Please try again.");
+      } finally {
+        setSubmitting(false);
+      }
+      return;
+    }
+
+    if (!password || password.length < 6) {
+      toast.error("Password must be at least 6 characters.");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      if (passwordView === "signup") {
+        await signUpWithPassword(trimmed, password);
+        toast.success("Account created! Check your email to confirm, then sign in.");
+      } else {
+        await signInWithPassword(trimmed, password);
+      }
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error ? err.message : "Something went wrong.";
+      toast.error(msg);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -77,15 +138,15 @@ const LoginPage = () => {
             </p>
           </div>
 
-          {/* OAuth buttons */}
-          <div className="w-full space-y-3 pt-2">
+          {/* Google */}
+          <div className="w-full pt-2">
             <Button
               onClick={handleGoogleSignIn}
-              disabled={!!signingIn || loading}
+              disabled={signingIn || loading}
               className="w-full h-12 gap-3 bg-primary text-primary-foreground hover:bg-primary/90"
               size="lg"
             >
-              {signingIn === "google" ? (
+              {signingIn ? (
                 <>
                   <Loader2 className="h-5 w-5 animate-spin" />
                   Redirecting to Google...
@@ -97,62 +158,186 @@ const LoginPage = () => {
                 </>
               )}
             </Button>
-
           </div>
 
           {/* Divider */}
           <div className="flex w-full items-center gap-3">
             <div className="h-px flex-1 bg-border" />
-            <span className="text-xs text-muted-foreground">or</span>
+            <span className="text-xs text-muted-foreground">or use email</span>
             <div className="h-px flex-1 bg-border" />
           </div>
 
-          {/* Magic link */}
-          {linkSent ? (
-            <div className="w-full rounded-lg bg-emerald-50 p-4 dark:bg-emerald-950/30">
-              <div className="flex items-center justify-center gap-2 text-sm font-medium text-emerald-700 dark:text-emerald-300">
-                <Mail className="h-4 w-4" />
-                Login link sent!
+          {/* Mode toggle */}
+          <div className="flex w-full rounded-lg bg-muted p-1">
+            <button
+              onClick={() => { setEmailMode("magic"); setPassword(""); setResetSent(false); }}
+              className={`flex-1 rounded-md py-2 text-xs font-medium transition-colors ${
+                emailMode === "magic"
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Mail className="mr-1.5 inline h-3.5 w-3.5" />
+              Magic link
+            </button>
+            <button
+              onClick={() => { setEmailMode("password"); setLinkSent(false); setPasswordView("login"); }}
+              className={`flex-1 rounded-md py-2 text-xs font-medium transition-colors ${
+                emailMode === "password"
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <KeyRound className="mr-1.5 inline h-3.5 w-3.5" />
+              Email &amp; password
+            </button>
+          </div>
+
+          {/* Magic link form */}
+          {emailMode === "magic" && (
+            linkSent ? (
+              <div className="w-full rounded-lg bg-emerald-50 p-4 dark:bg-emerald-950/30">
+                <div className="flex items-center justify-center gap-2 text-sm font-medium text-emerald-700 dark:text-emerald-300">
+                  <Mail className="h-4 w-4" />
+                  Login link sent!
+                </div>
+                <p className="mt-1 text-xs text-emerald-600 dark:text-emerald-400">
+                  Check your inbox for <strong>{email}</strong> and click the link to sign in.
+                </p>
+                <button
+                  onClick={() => { setLinkSent(false); setEmail(""); }}
+                  className="mt-2 text-xs text-emerald-600 hover:text-emerald-800 dark:text-emerald-400 dark:hover:text-emerald-200 underline"
+                >
+                  Use a different email
+                </button>
               </div>
-              <p className="mt-1 text-xs text-emerald-600 dark:text-emerald-400">
-                Check your inbox for <strong>{email}</strong> and click the link to sign in.
-              </p>
-              <button
-                onClick={() => { setLinkSent(false); setEmail(""); }}
-                className="mt-2 text-xs text-emerald-600 hover:text-emerald-800 dark:text-emerald-400 dark:hover:text-emerald-200 underline"
-              >
-                Use a different email
-              </button>
-            </div>
-          ) : (
-            <form onSubmit={handleMagicLink} className="w-full space-y-2">
-              <div className="flex gap-2">
+            ) : (
+              <form onSubmit={handleMagicLink} className="w-full space-y-2">
+                <div className="flex gap-2">
+                  <Input
+                    type="email"
+                    placeholder="your@email.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    disabled={submitting}
+                    className="h-12"
+                  />
+                  <Button
+                    type="submit"
+                    disabled={submitting || !email.trim()}
+                    variant="outline"
+                    className="h-12 shrink-0 gap-2 px-4"
+                  >
+                    {submitting ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Mail className="h-4 w-4" />
+                    )}
+                    Send link
+                  </Button>
+                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  No password needed. We'll email you a one-click login link.
+                </p>
+              </form>
+            )
+          )}
+
+          {/* Email + password form */}
+          {emailMode === "password" && (
+            resetSent ? (
+              <div className="w-full rounded-lg bg-emerald-50 p-4 dark:bg-emerald-950/30">
+                <div className="flex items-center justify-center gap-2 text-sm font-medium text-emerald-700 dark:text-emerald-300">
+                  <Mail className="h-4 w-4" />
+                  Reset link sent!
+                </div>
+                <p className="mt-1 text-xs text-emerald-600 dark:text-emerald-400">
+                  Check your inbox for <strong>{email}</strong> and follow the link to reset your password.
+                </p>
+                <button
+                  onClick={() => { setResetSent(false); setPasswordView("login"); }}
+                  className="mt-2 text-xs text-emerald-600 hover:text-emerald-800 dark:text-emerald-400 dark:hover:text-emerald-200 underline"
+                >
+                  Back to sign in
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handlePasswordSubmit} className="w-full space-y-3">
                 <Input
                   type="email"
                   placeholder="your@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  disabled={sendingLink}
+                  disabled={submitting}
                   className="h-12"
                 />
+                {passwordView !== "forgot" && (
+                  <div className="relative">
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      placeholder={passwordView === "signup" ? "Create a password (6+ chars)" : "Password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      disabled={submitting}
+                      className="h-12 pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((v) => !v)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      tabIndex={-1}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                )}
                 <Button
                   type="submit"
-                  disabled={sendingLink || !email.trim()}
-                  variant="outline"
-                  className="h-12 shrink-0 gap-2 px-4"
+                  disabled={submitting}
+                  className="w-full h-12"
+                  size="lg"
                 >
-                  {sendingLink ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                  {submitting ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : passwordView === "signup" ? (
+                    "Create account"
+                  ) : passwordView === "forgot" ? (
+                    "Send reset link"
                   ) : (
-                    <Mail className="h-4 w-4" />
+                    "Sign in"
                   )}
-                  Send link
                 </Button>
-              </div>
-              <p className="text-[11px] text-muted-foreground">
-                No password needed. We'll email you a one-click login link.
-              </p>
-            </form>
+
+                <div className="flex justify-between text-xs">
+                  {passwordView === "login" ? (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => { setPasswordView("signup"); setPassword(""); }}
+                        className="text-muted-foreground hover:text-primary underline"
+                      >
+                        Create an account
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { setPasswordView("forgot"); setPassword(""); }}
+                        className="text-muted-foreground hover:text-primary underline"
+                      >
+                        Forgot password?
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => { setPasswordView("login"); setPassword(""); }}
+                      className="text-muted-foreground hover:text-primary underline"
+                    >
+                      Back to sign in
+                    </button>
+                  )}
+                </div>
+              </form>
+            )
           )}
 
           <div className="w-full border-t border-border pt-4">

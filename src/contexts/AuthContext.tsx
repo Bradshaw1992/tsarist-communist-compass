@@ -45,6 +45,9 @@ interface AuthContextValue {
   signInWithGoogle: () => Promise<void>;
   signInWithMicrosoft: () => Promise<void>;
   signInWithMagicLink: (email: string) => Promise<void>;
+  signUpWithPassword: (email: string, password: string) => Promise<void>;
+  signInWithPassword: (email: string, password: string) => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -180,6 +183,38 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }, []);
 
+  const signUpWithPassword = useCallback(async (email: string, password: string) => {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/`,
+      },
+    });
+    if (error) {
+      console.error("[AuthContext] Sign-up error:", error);
+      throw error;
+    }
+  }, []);
+
+  const signInWithPassword = useCallback(async (email: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      console.error("[AuthContext] Password sign-in error:", error);
+      throw error;
+    }
+  }, []);
+
+  const resetPassword = useCallback(async (email: string) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/`,
+    });
+    if (error) {
+      console.error("[AuthContext] Password reset error:", error);
+      throw error;
+    }
+  }, []);
+
   const signOut = useCallback(async () => {
     const { error } = await supabase.auth.signOut();
     if (error) {
@@ -207,10 +242,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
       signInWithGoogle,
       signInWithMicrosoft,
       signInWithMagicLink,
+      signUpWithPassword,
+      signInWithPassword,
+      resetPassword,
       signOut,
       refreshProfile,
     }),
-    [user, profile, loading, signInWithGoogle, signInWithMicrosoft, signInWithMagicLink, signOut, refreshProfile]
+    [user, profile, loading, signInWithGoogle, signInWithMicrosoft, signInWithMagicLink, signUpWithPassword, signInWithPassword, resetPassword, signOut, refreshProfile]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
