@@ -38,6 +38,25 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      // Emergency cache-bust: force any stale service worker to update immediately.
+      // This fixes users who cached the Lovable redirect page via the PWA service worker.
+      // Safe to remove after May 2026 when all clients have refreshed.
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(regs) {
+          regs.forEach(function(reg) {
+            reg.update();
+            if (reg.waiting) { reg.waiting.postMessage({ type: 'SKIP_WAITING' }); }
+          });
+        });
+        // Also clear all caches to remove the stale redirect HTML
+        if (window.caches) {
+          caches.keys().then(function(names) {
+            names.forEach(function(name) { caches.delete(name); });
+          });
+        }
+      }
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
