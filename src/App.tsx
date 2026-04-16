@@ -16,6 +16,8 @@ import SpecPage from "./pages/SpecPage.tsx";
 import SpecActivityPage from "./pages/SpecActivityPage.tsx";
 import ChronologyPage from "./pages/ChronologyPage.tsx";
 import ChronologyModePage from "./pages/ChronologyModePage.tsx";
+import ExtractPracticePage from "./pages/ExtractPracticePage.tsx";
+import ExtractSessionPage from "./pages/ExtractSessionPage.tsx";
 import TeacherDashboard from "./pages/TeacherDashboard.tsx";
 import TeacherClassPage from "./pages/TeacherClassPage.tsx";
 import TeacherStudentPage from "./pages/TeacherStudentPage.tsx";
@@ -43,6 +45,7 @@ const App = () => (
                 element={<Navigate to="/general" replace />}
               />
               <Route path="/random" element={<RandomPage />} />
+              <Route path="/extracts" element={<ExtractPracticePage />} />
               <Route path="/review" element={<ReviewPage />} />
               <Route path="/spec/:specId" element={<SpecPage />} />
               <Route path="/topic/:slug" element={<TopicPage />} />
@@ -71,6 +74,10 @@ const App = () => (
             <Route
               path="/chronology/:mode"
               element={<ChronologyModePage />}
+            />
+            <Route
+              path="/extracts/:setId"
+              element={<ExtractSessionPage />}
             />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

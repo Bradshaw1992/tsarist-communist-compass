@@ -10,7 +10,7 @@
 // =============================================================================
 
 import { NavLink, Link } from "react-router-dom";
-import { LayoutDashboard, BookOpen, Compass, Dices, GraduationCap } from "lucide-react";
+import { LayoutDashboard, BookOpen, Compass, Dices, BookMarked, GraduationCap } from "lucide-react";
 import { UserMenu } from "@/components/UserMenu";
 import { useAuth } from "@/contexts/AuthContext";
 import { useWrongAnswers } from "@/hooks/useWrongAnswers";
@@ -29,6 +29,7 @@ const tabs: Tab[] = [
   { to: "/topics", label: "Topics", shortLabel: "Topics", icon: BookOpen, end: false },
   { to: "/general", label: "General", shortLabel: "General", icon: Compass, end: false },
   { to: "/random", label: "Random", shortLabel: "Random", icon: Dices, end: false },
+  { to: "/extracts", label: "Extracts", shortLabel: "Extracts", icon: BookMarked, end: false },
   { to: "/teacher", label: "Teacher", shortLabel: "Teach", icon: GraduationCap, end: false, teacherOnly: true },
 ];
 
