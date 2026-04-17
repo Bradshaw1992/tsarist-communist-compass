@@ -11,11 +11,12 @@
 // 6. Session saved to user_extract_attempts (if signed in)
 // =============================================================================
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeft,
   BookMarked,
+  BrainCircuit,
   Check,
   ChevronDown,
   ChevronUp,
@@ -24,14 +25,17 @@ import {
   FileText,
   Lightbulb,
   Minus,
+  Pencil,
   X,
+  Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useExtractSetById } from "@/hooks/useExtracts";
+import { useSpecPoints } from "@/hooks/useRevisionData";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import type { ExtractData } from "@/hooks/useExtracts";
+import type { ExtractData, ExtractSetData } from "@/hooks/useExtracts";
 
 type SelfMark = "spot_on" | "right_idea" | "missed";
 type RevealMode = "all" | "arguments" | "knowledge" | null;
@@ -255,7 +259,10 @@ const ExtractSessionPage = () => {
               )}
             </div>
 
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
+            {/* Consolidate knowledge */}
+            <PractiseKnowledgePanel extractSet={extractSet} />
+
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
               <Button
                 variant="outline"
                 onClick={() => {
@@ -330,6 +337,7 @@ const ExtractSessionPage = () => {
             key={extract.label}
             extract={extract}
             work={work[extract.label]}
+            specPoints={extractSet.spec_points}
             onUpdateWork={(field, value) => updateWork(extract.label, field, value)}
           />
         ))}
@@ -357,10 +365,11 @@ const ExtractSessionPage = () => {
 interface ExtractCardProps {
   extract: ExtractData;
   work: ExtractWorkState;
+  specPoints: number[];
   onUpdateWork: (field: keyof ExtractWorkState, value: string | boolean | SelfMark | RevealMode) => void;
 }
 
-function ExtractCard({ extract, work, onUpdateWork }: ExtractCardProps) {
+function ExtractCard({ extract, work, specPoints, onUpdateWork }: ExtractCardProps) {
   const [collapsed, setCollapsed] = useState(false);
 
   const showArguments = work.revealMode === "all" || work.revealMode === "arguments";
@@ -628,8 +637,123 @@ function ExtractCard({ extract, work, onUpdateWork }: ExtractCardProps) {
                 ))}
               </div>
             </div>
+
+            {/* Practise the knowledge inline */}
+            <PractiseKnowledgeInline specPoints={specPoints} />
           </>
         )}
+      </div>
+    </div>
+  );
+}
+
+// =============================================================================
+// PractiseKnowledgePanel — completion screen version (full-width)
+// =============================================================================
+
+function PractiseKnowledgePanel({ extractSet }: { extractSet: ExtractSetData }) {
+  const navigate = useNavigate();
+  const allSpecPoints = useSpecPoints();
+
+  const relevantSpecs = useMemo(
+    () => allSpecPoints.filter((sp) => extractSet.spec_points.includes(sp.id)),
+    [allSpecPoints, extractSet.spec_points],
+  );
+
+  if (relevantSpecs.length === 0) return null;
+
+  return (
+    <div className="mt-6 rounded-xl border border-indigo-200 bg-indigo-50/40 p-4 text-left dark:border-indigo-800/40 dark:bg-indigo-950/20">
+      <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-indigo-700 dark:text-indigo-300 mb-3">
+        <BrainCircuit className="h-3.5 w-3.5" />
+        Consolidate your knowledge
+      </p>
+      <div className="space-y-2.5">
+        {relevantSpecs.map((sp) => (
+          <div key={sp.id} className="space-y-1.5">
+            <p className="text-xs font-medium text-muted-foreground truncate">
+              Spec {sp.id} · {sp.short_title ?? sp.title}
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => navigate(`/spec/${sp.id}/facts`)}
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-indigo-200 bg-white px-3 py-2 text-xs font-semibold text-indigo-700 transition-colors hover:bg-indigo-50 dark:border-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300 dark:hover:bg-indigo-950/60"
+              >
+                <Zap className="h-3.5 w-3.5" />
+                Knowledge Driller
+              </button>
+              <button
+                onClick={() => navigate(`/spec/${sp.id}/recall`)}
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-purple-200 bg-white px-3 py-2 text-xs font-semibold text-purple-700 transition-colors hover:bg-purple-50 dark:border-purple-700 dark:bg-purple-950/40 dark:text-purple-300 dark:hover:bg-purple-950/60"
+              >
+                <Pencil className="h-3.5 w-3.5" />
+                Blank Recall
+              </button>
+              <button
+                onClick={() => navigate(`/spec/${sp.id}/concepts`)}
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-blue-200 bg-white px-3 py-2 text-xs font-semibold text-blue-700 transition-colors hover:bg-blue-50 dark:border-blue-700 dark:bg-blue-950/40 dark:text-blue-300 dark:hover:bg-blue-950/60"
+              >
+                <BrainCircuit className="h-3.5 w-3.5" />
+                Concept Driller
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// =============================================================================
+// PractiseKnowledgeInline — compact version inside each ExtractCard
+// =============================================================================
+
+function PractiseKnowledgeInline({ specPoints }: { specPoints: number[] }) {
+  const navigate = useNavigate();
+  const allSpecPoints = useSpecPoints();
+
+  const relevantSpecs = useMemo(
+    () => allSpecPoints.filter((sp) => specPoints.includes(sp.id)),
+    [allSpecPoints, specPoints],
+  );
+
+  if (relevantSpecs.length === 0) return null;
+
+  return (
+    <div className="rounded-lg border border-dashed border-indigo-200 p-3 dark:border-indigo-800/40">
+      <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+        <BrainCircuit className="h-3 w-3" />
+        Gaps in your knowledge? Drill it now
+      </p>
+      <div className="flex flex-wrap gap-2">
+        {relevantSpecs.map((sp) => (
+          <div key={sp.id} className="flex gap-1.5">
+            <button
+              onClick={() => navigate(`/spec/${sp.id}/facts`)}
+              title={`Knowledge Driller — ${sp.short_title ?? sp.title}`}
+              className="flex items-center gap-1 rounded-md bg-indigo-100 px-2 py-1 text-[11px] font-semibold text-indigo-700 transition-colors hover:bg-indigo-200 dark:bg-indigo-900/40 dark:text-indigo-300 dark:hover:bg-indigo-900/60"
+            >
+              <Zap className="h-3 w-3" />
+              Facts {sp.id}
+            </button>
+            <button
+              onClick={() => navigate(`/spec/${sp.id}/recall`)}
+              title={`Blank Recall — ${sp.short_title ?? sp.title}`}
+              className="flex items-center gap-1 rounded-md bg-purple-100 px-2 py-1 text-[11px] font-semibold text-purple-700 transition-colors hover:bg-purple-200 dark:bg-purple-900/40 dark:text-purple-300 dark:hover:bg-purple-900/60"
+            >
+              <Pencil className="h-3 w-3" />
+              Recall {sp.id}
+            </button>
+            <button
+              onClick={() => navigate(`/spec/${sp.id}/concepts`)}
+              title={`Concept Driller — ${sp.short_title ?? sp.title}`}
+              className="flex items-center gap-1 rounded-md bg-blue-100 px-2 py-1 text-[11px] font-semibold text-blue-700 transition-colors hover:bg-blue-200 dark:bg-blue-900/40 dark:text-blue-300 dark:hover:bg-blue-900/60"
+            >
+              <BrainCircuit className="h-3 w-3" />
+              Concepts {sp.id}
+            </button>
+          </div>
+        ))}
       </div>
     </div>
   );
