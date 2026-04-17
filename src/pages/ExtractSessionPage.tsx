@@ -20,6 +20,7 @@ import {
   ChevronDown,
   ChevronUp,
   Eye,
+  EyeOff,
   FileText,
   Lightbulb,
   Minus,
@@ -33,12 +34,14 @@ import { toast } from "sonner";
 import type { ExtractData } from "@/hooks/useExtracts";
 
 type SelfMark = "spot_on" | "right_idea" | "missed";
+type RevealMode = "all" | "arguments" | "knowledge" | null;
 
 interface ExtractWorkState {
   argument: string;
   subArguments: string;
   evaluation: string;
-  revealed: boolean;
+  revealMode: RevealMode;
+  hasRevealed: boolean; // once true, stays true — locks textareas permanently
   selfMark: SelfMark | null;
 }
 
@@ -80,7 +83,8 @@ const ExtractSessionPage = () => {
           argument: "",
           subArguments: "",
           evaluation: "",
-          revealed: false,
+          revealMode: null,
+          hasRevealed: false,
           selfMark: null,
         };
       }
@@ -91,10 +95,17 @@ const ExtractSessionPage = () => {
 
   // Update work field for a specific extract
   const updateWork = useCallback(
-    (label: string, field: keyof ExtractWorkState, value: string | boolean | SelfMark | null) => {
+    (label: string, field: keyof ExtractWorkState, value: string | boolean | SelfMark | RevealMode) => {
       setWork((prev) => ({
         ...prev,
-        [label]: { ...prev[label], [field]: value },
+        [label]: {
+          ...prev[label],
+          [field]: value,
+          // Once any reveal happens, permanently lock textareas
+          hasRevealed: field === "revealMode" && value !== null
+            ? true
+            : prev[label]?.hasRevealed ?? false,
+        },
       }));
     },
     [],
@@ -340,17 +351,21 @@ const ExtractSessionPage = () => {
 };
 
 // =============================================================================
-// ExtractCard — one extract with work area + reveal
+// ExtractCard — one extract with work area + selective reveal
 // =============================================================================
 
 interface ExtractCardProps {
   extract: ExtractData;
   work: ExtractWorkState;
-  onUpdateWork: (field: keyof ExtractWorkState, value: string | boolean | SelfMark | null) => void;
+  onUpdateWork: (field: keyof ExtractWorkState, value: string | boolean | SelfMark | RevealMode) => void;
 }
 
 function ExtractCard({ extract, work, onUpdateWork }: ExtractCardProps) {
   const [collapsed, setCollapsed] = useState(false);
+
+  const showArguments = work.revealMode === "all" || work.revealMode === "arguments";
+  const showKnowledge = work.revealMode === "all" || work.revealMode === "knowledge";
+  const anyRevealed = work.revealMode !== null;
 
   return (
     <div className="mb-6 rounded-xl border bg-card shadow-sm overflow-hidden">
@@ -392,12 +407,12 @@ function ExtractCard({ extract, work, onUpdateWork }: ExtractCardProps) {
             Overall argument of this extract
           </label>
           <textarea
-            className="mt-1 w-full rounded-lg border bg-background p-3 text-sm placeholder:text-muted-foreground/60 focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400"
+            className="mt-1 w-full rounded-lg border bg-background p-3 text-sm placeholder:text-muted-foreground/60 focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 disabled:opacity-60 disabled:cursor-not-allowed"
             rows={2}
             placeholder="What is the historian's main argument?"
             value={work.argument}
             onChange={(e) => onUpdateWork("argument", e.target.value)}
-            disabled={work.revealed}
+            disabled={work.hasRevealed}
           />
         </div>
 
@@ -406,12 +421,12 @@ function ExtractCard({ extract, work, onUpdateWork }: ExtractCardProps) {
             Sub-arguments (list the specific claims)
           </label>
           <textarea
-            className="mt-1 w-full rounded-lg border bg-background p-3 text-sm placeholder:text-muted-foreground/60 focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400"
+            className="mt-1 w-full rounded-lg border bg-background p-3 text-sm placeholder:text-muted-foreground/60 focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 disabled:opacity-60 disabled:cursor-not-allowed"
             rows={3}
             placeholder="What specific claims or sub-points does the extract make?"
             value={work.subArguments}
             onChange={(e) => onUpdateWork("subArguments", e.target.value)}
-            disabled={work.revealed}
+            disabled={work.hasRevealed}
           />
         </div>
 
@@ -420,102 +435,176 @@ function ExtractCard({ extract, work, onUpdateWork }: ExtractCardProps) {
             Evaluation notes (corroborate &amp; challenge with your own knowledge)
           </label>
           <textarea
-            className="mt-1 w-full rounded-lg border bg-background p-3 text-sm placeholder:text-muted-foreground/60 focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400"
+            className="mt-1 w-full rounded-lg border bg-background p-3 text-sm placeholder:text-muted-foreground/60 focus:border-indigo-400 focus:outline-none focus:ring-1 focus:ring-indigo-400 disabled:opacity-60 disabled:cursor-not-allowed"
             rows={4}
             placeholder="What contextual knowledge supports or challenges these arguments?"
             value={work.evaluation}
             onChange={(e) => onUpdateWork("evaluation", e.target.value)}
-            disabled={work.revealed}
+            disabled={work.hasRevealed}
           />
         </div>
 
-        {/* Reveal button */}
-        {!work.revealed ? (
-          <Button
-            variant="outline"
-            className="w-full gap-2"
-            onClick={() => onUpdateWork("revealed", true)}
-          >
-            <Eye className="h-4 w-4" />
-            Reveal Indicative Content
-          </Button>
+        {/* ── Reveal controls ─────────────────────────────────────────────── */}
+        {!anyRevealed ? (
+          /* Three reveal buttons — nothing shown yet */
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-muted-foreground">Reveal indicative content:</p>
+            <div className="grid grid-cols-3 gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5 text-xs"
+                onClick={() => onUpdateWork("revealMode", "all")}
+              >
+                <Eye className="h-3.5 w-3.5" />
+                Everything
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5 text-xs border-indigo-300 text-indigo-700 hover:bg-indigo-50 dark:border-indigo-700 dark:text-indigo-300 dark:hover:bg-indigo-950/40"
+                onClick={() => onUpdateWork("revealMode", "arguments")}
+              >
+                <Lightbulb className="h-3.5 w-3.5" />
+                Arguments
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5 text-xs border-emerald-300 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-700 dark:text-emerald-300 dark:hover:bg-emerald-950/40"
+                onClick={() => onUpdateWork("revealMode", "knowledge")}
+              >
+                <Check className="h-3.5 w-3.5" />
+                Knowledge
+              </Button>
+            </div>
+          </div>
         ) : (
           <>
-            {/* Indicative content */}
+            {/* Indicative content panel */}
             <div className="rounded-xl border-2 border-indigo-200 bg-indigo-50/50 p-5 dark:border-indigo-800/50 dark:bg-indigo-950/20 space-y-4">
-              <h4 className="flex items-center gap-2 text-sm font-bold text-indigo-700 dark:text-indigo-300">
-                <Lightbulb className="h-4 w-4" />
-                Indicative Content — Extract {extract.label}
-              </h4>
 
-              {/* Overall argument */}
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
-                  Overall Argument
-                </p>
-                <p className="text-sm leading-relaxed text-foreground">
-                  {extract.overall_argument}
-                </p>
-              </div>
-
-              {/* Sub-arguments */}
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
-                  Sub-Arguments to Identify
-                </p>
-                <ul className="space-y-1">
-                  {extract.sub_arguments.map((arg, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-foreground">
-                      <Minus className="mt-1 h-3 w-3 shrink-0 text-indigo-500" />
-                      <span>{arg}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Corroborating knowledge */}
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
-                  Knowledge to Corroborate (support the argument)
-                </p>
-                <ul className="space-y-1.5">
-                  {extract.corroborating_knowledge.map((k, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-foreground">
-                      <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" />
-                      <span>{k}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Challenging knowledge */}
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
-                  Knowledge to Challenge (undermine the argument)
-                </p>
-                <ul className="space-y-1.5">
-                  {extract.challenging_knowledge.map((k, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-foreground">
-                      <X className="mt-0.5 h-3.5 w-3.5 shrink-0 text-red-500" />
-                      <span>{k}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {extract.is_flawed && extract.flaw_notes && (
-                <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-800/50 dark:bg-amber-950/20">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-300 mb-1">
-                    Key Flaw in This Extract
-                  </p>
-                  <p className="text-sm text-amber-900 dark:text-amber-200">
-                    {extract.flaw_notes}
-                  </p>
+              {/* Panel header with hide + switch buttons */}
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <h4 className="flex items-center gap-2 text-sm font-bold text-indigo-700 dark:text-indigo-300">
+                  <Lightbulb className="h-4 w-4" />
+                  Indicative Content — Extract {extract.label}
+                </h4>
+                <div className="flex items-center gap-1.5">
+                  {/* Switch between modes */}
+                  {work.revealMode !== "all" && (
+                    <button
+                      onClick={() => onUpdateWork("revealMode", "all")}
+                      className="rounded-md px-2 py-1 text-[11px] font-semibold text-indigo-600 hover:bg-indigo-100 dark:text-indigo-300 dark:hover:bg-indigo-900/40"
+                    >
+                      Show all
+                    </button>
+                  )}
+                  {work.revealMode !== "arguments" && (
+                    <button
+                      onClick={() => onUpdateWork("revealMode", "arguments")}
+                      className="rounded-md px-2 py-1 text-[11px] font-semibold text-indigo-600 hover:bg-indigo-100 dark:text-indigo-300 dark:hover:bg-indigo-900/40"
+                    >
+                      Arguments only
+                    </button>
+                  )}
+                  {work.revealMode !== "knowledge" && (
+                    <button
+                      onClick={() => onUpdateWork("revealMode", "knowledge")}
+                      className="rounded-md px-2 py-1 text-[11px] font-semibold text-emerald-600 hover:bg-emerald-100 dark:text-emerald-300 dark:hover:bg-emerald-900/40"
+                    >
+                      Knowledge only
+                    </button>
+                  )}
+                  {/* Hide */}
+                  <button
+                    onClick={() => onUpdateWork("revealMode", null)}
+                    className="flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-semibold text-muted-foreground hover:bg-muted"
+                  >
+                    <EyeOff className="h-3 w-3" /> Hide
+                  </button>
                 </div>
+              </div>
+
+              {/* Arguments section */}
+              {showArguments && (
+                <>
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+                      Overall Argument
+                    </p>
+                    <p className="text-sm leading-relaxed text-foreground">
+                      {extract.overall_argument}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+                      Sub-Arguments to Identify
+                    </p>
+                    <ul className="space-y-1">
+                      {extract.sub_arguments.map((arg, i) => (
+                        <li key={i} className="flex items-start gap-2 text-sm text-foreground">
+                          <Minus className="mt-1 h-3 w-3 shrink-0 text-indigo-500" />
+                          <span>{arg}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </>
+              )}
+
+              {/* Divider between sections when showing all */}
+              {work.revealMode === "all" && (
+                <div className="border-t border-indigo-200/60 dark:border-indigo-800/40" />
+              )}
+
+              {/* Knowledge section */}
+              {showKnowledge && (
+                <>
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+                      Knowledge to Corroborate
+                    </p>
+                    <ul className="space-y-1.5">
+                      {extract.corroborating_knowledge.map((k, i) => (
+                        <li key={i} className="flex items-start gap-2 text-sm text-foreground">
+                          <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600" />
+                          <span>{k}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+                      Knowledge to Challenge
+                    </p>
+                    <ul className="space-y-1.5">
+                      {extract.challenging_knowledge.map((k, i) => (
+                        <li key={i} className="flex items-start gap-2 text-sm text-foreground">
+                          <X className="mt-0.5 h-3.5 w-3.5 shrink-0 text-red-500" />
+                          <span>{k}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {extract.flaw_notes && (
+                    <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-800/50 dark:bg-amber-950/20">
+                      <p className="text-xs font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-300 mb-1">
+                        Key Overstatement in This Extract
+                      </p>
+                      <p className="text-sm text-amber-900 dark:text-amber-200">
+                        {extract.flaw_notes}
+                      </p>
+                    </div>
+                  )}
+                </>
               )}
             </div>
 
-            {/* Self-mark */}
+            {/* Self-mark — always visible once anything has been revealed */}
             <div className="space-y-2">
               <p className="text-sm font-medium text-foreground">
                 How well did you identify the argument and evaluation?
