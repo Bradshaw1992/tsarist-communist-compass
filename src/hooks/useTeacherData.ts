@@ -225,7 +225,7 @@ export function useClassStudents(classId: string | undefined) {
       // 5. Wrong answers per student (unresolved)
       const { data: wrongs } = await supabase
         .from("user_wrong_answers")
-        .select("user_id")
+        .select("user_id, missed_at")
         .in("user_id", studentIds)
         .is("resolved_at", null);
 
@@ -259,9 +259,14 @@ export function useClassStudents(classId: string | undefined) {
         recallCounts.set(r.user_id, prev);
       }
 
-      const wrongCounts = new Map<string, number>();
+      const wrongCounts = new Map<string, { count: number; lastAt: string }>();
       for (const w of wrongs ?? []) {
-        wrongCounts.set(w.user_id, (wrongCounts.get(w.user_id) ?? 0) + 1);
+        const prev = wrongCounts.get(w.user_id) ?? { count: 0, lastAt: "" };
+        prev.count += 1;
+        if (w.missed_at && w.missed_at > prev.lastAt) {
+          prev.lastAt = w.missed_at;
+        }
+        wrongCounts.set(w.user_id, prev);
       }
 
       const joinedMap = new Map(
@@ -272,12 +277,15 @@ export function useClassStudents(classId: string | undefined) {
         const p = profileMap.get(uid);
         const sa = sessionAgg.get(uid);
         const rc = recallCounts.get(uid);
-        const wc = wrongCounts.get(uid) ?? 0;
+        const wc = wrongCounts.get(uid);
 
-        const lastSession = sa?.lastAt ?? "";
-        const lastRecall = rc?.lastAt ?? "";
+        const candidates = [sa?.lastAt, rc?.lastAt, wc?.lastAt].filter(
+          (t): t is string => !!t
+        );
         const lastActive =
-          lastSession > lastRecall ? lastSession : lastRecall || null;
+          candidates.length > 0
+            ? candidates.reduce((a, b) => (a > b ? a : b))
+            : null;
 
         return {
           userId: uid,
@@ -293,7 +301,7 @@ export function useClassStudents(classId: string | undefined) {
               ? Math.round((sa.correct / sa.total) * 100)
               : 0,
           blankRecallCount: rc?.count ?? 0,
-          wrongAnswerCount: wc,
+          wrongAnswerCount: wc?.count ?? 0,
           lastActive,
         };
       });

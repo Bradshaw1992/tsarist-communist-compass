@@ -13,6 +13,7 @@ import {
   Copy,
   FileQuestion,
   GraduationCap,
+  MessageSquare,
   Plus,
   Users,
 } from "lucide-react";
@@ -129,6 +130,14 @@ const TeacherDashboard = () => {
               >
                 <FileQuestion className="h-4 w-4" />
                 Question pipeline
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => navigate("/teacher/feedback")}
+                className="gap-2"
+              >
+                <MessageSquare className="h-4 w-4" />
+                Feedback
               </Button>
             </div>
           )}

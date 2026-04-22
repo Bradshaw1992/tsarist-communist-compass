@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { BookOpen, Eye, EyeOff, KeyRound, Loader2, Mail } from "lucide-react";
+import { BookOpen, Eye, EyeOff, KeyRound, Loader2, Mail, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
 import { SEOHead } from "@/components/SEOHead";
+import { FeedbackDialog } from "@/components/FeedbackDialog";
 import { toast } from "sonner";
 
 type EmailMode = "magic" | "password";
@@ -120,6 +121,7 @@ const LoginPage = () => {
         canonicalPath="/login"
       />
 
+      <div className="flex w-full max-w-5xl flex-col items-center gap-6 lg:flex-row lg:items-stretch lg:justify-center">
       <Card className="w-full max-w-md border-2 shadow-lg">
         <CardContent className="flex flex-col items-center gap-6 p-8 sm:p-10 text-center">
           <div className="rounded-full bg-primary/10 p-4">
@@ -353,6 +355,46 @@ const LoginPage = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* "Why I built this" — visible to logged-out users */}
+      <Card className="w-full max-w-md border shadow-sm bg-muted/30">
+        <CardContent className="flex h-full flex-col gap-4 p-8 sm:p-10">
+          <h2 className="font-serif text-xl font-bold text-primary">
+            Why I built this
+          </h2>
+          <div className="space-y-3 text-sm leading-relaxed text-foreground/90">
+            <p>
+              I'm Tom, an A-Level History teacher. I built this app because none of
+              the revision resources out there quite fit how I teach AQA 7042 —
+              and I wanted something my students could actually open at 10pm the
+              night before a test, not just use in lesson.
+            </p>
+            <p>
+              It's free, open to any student sitting AQA 1H Russia, and I'm
+              actively building it. New questions and features land most weeks.
+              If it helps, pass it on to a friend.
+            </p>
+          </div>
+
+          <div className="mt-auto space-y-3 pt-2">
+            <p className="text-sm font-medium">
+              Found a bug? Got an idea?
+            </p>
+            <FeedbackDialog
+              trigger={
+                <Button variant="outline" className="w-full gap-2">
+                  <MessageSquare className="h-4 w-4" />
+                  Leave feedback
+                </Button>
+              }
+            />
+            <p className="text-right text-sm italic text-muted-foreground">
+              — Tom
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+      </div>
     </div>
   );
 };
