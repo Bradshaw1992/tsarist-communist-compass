@@ -8,7 +8,7 @@
 // =============================================================================
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Loader2, Send, Sparkles, X } from "lucide-react";
+import { Loader2, Send, Sparkles } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -126,13 +126,21 @@ export function PotemkinChat() {
 
   return (
     <>
-      {/* Floating trigger button */}
+      {/* Floating trigger button — portrait of Grigory Potemkin */}
       <button
         onClick={() => setOpen(true)}
         aria-label="Ask Potemkin"
-        className="fixed bottom-4 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg ring-2 ring-primary/20 transition-transform hover:scale-105 sm:bottom-6 sm:right-6"
+        className="fixed bottom-4 right-4 z-40 h-14 w-14 overflow-hidden rounded-full bg-primary shadow-lg ring-2 ring-primary/30 transition-transform hover:scale-105 sm:bottom-6 sm:right-6"
       >
-        <Sparkles className="h-6 w-6" />
+        <img
+          src="/potemkin.jpg"
+          alt="Potemkin"
+          className="h-full w-full object-cover"
+          onError={(e) => {
+            // Fallback: hide the broken image and show a sparkle if the portrait isn't uploaded yet
+            (e.currentTarget as HTMLImageElement).style.display = "none";
+          }}
+        />
       </button>
 
       <Sheet open={open} onOpenChange={setOpen}>
@@ -141,19 +149,28 @@ export function PotemkinChat() {
           className="flex w-full flex-col gap-0 p-0 sm:max-w-md"
         >
           <SheetHeader className="border-b p-4 text-left">
-            <div className="flex items-center justify-between gap-2">
-              <div>
-                <SheetTitle className="flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-primary" />
-                  Potemkin
-                </SheetTitle>
-                <SheetDescription className="text-xs">
-                  Your AQA 7042 Russia tutor. Ask about any spec point.
-                </SheetDescription>
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full ring-1 ring-border">
+                  <img
+                    src="/potemkin.jpg"
+                    alt="Potemkin"
+                    className="h-full w-full object-cover"
+                    onError={(e) =>
+                      ((e.currentTarget as HTMLImageElement).style.display = "none")
+                    }
+                  />
+                </div>
+                <div className="min-w-0">
+                  <SheetTitle>Potemkin</SheetTitle>
+                  <SheetDescription className="text-xs">
+                    Your AQA 7042 Russia tutor.
+                  </SheetDescription>
+                </div>
               </div>
               {dailyRemaining !== null && !isAnon && (
                 <span className="shrink-0 rounded-full bg-muted px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                  {dailyRemaining} left today
+                  {dailyRemaining} left
                 </span>
               )}
             </div>
@@ -161,7 +178,16 @@ export function PotemkinChat() {
 
           {isAnon ? (
             <div className="flex flex-1 flex-col items-center justify-center gap-4 p-8 text-center">
-              <Sparkles className="h-10 w-10 text-muted-foreground/60" />
+              <div className="h-16 w-16 overflow-hidden rounded-full ring-1 ring-border">
+                <img
+                  src="/potemkin.jpg"
+                  alt="Potemkin"
+                  className="h-full w-full object-cover opacity-70"
+                  onError={(e) =>
+                    ((e.currentTarget as HTMLImageElement).style.display = "none")
+                  }
+                />
+              </div>
               <div>
                 <h3 className="font-serif text-lg font-semibold">
                   Sign in to ask Potemkin
