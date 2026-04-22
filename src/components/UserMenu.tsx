@@ -1,4 +1,4 @@
-import { LogOut, Monitor, Moon, Sun, User as UserIcon, Users } from "lucide-react";
+import { LogOut, MessageSquare, Monitor, Moon, Sun, User as UserIcon, Users } from "lucide-react";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/hooks/useTheme";
 import { JoinClassDialog } from "@/components/JoinClassDialog";
+import { FeedbackDialog } from "@/components/FeedbackDialog";
 
 interface UserMenuProps {
   /**
@@ -152,6 +153,19 @@ export function UserMenu({ inline = false }: UserMenuProps) {
               >
                 <Users className="mr-2 h-4 w-4" />
                 Join a class
+              </DropdownMenuItem>
+            }
+          />
+
+          {/* Send feedback — opens FeedbackDialog */}
+          <FeedbackDialog
+            trigger={
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onSelect={(e) => e.preventDefault()}
+              >
+                <MessageSquare className="mr-2 h-4 w-4" />
+                Send feedback
               </DropdownMenuItem>
             }
           />

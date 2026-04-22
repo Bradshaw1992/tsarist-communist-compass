@@ -1,49 +1,152 @@
 // =============================================================================
-// FirstLoginWelcome — one-time orientation card for new signed-in users
+// FirstLoginWelcome — one-time orientation cards for new signed-in users
 // =============================================================================
-// Shown on the Dashboard after first sign-in. Walks the student through the
-// four tabs and five activity types in ~30 seconds of reading. Dismissed via
-// a button, stored in localStorage so it never returns.
-//
-// The card is warm and informational — no pop-up modal, no blocking overlay.
-// It sits inline in the Dashboard flow so the student can scroll past it.
+// Two separate inline cards, each with its own dismiss state in localStorage:
+//   1. TomWelcomeCard — personal welcome from Tom, shown to External (non-UCS)
+//      users only. Includes a Leave feedback button.
+//   2. ActivitiesWelcomeCard — the existing tour of tabs and activities,
+//      shown to everyone.
+// Each card disappears after dismiss and never returns on that device.
 // =============================================================================
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   BookOpen,
   Compass,
   Crosshair,
   Dices,
   LayoutDashboard,
+  MessageSquare,
   PenLine,
   X,
   Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { FeedbackDialog } from "@/components/FeedbackDialog";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
-const STORAGE_KEY = "russia-first-login-dismissed";
+const ACTIVITIES_KEY = "russia-first-login-dismissed";
+const TOM_KEY = "russia-welcome-from-tom-dismissed";
 
-function isDismissed(): boolean {
+function readDismissed(key: string): boolean {
   try {
-    return localStorage.getItem(STORAGE_KEY) === "1";
+    return localStorage.getItem(key) === "1";
   } catch {
     return false;
   }
 }
 
-export function FirstLoginWelcome() {
-  const [dismissed, setDismissed] = useState(isDismissed);
+function writeDismissed(key: string) {
+  try {
+    localStorage.setItem(key, "1");
+  } catch {
+    /* ignored */
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Hook: returns true if the signed-in user is in a class with is_external_catchall
+// -----------------------------------------------------------------------------
+function useIsExternalStudent(): boolean | null {
+  const { user } = useAuth();
+  const [isExternal, setIsExternal] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (!user) {
+      setIsExternal(false);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const { data, error } = await supabase
+        .from("class_members")
+        .select("class_id, classes!inner(is_external_catchall)")
+        .eq("student_id", user.id)
+        .eq("classes.is_external_catchall", true)
+        .limit(1);
+      if (cancelled) return;
+      setIsExternal(!error && !!data && data.length > 0);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
+  return isExternal;
+}
+
+// -----------------------------------------------------------------------------
+// TomWelcomeCard — personal intro + feedback invitation, external users only
+// -----------------------------------------------------------------------------
+function TomWelcomeCard() {
+  const isExternal = useIsExternalStudent();
+  const [dismissed, setDismissed] = useState(() => readDismissed(TOM_KEY));
+
+  if (dismissed || !isExternal) return null;
+
+  const dismiss = () => {
+    setDismissed(true);
+    writeDismissed(TOM_KEY);
+  };
+
+  return (
+    <div className="mb-4 rounded-xl bg-muted/40 p-5 ring-1 ring-border/60 sm:p-6">
+      <div className="mb-3 flex items-start justify-between">
+        <h2 className="font-serif text-lg font-bold text-primary">
+          A quick hello from Tom
+        </h2>
+        <button
+          onClick={dismiss}
+          className="rounded-md p-1 text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+          aria-label="Dismiss"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+
+      <div className="space-y-3 text-sm leading-relaxed text-foreground/90">
+        <p>
+          Welcome — thanks for signing up. I'm Tom, an A-Level History teacher.
+          I built this app because none of the revision resources out there
+          quite fit how I teach AQA 7042, and I wanted something my students
+          could actually open at 10pm the night before a test.
+        </p>
+        <p>
+          It's free, open to any student sitting AQA 1H Russia, and I'm
+          actively building it. If something's broken, missing, or wrong, I
+          genuinely want to know — that's how it gets better.
+        </p>
+      </div>
+
+      <div className="mt-4 flex flex-wrap items-center gap-3">
+        <FeedbackDialog
+          trigger={
+            <Button size="sm" variant="outline" className="gap-2">
+              <MessageSquare className="h-4 w-4" />
+              Leave feedback
+            </Button>
+          }
+        />
+        <Button size="sm" variant="ghost" onClick={dismiss}>
+          Got it
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+// -----------------------------------------------------------------------------
+// ActivitiesWelcomeCard — existing tour, shown to everyone
+// -----------------------------------------------------------------------------
+function ActivitiesWelcomeCard() {
+  const [dismissed, setDismissed] = useState(() => readDismissed(ACTIVITIES_KEY));
 
   if (dismissed) return null;
 
   const dismiss = () => {
     setDismissed(true);
-    try {
-      localStorage.setItem(STORAGE_KEY, "1");
-    } catch {
-      // ignored
-    }
+    writeDismissed(ACTIVITIES_KEY);
   };
 
   return (
@@ -129,5 +232,17 @@ export function FirstLoginWelcome() {
         Got it — let's go
       </Button>
     </div>
+  );
+}
+
+// -----------------------------------------------------------------------------
+// FirstLoginWelcome — composes both cards
+// -----------------------------------------------------------------------------
+export function FirstLoginWelcome() {
+  return (
+    <>
+      <TomWelcomeCard />
+      <ActivitiesWelcomeCard />
+    </>
   );
 }
