@@ -9,6 +9,7 @@
 import { Outlet } from "react-router-dom";
 import { AnonymousBanner } from "@/components/AnonymousBanner";
 import { TopNav } from "@/components/TopNav";
+import { PotemkinChat } from "@/components/PotemkinChat";
 
 export function AppShell() {
   return (
@@ -16,6 +17,7 @@ export function AppShell() {
       <AnonymousBanner />
       <TopNav />
       <Outlet />
+      <PotemkinChat />
     </div>
   );
 }
