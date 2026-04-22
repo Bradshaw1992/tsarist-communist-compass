@@ -364,10 +364,11 @@ const LoginPage = () => {
           </h2>
           <div className="space-y-3 text-sm leading-relaxed text-foreground/90">
             <p>
-              I'm Tom, an A-Level History teacher. I built this app because none of
-              the revision resources out there quite fit how I teach AQA 7042 —
-              and I wanted something my students could actually open at 10pm the
-              night before a test, not just use in lesson.
+              I'm Tom, an A-Level History teacher. I built this app because the
+              revision resources out there never quite fit how I teach AQA 7042
+              — I wanted one place where students could properly drill their
+              knowledge, think through the concepts, and get real practice
+              evaluating extracts.
             </p>
             <p>
               It's free, open to any student sitting AQA 1H Russia, and I'm
