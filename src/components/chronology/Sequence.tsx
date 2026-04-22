@@ -38,6 +38,22 @@ import type { ChronologySequenceItem } from "@/types/supabase-helpers";
 
 const DEFAULT_SESSION_SIZE = 5;
 
+/** Only keep items with both a non-empty event and a non-empty date. Protects
+ *  the UI from malformed seed rows that would otherwise render as blank cards. */
+function cleanSequenceData(
+  data: ChronologySequenceItem[] | null | undefined
+): ChronologySequenceItem[] {
+  if (!Array.isArray(data)) return [];
+  return data.filter(
+    (it) =>
+      it &&
+      typeof it.event === "string" &&
+      it.event.trim().length > 0 &&
+      typeof it.date === "string" &&
+      it.date.trim().length > 0
+  );
+}
+
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -151,7 +167,7 @@ export function Sequence({ questions }: SequenceProps) {
 
   const session = useMemo(() => {
     const valid = questions.filter(
-      (q) => Array.isArray(q.sequence_data) && q.sequence_data!.length >= 3
+      (q) => cleanSequenceData(q.sequence_data).length >= 3
     );
     return shuffle(valid).slice(0, DEFAULT_SESSION_SIZE);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -182,7 +198,8 @@ export function Sequence({ questions }: SequenceProps) {
       setOrder([]);
       return;
     }
-    const shuffled = shuffle(q.sequence_data!).map((it, i) => ({
+    const clean = cleanSequenceData(q.sequence_data);
+    const shuffled = shuffle(clean).map((it, i) => ({
       ...it,
       id: `${currentIndex}-${i}-${it.event}`,
     }));
@@ -251,10 +268,10 @@ export function Sequence({ questions }: SequenceProps) {
   };
 
   const handleCheck = () => {
-    const correct = correctOrder(q.sequence_data!);
+    const correct = correctOrder(cleanSequenceData(q.sequence_data));
     let matches = 0;
     order.forEach((item, idx) => {
-      if (item.event === correct[idx].event) matches += 1;
+      if (item.event === correct[idx]?.event) matches += 1;
     });
     setTotalCorrect((t) => t + matches);
     setTotalPositions((t) => t + order.length);
@@ -265,7 +282,7 @@ export function Sequence({ questions }: SequenceProps) {
     setCurrentIndex((i) => i + 1);
   };
 
-  const correct = checked ? correctOrder(q.sequence_data!) : null;
+  const correct = checked ? correctOrder(cleanSequenceData(q.sequence_data)) : null;
 
   return (
     <div className="space-y-5">
