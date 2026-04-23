@@ -41,6 +41,22 @@ import { useWrongAnswers } from "@/hooks/useWrongAnswers";
 import { useConfidence, type ConfidenceLevel } from "@/hooks/useConfidence";
 import { useRecentSessions } from "@/hooks/useRecentSessions";
 
+const META_DESC_LIMIT = 158;
+
+function buildSpecMetaDescription(
+  title: string,
+  section: string,
+  recall: { summary: { sections: { heading: string; content: string[] }[] } } | null | undefined,
+): string {
+  const first = recall?.summary?.sections?.[0]?.content?.[0]?.trim();
+  if (first && first.length >= 60) {
+    return first.length > META_DESC_LIMIT
+      ? `${first.slice(0, META_DESC_LIMIT - 1).trimEnd()}…`
+      : first;
+  }
+  return `${title} — a revision guide for AQA A-Level History 7042/1H (${section}). Blank Recall, Concept Driller, Knowledge Driller and Essay Bank.`;
+}
+
 const SpecPage = () => {
   const { specId: specIdParam } = useParams<{ specId: string }>();
   const specId = specIdParam ? parseInt(specIdParam, 10) : NaN;
@@ -161,9 +177,27 @@ const SpecPage = () => {
   return (
     <div>
       <SEOHead
-        title={`${spec.title} | AQA 1H Russia Compass`}
-        description={`Revise ${spec.title} for AQA 7042/1H. Blank Recall, Concept Driller, Knowledge Driller, and Essay Bank for ${spec.section}.`}
+        title={`${spec.title} — AQA A-Level Russia Revision (7042/1H)`}
+        description={buildSpecMetaDescription(spec.title, spec.section, recall)}
         canonicalPath={`/spec/${spec.id}`}
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "LearningResource",
+          name: spec.title,
+          educationalLevel: "A-Level",
+          learningResourceType: "Revision guide",
+          teaches: spec.title,
+          inLanguage: "en-GB",
+          about: {
+            "@type": "Course",
+            name: "AQA A-Level History 7042/1H: Tsarist and Communist Russia, 1855–1964",
+            provider: {
+              "@type": "Organization",
+              name: "AQA",
+              url: "https://www.aqa.org.uk/",
+            },
+          },
+        }}
       />
 
       <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-10">
