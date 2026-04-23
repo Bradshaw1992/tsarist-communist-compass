@@ -1,5 +1,7 @@
 [build]
-  command = "npm run build"
+  # Playwright chromium is needed by scripts/prerender.mjs (runs as part of
+  # `npm run build`) to snapshot /spec/:id pages for SEO.
+  command = "npx playwright install chromium && npm run build"
   publish = "dist"
 
 [[redirects]]
