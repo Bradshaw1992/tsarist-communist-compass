@@ -1,24 +1,17 @@
 import { useParams, Navigate } from "react-router-dom";
 import { getSpecBySlug } from "@/lib/slugify";
-import { SEOHead } from "@/components/SEOHead";
 
+// /topic/:slug is kept for back-compat with older sitemap entries and any
+// external links that used the slug format. It redirects to the canonical
+// /spec/:id, which is the route prerendered to static HTML for SEO.
+// No SEOHead here — we do NOT want to claim /topic/:slug as canonical, or
+// Google sees competing canonicals between this route and /spec/:id.
 const TopicPage = () => {
   const { slug } = useParams<{ slug: string }>();
   const spec = slug ? getSpecBySlug(slug) : undefined;
 
   if (!spec) return <Navigate to="/" replace />;
-
-  // Render SEO tags before redirect so crawlers can index unique metadata
-  return (
-    <>
-      <SEOHead
-        title={`${spec.title} | AQA 1H Russia Compass`}
-        description={`Revise ${spec.title} for AQA 7042/1H: Tsarist and Communist Russia 1855–1964. Active recall, precision drilling, and exam-style questions.`}
-        canonicalPath={`/topic/${slug}`}
-      />
-      <Navigate to={`/spec/${spec.id}`} replace />
-    </>
-  );
+  return <Navigate to={`/spec/${spec.id}`} replace />;
 };
 
 export default TopicPage;

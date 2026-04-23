@@ -1,33 +1,16 @@
 /**
  * Run with: npx tsx scripts/generate-sitemap.ts
- * Reads revision_database.json and writes public/sitemap.xml
+ * Writes public/sitemap.xml covering the home page and all 24 /spec/:id
+ * landing pages (the prerendered SEO routes).
  */
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const DOMAIN = new URL("https://www.tsarist-communist-russia-1h.co.uk").origin;
-const LEGACY_DOMAINS = [
-  "https://tsarist-communist-compass.lovable.app",
-  "https://tsarist-communist-russia-1h.co.uk",
-];
-
-interface SpecPoint {
-  id: number;
-  title: string;
-}
-
-const dbPath = path.resolve(__dirname, "../src/data/revision_database.json");
-const db = JSON.parse(fs.readFileSync(dbPath, "utf-8"));
-
-function slugify(id: number, title: string): string {
-  const base = title
-    .toLowerCase()
-    .replace(/['']/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 60);
-  return `${id}-${base}`;
-}
+const SPEC_COUNT = 24; // AQA 7042/1H — fixed: 24 spec points across 4 Parts.
 
 const today = new Date().toISOString().split("T")[0];
 
@@ -41,10 +24,9 @@ let xml = `<?xml version="1.0" encoding="UTF-8"?>
   </url>
 `;
 
-for (const sp of db.spec_points as SpecPoint[]) {
-  const slug = slugify(sp.id, sp.title);
+for (let id = 1; id <= SPEC_COUNT; id++) {
   xml += `  <url>
-    <loc>${DOMAIN}/topic/${slug}</loc>
+    <loc>${DOMAIN}/spec/${id}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -55,12 +37,6 @@ for (const sp of db.spec_points as SpecPoint[]) {
 xml += `</urlset>
 `;
 
-for (const legacyDomain of LEGACY_DOMAINS) {
-  if (legacyDomain !== DOMAIN) {
-    xml = xml.replaceAll(legacyDomain, DOMAIN);
-  }
-}
-
 const outPath = path.resolve(__dirname, "../public/sitemap.xml");
 fs.writeFileSync(outPath, xml, "utf-8");
-console.log(`✅ Sitemap written with ${db.spec_points.length + 1} URLs → ${outPath}`);
+console.log(`✅ Sitemap written with ${SPEC_COUNT + 1} URLs → ${outPath}`);
