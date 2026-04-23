@@ -19,8 +19,8 @@ const PORT = 4173;
 const BASE = `http://127.0.0.1:${PORT}`;
 const DIST = path.resolve(process.cwd(), "dist");
 
-// Start small. Once verified on Netlify preview, expand to all 24.
-const ROUTES = ["/spec/1"];
+// All 24 AQA spec points (verified on /spec/1 before expanding).
+const ROUTES = Array.from({ length: 24 }, (_, i) => `/spec/${i + 1}`);
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
