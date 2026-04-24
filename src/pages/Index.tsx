@@ -48,6 +48,7 @@ import { useConfidence, type ConfidenceLevel } from "@/hooks/useConfidence";
 import { useRecentSessions, type RecentSession } from "@/hooks/useRecentSessions";
 import { useChronologyStats } from "@/hooks/useChronology";
 import { FirstLoginWelcome } from "@/components/FirstLoginWelcome";
+import { SupportCard } from "@/components/SupportCard";
 
 // ---- Accent palettes per Part -----------------------------------------------
 const PART_ACCENTS = [
@@ -302,6 +303,11 @@ const Index = () => {
             <EntryCard to="/general" icon={Compass} title="General &amp; chronology" desc="Whole-course questions." accent="rose" />
             <EntryCard to="/random" icon={Dices} title="Random practice" desc="Stop stalling, start drilling." accent="indigo" />
           </div>
+
+          {/* Tip jar — voluntary, non-UCS only (gated inside the component) */}
+          <div className="mt-8">
+            <SupportCard />
+          </div>
         </div>
       </div>
     );
@@ -321,6 +327,9 @@ const Index = () => {
       <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10">
         {/* First-login orientation (shown once, then dismissed) */}
         <FirstLoginWelcome />
+
+        {/* Tip jar — voluntary, non-UCS only (gated inside the component) */}
+        <SupportCard />
 
         {/* ================================================================
             1. Greeting + next-best-action

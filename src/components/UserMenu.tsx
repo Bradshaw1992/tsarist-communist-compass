@@ -1,4 +1,4 @@
-import { LogOut, MessageSquare, Monitor, Moon, Sun, User as UserIcon, Users } from "lucide-react";
+import { Heart, LogOut, MessageSquare, Monitor, Moon, Sun, User as UserIcon, Users } from "lucide-react";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/hooks/useTheme";
+import { useShouldShowSupport } from "@/hooks/useShouldShowSupport";
 import { JoinClassDialog } from "@/components/JoinClassDialog";
 import { FeedbackDialog } from "@/components/FeedbackDialog";
 
@@ -33,6 +34,9 @@ interface UserMenuProps {
 export function UserMenu({ inline = false }: UserMenuProps) {
   const { user, profile, isTeacher, signOut } = useAuth();
   const { preference, setTheme } = useTheme();
+  const supportVisibility = useShouldShowSupport();
+  const tipUrl = import.meta.env.VITE_STRIPE_TIP_URL as string | undefined;
+  const showSupportItem = !!tipUrl && supportVisibility === "show";
 
   // Signed-out users get a prominent "Sign in" button when inline, so the
   // top bar still has something on the right.
@@ -169,6 +173,16 @@ export function UserMenu({ inline = false }: UserMenuProps) {
               </DropdownMenuItem>
             }
           />
+
+          {/* Support the project — tip jar; hidden for UCS students */}
+          {showSupportItem && (
+            <DropdownMenuItem asChild className="cursor-pointer">
+              <a href={tipUrl} target="_blank" rel="noopener noreferrer">
+                <Heart className="mr-2 h-4 w-4 text-rose-600 dark:text-rose-400" />
+                Support the project
+              </a>
+            </DropdownMenuItem>
+          )}
 
           <DropdownMenuSeparator />
           <DropdownMenuItem
