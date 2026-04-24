@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { FileText, ChevronDown, ChevronUp, BookOpen, Trash2 } from "lucide-react";
+import { FileText, ChevronDown, ChevronUp, BookOpen, Trash2, Sparkles } from "lucide-react";
 import type { ExamQuestion } from "@/types/revision";
 
 interface ExamArchitectProps {
@@ -132,7 +132,7 @@ export function ExamArchitect({ specId }: ExamArchitectProps) {
       <div className="space-y-1">
         <h2 className="font-serif text-2xl font-bold text-primary">Essay Bank</h2>
         <p className="text-sm text-muted-foreground">
-          Past-paper reference — real AQA essay questions with full indicative content.
+          Real AQA past-paper questions, plus Potemkin-generated practice questions — both with full indicative content.
         </p>
       </div>
 
@@ -172,13 +172,26 @@ function ExamCard({ question }: { question: ExamQuestion }) {
     [question.indicative_content]
   );
 
+  const isPotemkinGenerated = question.year === "Potemkin-generated";
+
   return (
     <Card className="transition-shadow hover:shadow-md">
       <CardHeader className="pb-3">
         <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="outline" className="border-primary/30 font-sans text-xs">
-            {question.year}
-          </Badge>
+          {isPotemkinGenerated ? (
+            <Badge
+              variant="outline"
+              className="gap-1 border-purple-300 bg-purple-50 font-sans text-xs text-purple-800 dark:border-purple-700 dark:bg-purple-950/40 dark:text-purple-300"
+              title="AI-generated practice question — not a real AQA past paper"
+            >
+              <Sparkles className="h-3 w-3" />
+              Potemkin-generated
+            </Badge>
+          ) : (
+            <Badge variant="outline" className="border-primary/30 font-sans text-xs">
+              {question.year}
+            </Badge>
+          )}
           <Badge variant="secondary" className="font-sans text-xs">
             {question.marks} marks
           </Badge>
