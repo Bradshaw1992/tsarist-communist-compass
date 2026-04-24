@@ -7,7 +7,7 @@
 // the card silently doesn't render (so nothing breaks during Stripe setup).
 //
 // Dismiss behaviour: closing the card writes a timestamp to localStorage;
-// the card reappears 30 days later so it's gently present rather than a
+// the card reappears 7 days later so it's gently present rather than a
 // one-time ask.
 // =============================================================================
 
@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import { useShouldShowSupport } from "@/hooks/useShouldShowSupport";
 
 const DISMISS_KEY = "russia-support-card-dismissed-at";
-const REAPPEAR_AFTER_DAYS = 30;
+const REAPPEAR_AFTER_DAYS = 7;
 
 function readDismissedAt(): number | null {
   try {
@@ -56,7 +56,7 @@ export function SupportCard() {
   // Don't render:
   //   - if Stripe isn't set up yet (no env var)
   //   - if user is a confirmed in-school student
-  //   - if they've dismissed within the last 30 days
+  //   - if they've dismissed within the last 7 days
   //   - while membership lookup is pending (avoid flicker)
   if (!tipUrl) return null;
   if (visibility !== "show") return null;
