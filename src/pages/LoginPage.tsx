@@ -9,7 +9,7 @@ import { SEOHead } from "@/components/SEOHead";
 import { FeedbackDialog } from "@/components/FeedbackDialog";
 import { toast } from "sonner";
 
-type EmailMode = "magic" | "password";
+type SignInMode = "magic" | "password" | "google";
 type PasswordView = "login" | "signup" | "forgot";
 
 const LoginPage = () => {
@@ -31,7 +31,7 @@ const LoginPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [linkSent, setLinkSent] = useState(false);
   const [resetSent, setResetSent] = useState(false);
-  const [emailMode, setEmailMode] = useState<EmailMode>("magic");
+  const [signInMode, setSignInMode] = useState<SignInMode>("magic");
   const [passwordView, setPasswordView] = useState<PasswordView>("login");
 
   useEffect(() => {
@@ -140,41 +140,12 @@ const LoginPage = () => {
             </p>
           </div>
 
-          {/* Google */}
-          <div className="w-full pt-2">
-            <Button
-              onClick={handleGoogleSignIn}
-              disabled={signingIn || loading}
-              className="w-full h-12 gap-3 bg-primary text-primary-foreground hover:bg-primary/90"
-              size="lg"
-            >
-              {signingIn ? (
-                <>
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                  Redirecting to Google...
-                </>
-              ) : (
-                <>
-                  <GoogleIcon />
-                  Sign in with Google
-                </>
-              )}
-            </Button>
-          </div>
-
-          {/* Divider */}
-          <div className="flex w-full items-center gap-3">
-            <div className="h-px flex-1 bg-border" />
-            <span className="text-xs text-muted-foreground">or use email</span>
-            <div className="h-px flex-1 bg-border" />
-          </div>
-
-          {/* Mode toggle */}
+          {/* Sign-in mode toggle — three equal options */}
           <div className="flex w-full rounded-lg bg-muted p-1">
             <button
-              onClick={() => { setEmailMode("magic"); setPassword(""); setResetSent(false); }}
+              onClick={() => { setSignInMode("magic"); setPassword(""); setResetSent(false); }}
               className={`flex-1 rounded-md py-2 text-xs font-medium transition-colors ${
-                emailMode === "magic"
+                signInMode === "magic"
                   ? "bg-background text-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
               }`}
@@ -183,20 +154,59 @@ const LoginPage = () => {
               Magic link
             </button>
             <button
-              onClick={() => { setEmailMode("password"); setLinkSent(false); setPasswordView("login"); }}
+              onClick={() => { setSignInMode("password"); setLinkSent(false); setPasswordView("login"); }}
               className={`flex-1 rounded-md py-2 text-xs font-medium transition-colors ${
-                emailMode === "password"
+                signInMode === "password"
                   ? "bg-background text-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
               <KeyRound className="mr-1.5 inline h-3.5 w-3.5" />
-              Email &amp; password
+              Password
+            </button>
+            <button
+              onClick={() => { setSignInMode("google"); setLinkSent(false); setResetSent(false); }}
+              className={`flex-1 rounded-md py-2 text-xs font-medium transition-colors ${
+                signInMode === "google"
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <GoogleIcon className="mr-1.5 inline h-3.5 w-3.5" />
+              Google
             </button>
           </div>
 
+          {/* Google sign-in */}
+          {signInMode === "google" && (
+            <div className="w-full space-y-2">
+              <Button
+                onClick={handleGoogleSignIn}
+                disabled={signingIn || loading}
+                variant="outline"
+                className="w-full h-12 gap-3"
+                size="lg"
+              >
+                {signingIn ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    Redirecting to Google...
+                  </>
+                ) : (
+                  <>
+                    <GoogleIcon />
+                    Continue with Google
+                  </>
+                )}
+              </Button>
+              <p className="text-[11px] text-muted-foreground">
+                If your school blocks Google sign-in, use Magic link or Password instead — both work just as well.
+              </p>
+            </div>
+          )}
+
           {/* Magic link form */}
-          {emailMode === "magic" && (
+          {signInMode === "magic" && (
             linkSent ? (
               <div className="w-full rounded-lg bg-emerald-50 p-4 dark:bg-emerald-950/30">
                 <div className="flex items-center justify-center gap-2 text-sm font-medium text-emerald-700 dark:text-emerald-300">
@@ -246,7 +256,7 @@ const LoginPage = () => {
           )}
 
           {/* Email + password form */}
-          {emailMode === "password" && (
+          {signInMode === "password" && (
             resetSent ? (
               <div className="w-full rounded-lg bg-emerald-50 p-4 dark:bg-emerald-950/30">
                 <div className="flex items-center justify-center gap-2 text-sm font-medium text-emerald-700 dark:text-emerald-300">
@@ -401,7 +411,7 @@ const LoginPage = () => {
 };
 
 /** Inline SVG so we don't have to ship a Google logo asset. */
-function GoogleIcon() {
+function GoogleIcon({ className }: { className?: string }) {
   return (
     <svg
       width="18"
@@ -409,6 +419,7 @@ function GoogleIcon() {
       viewBox="0 0 48 48"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
+      className={className}
     >
       <path
         fill="#FFC107"
