@@ -143,15 +143,15 @@ const LoginPage = () => {
           {/* Sign-in mode toggle — three equal options */}
           <div className="flex w-full rounded-lg bg-muted p-1">
             <button
-              onClick={() => { setSignInMode("magic"); setPassword(""); setResetSent(false); }}
+              onClick={() => { setSignInMode("google"); setLinkSent(false); setResetSent(false); }}
               className={`flex-1 rounded-md py-2 text-xs font-medium transition-colors ${
-                signInMode === "magic"
+                signInMode === "google"
                   ? "bg-background text-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              <Mail className="mr-1.5 inline h-3.5 w-3.5" />
-              Magic link
+              <GoogleIcon className="mr-1.5 inline h-3.5 w-3.5" />
+              Google
             </button>
             <button
               onClick={() => { setSignInMode("password"); setLinkSent(false); setPasswordView("login"); }}
@@ -165,15 +165,15 @@ const LoginPage = () => {
               Password
             </button>
             <button
-              onClick={() => { setSignInMode("google"); setLinkSent(false); setResetSent(false); }}
+              onClick={() => { setSignInMode("magic"); setPassword(""); setResetSent(false); }}
               className={`flex-1 rounded-md py-2 text-xs font-medium transition-colors ${
-                signInMode === "google"
+                signInMode === "magic"
                   ? "bg-background text-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              <GoogleIcon className="mr-1.5 inline h-3.5 w-3.5" />
-              Google
+              <Mail className="mr-1.5 inline h-3.5 w-3.5" />
+              Magic link
             </button>
           </div>
 
