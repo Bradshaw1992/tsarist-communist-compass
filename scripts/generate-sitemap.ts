@@ -9,7 +9,7 @@ import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const DOMAIN = new URL("https://www.tsarist-communist-russia-1h.co.uk").origin;
+const DOMAIN = new URL("https://tsarist-communist-russia-1h.co.uk").origin;
 const SPEC_COUNT = 24; // AQA 7042/1H — fixed: 24 spec points across 4 Parts.
 
 const today = new Date().toISOString().split("T")[0];
