@@ -17,13 +17,21 @@ import { supabase } from "@/integrations/supabase/client";
 export type SupportVisibility = "show" | "hide" | "pending";
 
 export function useShouldShowSupport(): SupportVisibility {
-  const { user } = useAuth();
+  const { user, isTeacher } = useAuth();
   const [state, setState] = useState<SupportVisibility>("pending");
 
   useEffect(() => {
     // Anonymous visitor — always eligible to see the tip-jar
     if (!user) {
       setState("show");
+      return;
+    }
+
+    // Teachers never see the tip-jar. They typically aren't class members
+    // (they own classes, not join them), so the membership-based check
+    // below would misclassify them. Handled explicitly here.
+    if (isTeacher) {
+      setState("hide");
       return;
     }
 
@@ -56,7 +64,7 @@ export function useShouldShowSupport(): SupportVisibility {
     return () => {
       cancelled = true;
     };
-  }, [user]);
+  }, [user, isTeacher]);
 
   return state;
 }
