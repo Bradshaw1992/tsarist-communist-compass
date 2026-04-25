@@ -9,6 +9,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
+  Building2,
   ChevronRight,
   Copy,
   FileQuestion,
@@ -24,7 +25,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useTeacherClasses } from "@/hooks/useTeacherData";
 
 const TeacherDashboard = () => {
-  const { isTeacher } = useAuth();
+  const { isTeacher, isAdmin } = useAuth();
   const navigate = useNavigate();
   const { classes, loading, createClass } = useTeacherClasses();
 
@@ -33,7 +34,7 @@ const TeacherDashboard = () => {
   const [creating, setCreating] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  if (!isTeacher) {
+  if (!isTeacher && !isAdmin) {
     return (
       <div className="mx-auto max-w-3xl px-6 py-20 text-center">
         <GraduationCap className="mx-auto mb-4 h-10 w-10 text-muted-foreground" />
@@ -123,22 +124,34 @@ const TeacherDashboard = () => {
                 <Plus className="h-4 w-4" />
                 Create class
               </Button>
-              <Button
-                variant="outline"
-                onClick={() => navigate("/teacher/questions")}
-                className="gap-2"
-              >
-                <FileQuestion className="h-4 w-4" />
-                Question pipeline
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => navigate("/teacher/feedback")}
-                className="gap-2"
-              >
-                <MessageSquare className="h-4 w-4" />
-                Feedback
-              </Button>
+              {isAdmin && (
+                <>
+                  <Button
+                    variant="outline"
+                    onClick={() => navigate("/teacher/questions")}
+                    className="gap-2"
+                  >
+                    <FileQuestion className="h-4 w-4" />
+                    Question pipeline
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => navigate("/teacher/feedback")}
+                    className="gap-2"
+                  >
+                    <MessageSquare className="h-4 w-4" />
+                    Feedback
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => navigate("/admin/schools")}
+                    className="gap-2"
+                  >
+                    <Building2 className="h-4 w-4" />
+                    Schools
+                  </Button>
+                </>
+              )}
             </div>
           )}
         </section>

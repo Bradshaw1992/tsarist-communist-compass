@@ -23,6 +23,7 @@ import TeacherClassPage from "./pages/TeacherClassPage.tsx";
 import TeacherStudentPage from "./pages/TeacherStudentPage.tsx";
 import TeacherQuestionsPage from "./pages/TeacherQuestionsPage.tsx";
 import TeacherFeedbackPage from "./pages/TeacherFeedbackPage.tsx";
+import AdminSchoolsPage from "./pages/AdminSchoolsPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -68,6 +69,8 @@ const App = () => (
                 path="/teacher/feedback"
                 element={<TeacherFeedbackPage />}
               />
+              {/* Admin-only routes */}
+              <Route path="/admin/schools" element={<AdminSchoolsPage />} />
             </Route>
 
             {/* Full-bleed pages — no shell */}

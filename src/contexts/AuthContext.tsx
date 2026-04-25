@@ -37,10 +37,19 @@ import type { Tables } from "@/integrations/supabase/types";
 
 export type UserProfile = Tables<"user_profiles">;
 
+// Admin email allowlist. Mirrors public.is_admin() in Postgres — keep in sync.
+// Both emails are Tom: work address + personal address (kept so admin access
+// survives leaving UCS).
+const ADMIN_EMAILS = new Set([
+  "tom.bradshaw@ucs.org.uk",
+  "tom_bradshaw@hotmail.co.uk",
+]);
+
 interface AuthContextValue {
   user: User | null;
   profile: UserProfile | null;
   isTeacher: boolean;
+  isAdmin: boolean;
   loading: boolean;
   signInWithGoogle: () => Promise<void>;
   signInWithMicrosoft: () => Promise<void>;
@@ -238,6 +247,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       user,
       profile,
       isTeacher: profile?.role === "teacher",
+      isAdmin: user?.email
+        ? ADMIN_EMAILS.has(user.email.toLowerCase())
+        : false,
       loading,
       signInWithGoogle,
       signInWithMicrosoft,
