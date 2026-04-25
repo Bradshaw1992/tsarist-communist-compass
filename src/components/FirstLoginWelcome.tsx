@@ -1,12 +1,15 @@
 // =============================================================================
 // FirstLoginWelcome — one-time orientation cards for new signed-in users
 // =============================================================================
-// Two separate inline cards, each with its own dismiss state in localStorage:
-//   1. TomWelcomeCard — personal welcome from Tom, shown to External (non-UCS)
+// Three separate inline cards, each with its own dismiss state:
+//   1. SchoolPromptCard — asks the user to pick their school. Shown to any
+//      signed-in user with no school_urn set yet. "Skip for now" only
+//      hides for the current session — comes back next login because the
+//      data matters.
+//   2. TomWelcomeCard — personal welcome from Tom, shown to External (non-UCS)
 //      users only. Includes a Leave feedback button.
-//   2. ActivitiesWelcomeCard — the existing tour of tabs and activities,
+//   3. ActivitiesWelcomeCard — the existing tour of tabs and activities,
 //      shown to everyone.
-// Each card disappears after dismiss and never returns on that device.
 // =============================================================================
 
 import { useEffect, useState } from "react";
@@ -15,6 +18,7 @@ import {
   Compass,
   Crosshair,
   Dices,
+  GraduationCap,
   LayoutDashboard,
   MessageSquare,
   PenLine,
@@ -22,12 +26,18 @@ import {
   Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { FeedbackDialog } from "@/components/FeedbackDialog";
+import { SchoolPicker, type SchoolInfo } from "@/components/SchoolPicker";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 
 const ACTIVITIES_KEY = "russia-first-login-dismissed";
 const TOM_KEY = "russia-welcome-from-tom-dismissed";
+// Session-scoped (sessionStorage, not localStorage) — comes back next login.
+const SCHOOL_SKIP_KEY = "russia-school-prompt-skipped";
 
 function readDismissed(key: string): boolean {
   try {
@@ -43,6 +53,187 @@ function writeDismissed(key: string) {
   } catch {
     /* ignored */
   }
+}
+
+// -----------------------------------------------------------------------------
+// SchoolPromptCard — ask user to pick their school
+// -----------------------------------------------------------------------------
+function SchoolPromptCard() {
+  const { user, profile, refreshProfile } = useAuth();
+  const [skipped, setSkipped] = useState(() => {
+    try {
+      return sessionStorage.getItem(SCHOOL_SKIP_KEY) === "1";
+    } catch {
+      return false;
+    }
+  });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [showRequestForm, setShowRequestForm] = useState(false);
+  const [requestName, setRequestName] = useState("");
+  const [requestTown, setRequestTown] = useState("");
+  const [requestNotes, setRequestNotes] = useState("");
+  const [requestSent, setRequestSent] = useState(false);
+
+  // school_urn isn't in the regenerated types yet — read it via cast.
+  const schoolUrn =
+    (profile as { school_urn?: number | null } | null)?.school_urn ?? null;
+
+  // Hide if: not signed in, no profile yet, school already set, or skipped this session.
+  if (!user || !profile || schoolUrn != null || skipped) return null;
+
+  async function handleSelect(urn: number, _school: SchoolInfo) {
+    if (!user) return;
+    setSaving(true);
+    setError(null);
+    const { error: err } = await supabase
+      .from("user_profiles")
+      .update({
+        school_urn: urn,
+        school_set_at: new Date().toISOString(),
+      } as never)
+      .eq("id", user.id);
+
+    if (err) {
+      console.error("[SchoolPrompt] Failed to save:", err);
+      setError("Couldn't save — please try again.");
+      setSaving(false);
+      return;
+    }
+    await refreshProfile();
+    // Card will hide on next render because schoolUrn !== null.
+    setSaving(false);
+  }
+
+  function handleSkip() {
+    setSkipped(true);
+    try {
+      sessionStorage.setItem(SCHOOL_SKIP_KEY, "1");
+    } catch {
+      /* ignored */
+    }
+  }
+
+  async function handleSubmitRequest() {
+    if (!user || !requestName.trim()) return;
+    setSaving(true);
+    setError(null);
+    const { error: err } = await supabase
+      .from("school_requests" as never)
+      .insert({
+        user_id: user.id,
+        requested_name: requestName.trim(),
+        requested_town: requestTown.trim() || null,
+        notes: requestNotes.trim() || null,
+      } as never);
+    if (err) {
+      console.error("[SchoolPrompt] Failed to submit request:", err);
+      setError("Couldn't submit — please try again.");
+      setSaving(false);
+      return;
+    }
+    setRequestSent(true);
+    setSaving(false);
+  }
+
+  return (
+    <div className="mb-4 rounded-xl bg-primary/5 p-5 ring-1 ring-primary/10 sm:p-6">
+      <div className="mb-3 flex items-start justify-between gap-3">
+        <div className="flex items-start gap-2">
+          <GraduationCap className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+          <div>
+            <h2 className="font-serif text-lg font-bold text-primary">
+              Which school are you at?
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Helps me see who's using the app and prioritise schools with lots
+              of students. Takes 5 seconds.
+            </p>
+          </div>
+        </div>
+        <button
+          onClick={handleSkip}
+          className="rounded-md p-1 text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+          aria-label="Skip for now"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+
+      {requestSent ? (
+        <div className="rounded-md border border-border bg-card p-3 text-sm">
+          Thanks — I'll add your school to the list. Welcome aboard.
+        </div>
+      ) : showRequestForm ? (
+        <div className="space-y-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="school-name">School name</Label>
+            <Input
+              id="school-name"
+              value={requestName}
+              onChange={(e) => setRequestName(e.target.value)}
+              placeholder="e.g. The Latymer School"
+              autoFocus
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="school-town">Town / city</Label>
+            <Input
+              id="school-town"
+              value={requestTown}
+              onChange={(e) => setRequestTown(e.target.value)}
+              placeholder="e.g. London"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="school-notes">Anything else? (optional)</Label>
+            <Textarea
+              id="school-notes"
+              value={requestNotes}
+              onChange={(e) => setRequestNotes(e.target.value)}
+              placeholder="Postcode, country if outside the UK, etc."
+              rows={2}
+            />
+          </div>
+          {error && <p className="text-sm text-destructive">{error}</p>}
+          <div className="flex flex-wrap gap-2">
+            <Button
+              size="sm"
+              onClick={handleSubmitRequest}
+              disabled={saving || !requestName.trim()}
+            >
+              {saving ? "Submitting…" : "Submit"}
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => setShowRequestForm(false)}
+              disabled={saving}
+            >
+              Back to search
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <>
+          <SchoolPicker
+            value={null}
+            onChange={handleSelect}
+            onNotListed={() => setShowRequestForm(true)}
+          />
+          {error && <p className="mt-2 text-sm text-destructive">{error}</p>}
+          {saving && (
+            <p className="mt-2 text-sm text-muted-foreground">Saving…</p>
+          )}
+          <div className="mt-3">
+            <Button size="sm" variant="ghost" onClick={handleSkip}>
+              Skip for now
+            </Button>
+          </div>
+        </>
+      )}
+    </div>
+  );
 }
 
 // -----------------------------------------------------------------------------
@@ -242,6 +433,7 @@ function ActivitiesWelcomeCard() {
 export function FirstLoginWelcome() {
   return (
     <>
+      <SchoolPromptCard />
       <TomWelcomeCard />
       <ActivitiesWelcomeCard />
     </>
