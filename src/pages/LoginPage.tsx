@@ -31,7 +31,7 @@ const LoginPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [linkSent, setLinkSent] = useState(false);
   const [resetSent, setResetSent] = useState(false);
-  const [signInMode, setSignInMode] = useState<SignInMode>("magic");
+  const [signInMode, setSignInMode] = useState<SignInMode>("google");
   const [passwordView, setPasswordView] = useState<PasswordView>("login");
 
   useEffect(() => {

@@ -34,7 +34,7 @@ const tabs: Tab[] = [
 ];
 
 export function TopNav() {
-  const { isTeacher } = useAuth();
+  const { isTeacher, isAdmin } = useAuth();
   const { dueCount, items: wrongAnswers } = useWrongAnswers();
   const totalReview = wrongAnswers.length;
 
@@ -54,7 +54,7 @@ export function TopNav() {
 
         {/* Tabs — chunky */}
         <nav className="flex flex-1 items-center gap-0.5 overflow-x-auto sm:gap-1">
-          {tabs.filter((t) => !t.teacherOnly || isTeacher).map((tab) => {
+          {tabs.filter((t) => !t.teacherOnly || isTeacher || isAdmin).map((tab) => {
             const Icon = tab.icon;
             return (
               <NavLink
