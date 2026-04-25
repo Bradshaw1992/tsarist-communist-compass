@@ -146,8 +146,8 @@ function SchoolPromptCard() {
               Which school are you at?
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Helps me see who's using the app and prioritise schools with lots
-              of students. Takes 5 seconds.
+              Helps me see which schools are using the app so I can support
+              their progress. Takes 5 seconds.
             </p>
           </div>
         </div>
