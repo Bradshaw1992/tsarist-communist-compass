@@ -59,6 +59,18 @@ function formatAddress(s: SchoolInfo): string {
     .join(", ");
 }
 
+/**
+ * Normalise the user's search input so common spelling differences match.
+ * GIAS stores "St Peter's" not "St. Peter's"; users often add the period.
+ * Curly vs straight apostrophes also differ between OS keyboards.
+ */
+function normaliseQuery(q: string): string {
+  return q
+    .replace(/[.‘’‚‛]/g, (c) => (c === "." ? "" : "'"))
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 export function SchoolPicker({
   value,
   onChange,
@@ -103,7 +115,7 @@ export function SchoolPicker({
 
   // Debounced search.
   useEffect(() => {
-    const trimmed = query.trim();
+    const trimmed = normaliseQuery(query);
     if (trimmed.length < MIN_QUERY_LENGTH) {
       setResults([]);
       setLoading(false);
