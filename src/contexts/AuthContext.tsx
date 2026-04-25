@@ -243,13 +243,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [user]);
 
   const value = useMemo<AuthContextValue>(
-    () => ({
+    () => {
+      const computedIsAdmin = user?.email
+        ? ADMIN_EMAILS.has(user.email.toLowerCase())
+        : false;
+      // Temporary debug — remove once admin gating verified.
+      console.log("[AuthContext] auth state", {
+        userEmail: user?.email ?? null,
+        profileRole: profile?.role ?? null,
+        isAdmin: computedIsAdmin,
+        adminAllowlist: Array.from(ADMIN_EMAILS),
+      });
+      return ({
       user,
       profile,
       isTeacher: profile?.role === "teacher",
-      isAdmin: user?.email
-        ? ADMIN_EMAILS.has(user.email.toLowerCase())
-        : false,
+      isAdmin: computedIsAdmin,
       loading,
       signInWithGoogle,
       signInWithMicrosoft,
@@ -259,7 +268,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       resetPassword,
       signOut,
       refreshProfile,
-    }),
+    });
+    },
     [user, profile, loading, signInWithGoogle, signInWithMicrosoft, signInWithMagicLink, signUpWithPassword, signInWithPassword, resetPassword, signOut, refreshProfile]
   );
 
