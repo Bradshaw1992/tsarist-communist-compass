@@ -101,7 +101,12 @@ async function main() {
           { timeout: 15000 },
         );
         const html = await page.content();
-        const outPath = path.join(DIST, route.slice(1), "index.html");
+        // Write as dist/spec/N.html (not dist/spec/N/index.html) so Netlify
+        // serves it at /spec/N with no trailing-slash 301. The directory form
+        // caused a canonical/redirect contradiction: sitemap + canonical said
+        // /spec/N, but Netlify 301'd /spec/N → /spec/N/. Google flagged it as
+        // a redirect error.
+        const outPath = path.join(DIST, route.slice(1) + ".html");
         await fs.mkdir(path.dirname(outPath), { recursive: true });
         await fs.writeFile(outPath, html, "utf-8");
         console.log(`  ✓ wrote ${outPath} (${html.length} bytes)`);
