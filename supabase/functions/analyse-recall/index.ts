@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -6,10 +7,17 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const PRIMARY_MODEL = "claude-3-5-haiku-20241022";
-const FALLBACK_MODELS = ["claude-sonnet-4-20250514", "claude-3-5-sonnet-20241022"];
+// Primary: Haiku 4.5 — same model Potemkin uses, ~3x cheaper than Sonnet 4
+// and powerful enough for structured marking. Previously was 3.5 Haiku
+// (Oct 2024 release), which the API now 404s as retired — silently routing
+// every call to the Sonnet 4 fallback and inflating spend ~3x.
+// Fallback: Sonnet 4.5 (current Sonnet) if Haiku 4.5 is ever unavailable.
+const PRIMARY_MODEL = "claude-haiku-4-5-20251001";
+const FALLBACK_MODELS = ["claude-sonnet-4-5-20250929", "claude-sonnet-4-20250514"];
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX = 10;
+const NON_UCS_DAILY_LIMIT = 20;
+const UCS_SCHOOL_URN = "100065";
 const MAX_USER_TEXT_LENGTH = 10_000;
 const MAX_KEY_CONCEPTS = 50;
 const MAX_TOKENS = 4096;
@@ -184,6 +192,48 @@ serve(async (req) => {
 
     const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
     if (!ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY is not configured");
+
+    // Auth: identify the user via JWT and apply per-user daily cap.
+    // UCS users (school_urn 100065) are unlimited; non-UCS get NON_UCS_DAILY_LIMIT/day.
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
+    const authHeader = req.headers.get("Authorization");
+    let userId: string | null = null;
+    let isUcs = false;
+    if (supabaseUrl && serviceKey && authHeader) {
+      const sbUserClient = createClient(supabaseUrl, anonKey, {
+        global: { headers: { Authorization: authHeader } },
+      });
+      const { data: userData } = await sbUserClient.auth.getUser();
+      if (userData?.user) {
+        userId = userData.user.id;
+        const sb = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false } });
+        const { data: profile } = await sb
+          .from("user_profiles")
+          .select("school_urn")
+          .eq("id", userId)
+          .single();
+        isUcs = profile?.school_urn === UCS_SCHOOL_URN;
+        if (!isUcs) {
+          const { data: limits } = await sb.rpc("potemkin_check_limits", {
+            p_user_id: userId,
+            p_skill: "mark-recall",
+            p_user_daily_limit: NON_UCS_DAILY_LIMIT,
+            p_global_cap_pence: 100000, // effectively no global cap for marking
+          });
+          if (limits && !limits.allowed) {
+            return jsonError(`You've used today's ${NON_UCS_DAILY_LIMIT} AI mark-ups. Resets at midnight.`, 429);
+          }
+        }
+        // Record usage now (one increment per request). Cost 0 — kept out of Potemkin's £5/day cap.
+        await sb.rpc("potemkin_record_usage", {
+          p_user_id: userId,
+          p_skill: "mark-recall",
+          p_cost_pence: 0,
+        });
+      }
+    }
 
     const { userText, keyConcepts } = (await req.json()) as RequestBody;
 

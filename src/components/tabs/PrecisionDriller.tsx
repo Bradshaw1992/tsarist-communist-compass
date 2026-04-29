@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   Eye, CheckCircle2, XCircle, RotateCcw, BookOpen,
-  ChevronLeft, ChevronRight, Trophy, Star,
+  ChevronLeft, ChevronRight, Trophy, Star, Sparkles,
 } from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
 import { ReportIssueDialog, ReportFlagButton } from "@/components/ReportIssueDialog";
@@ -271,6 +271,13 @@ export function PrecisionDriller({
             </div>
           </CardContent>
         </Card>
+
+        <PotemkinSessionNudge
+          knew={stats.knew}
+          total={questions.length}
+          retryMode={retryMode}
+          topicName={topicName}
+        />
       </div>
     );
   }
@@ -330,6 +337,7 @@ export function PrecisionDriller({
               correctAnswer={question.correct_answer}
               feedback={question.level_3_feedback}
               assessment={prevEntry.assessment!}
+              questionText={question.question_text}
             />
           )}
 
@@ -365,7 +373,7 @@ export function PrecisionDriller({
                   </div>
                 </div>
               </div>
-              <div className="flex gap-3 pt-2">
+              <div className="flex flex-wrap items-center gap-3 pt-2">
                 <Button onClick={() => handleSelfAssess(true)} className="bg-primary text-primary-foreground hover:bg-primary/90">
                   <CheckCircle2 className="mr-1.5 h-4 w-4" />
                   I got it
@@ -374,6 +382,7 @@ export function PrecisionDriller({
                   <XCircle className="mr-1.5 h-4 w-4" />
                   I missed it
                 </Button>
+                <AskPotemkinButton question={question.question_text} answer={question.correct_answer} />
               </div>
             </div>
           )}
@@ -437,8 +446,26 @@ function Header({ questionsCount, allCount, stats, retryMode }: {
   );
 }
 
-function AssessedView({ userAnswer, correctAnswer, feedback, assessment }: {
-  userAnswer: string; correctAnswer: string; feedback: { workpack_ref: string; textbook_ref: string }; assessment: Assessment;
+function AskPotemkinButton({ question, answer }: { question: string; answer: string }) {
+  const ask = () => {
+    const prefill = `I got this Driller question wrong: "${question}"\n\nThe correct answer is: "${answer}"\n\nCan you explain why, and what I should remember to get it right next time?`;
+    window.dispatchEvent(new CustomEvent("potemkin:open", { detail: { prefill } }));
+  };
+  return (
+    <Button
+      onClick={ask}
+      variant="outline"
+      size="sm"
+      className="gap-1.5 border-primary/30 text-primary hover:bg-primary/5"
+    >
+      <Sparkles className="h-3.5 w-3.5" />
+      Ask Potemkin to explain
+    </Button>
+  );
+}
+
+function AssessedView({ userAnswer, correctAnswer, feedback, assessment, questionText }: {
+  userAnswer: string; correctAnswer: string; feedback: { workpack_ref: string; textbook_ref: string }; assessment: Assessment; questionText: string;
 }) {
   return (
     <div className="mt-6 space-y-4">
@@ -461,13 +488,67 @@ function AssessedView({ userAnswer, correctAnswer, feedback, assessment }: {
           </div>
         </div>
       </div>
-      <div className="flex items-center gap-2 text-sm font-medium">
+      <div className="flex flex-wrap items-center justify-between gap-3 text-sm font-medium">
         {assessment === "knew" ? (
           <span className="flex items-center gap-1.5 text-primary"><CheckCircle2 className="h-4 w-4" /> You knew this</span>
         ) : (
           <span className="flex items-center gap-1.5 text-destructive"><XCircle className="h-4 w-4" /> You missed this</span>
         )}
+        {assessment === "missed" && (
+          <AskPotemkinButton question={questionText} answer={correctAnswer} />
+        )}
       </div>
     </div>
+  );
+}
+
+const POTEMKIN_NUDGE_KEY = "russia-potemkin-good-session-nudge-dismissed";
+
+function PotemkinSessionNudge({ knew, total, retryMode, topicName }: {
+  knew: number; total: number; retryMode: boolean; topicName?: string;
+}) {
+  const [dismissed, setDismissed] = useState(() => {
+    try { return localStorage.getItem(POTEMKIN_NUDGE_KEY) === "1"; } catch { return false; }
+  });
+  if (dismissed || retryMode || total === 0) return null;
+  if (knew / total < 0.8) return null;
+
+  const ask = () => {
+    const prefill = topicName
+      ? `I just scored well on the Driller for "${topicName}". What's a deeper question I should be able to answer about this topic at A-Level?`
+      : `I just scored well on a Driller session. What's a deeper question I should be able to answer about this topic at A-Level?`;
+    window.dispatchEvent(new CustomEvent("potemkin:open", { detail: { prefill } }));
+  };
+
+  const dismiss = () => {
+    try { localStorage.setItem(POTEMKIN_NUDGE_KEY, "1"); } catch { /* ignore */ }
+    setDismissed(true);
+  };
+
+  return (
+    <Card className="mx-auto max-w-2xl border-primary/30 bg-primary/5">
+      <CardContent className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-start gap-3">
+          <div className="mt-0.5 rounded-full bg-primary/10 p-2">
+            <Sparkles className="h-4 w-4 text-primary" />
+          </div>
+          <div className="text-sm">
+            <p className="font-medium text-foreground">Curious why?</p>
+            <p className="text-muted-foreground">
+              You know the facts. Ask Potemkin to push you on what they mean.
+            </p>
+          </div>
+        </div>
+        <div className="flex shrink-0 gap-2">
+          <Button onClick={ask} size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90">
+            <Sparkles className="mr-1.5 h-3.5 w-3.5" />
+            Ask Potemkin
+          </Button>
+          <Button onClick={dismiss} size="sm" variant="ghost">
+            Not now
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

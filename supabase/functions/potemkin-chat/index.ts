@@ -27,7 +27,9 @@ const CLAUDE_MAX_TOKENS = 600;   // cap chat responses
 const EMBED_MODEL = "text-embedding-3-small";
 const RETRIEVE_K = 6;
 const CACHE_THRESHOLD = 0.95;
-const USER_DAILY_LIMIT = 30;
+const UCS_DAILY_LIMIT = 30;
+const NON_UCS_DAILY_LIMIT = 10;
+const UCS_SCHOOL_URN = "100065";
 const GLOBAL_CAP_PENCE = 500;    // £5/day
 const HISTORY_TURNS = 3;         // last 3 exchanges (6 messages)
 
@@ -168,6 +170,15 @@ serve(async (req) => {
     auth: { persistSession: false },
   });
 
+  // UCS = school_urn 100065 (covers UCS students + teachers).
+  const { data: profile } = await sb
+    .from("user_profiles")
+    .select("school_urn")
+    .eq("id", userId)
+    .single();
+  const isUcs = profile?.school_urn === UCS_SCHOOL_URN;
+  const userDailyLimit = isUcs ? UCS_DAILY_LIMIT : NON_UCS_DAILY_LIMIT;
+
   // Parse body
   let body: { session_id?: string; message?: string };
   try {
@@ -189,14 +200,14 @@ serve(async (req) => {
   const { data: limits, error: limitsErr } = await sb.rpc("potemkin_check_limits", {
     p_user_id: userId,
     p_skill: "chat",
-    p_user_daily_limit: USER_DAILY_LIMIT,
+    p_user_daily_limit: userDailyLimit,
     p_global_cap_pence: GLOBAL_CAP_PENCE,
   });
   if (limitsErr) return jsonError("Rate-limit check failed", 500);
   if (!limits?.allowed) {
     const reason = limits.global_spent_pence >= limits.global_cap_pence
       ? "Potemkin has hit today's budget. Try again tomorrow."
-      : `You've used today's ${USER_DAILY_LIMIT} questions. Resets at midnight.`;
+      : `You've used today's ${userDailyLimit} questions. Resets at midnight.`;
     return jsonError(reason, 429, {
       daily_remaining: 0,
       limits,

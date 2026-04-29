@@ -57,6 +57,20 @@ export function PotemkinChat() {
     }
   }, [messages, busy]);
 
+  // Listen for global "open Potemkin with this question" events fired by
+  // contextual buttons (e.g. wrong-answer prompts in Driller).
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent<{ prefill?: string }>).detail;
+      setOpen(true);
+      if (detail?.prefill) {
+        setInput(detail.prefill);
+      }
+    };
+    window.addEventListener("potemkin:open", handler);
+    return () => window.removeEventListener("potemkin:open", handler);
+  }, []);
+
   const canSend = useMemo(
     () => !isAnon && !busy && input.trim().length > 0,
     [isAnon, busy, input]

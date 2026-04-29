@@ -16,6 +16,7 @@ import { fuzzyKeywordInText } from "@/lib/fuzzyMatcher";
 import { toast } from "sonner";
 import { trackEvent } from "@/lib/analytics";
 import { SUPABASE_CONFIG } from "@/integrations/supabase/config";
+import { supabase } from "@/integrations/supabase/client";
 import type { KeyConcept, FactDrillerQuestion } from "@/types/revision";
 import type { BlankRecallInput, DrillerSessionInput } from "@/hooks/useHighScores";
 import type { AssessmentInput } from "@/hooks/useWrongAnswers";
@@ -97,6 +98,12 @@ async function analyseKeyConceptsAI(
 
   const url = `${supabaseUrl}/functions/v1/analyse-recall`;
 
+  // Use the user's session JWT when signed in so the edge function can apply
+  // the per-user daily cap (UCS unlimited, non-UCS 20/day). Anonymous users
+  // fall back to the anon key and are gated only by the per-IP minute limit.
+  const { data: { session } } = await supabase.auth.getSession();
+  const bearer = session?.access_token ?? supabaseKey;
+
   let response: Response;
   try {
     response = await fetch(url, {
@@ -104,7 +111,7 @@ async function analyseKeyConceptsAI(
       headers: {
         "Content-Type": "application/json",
         apikey: supabaseKey,
-        Authorization: `Bearer ${supabaseKey}`,
+        Authorization: `Bearer ${bearer}`,
       },
       body: JSON.stringify({ userText, keyConcepts: concepts }),
     });
