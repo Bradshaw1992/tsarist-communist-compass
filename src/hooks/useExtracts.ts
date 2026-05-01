@@ -35,6 +35,7 @@ export interface ExtractSetData {
   part_number: number;
   spec_points: number[];
   question_stem: string;
+  is_challenge: boolean;
   extracts: ExtractData[];
 }
 
@@ -86,6 +87,9 @@ function useExtractSetsQuery() {
         part_number: s.part_number,
         spec_points: s.spec_points ?? [],
         question_stem: s.question_stem,
+        // is_challenge column is recent (added with the v2 challenge-tier
+        // migration). Default to false if the row predates the column.
+        is_challenge: (s as { is_challenge?: boolean }).is_challenge ?? false,
         extracts: extBySet.get(s.id) ?? [],
       }));
     },
