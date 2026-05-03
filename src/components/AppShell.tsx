@@ -11,6 +11,7 @@ import { AnonymousBanner } from "@/components/AnonymousBanner";
 import { TopNav } from "@/components/TopNav";
 import { PotemkinChat } from "@/components/PotemkinChat";
 import { ExtractsUpdatedAnnouncement } from "@/components/ExtractsUpdatedAnnouncement";
+import { YearGroupPrompt } from "@/components/YearGroupPrompt";
 
 export function AppShell() {
   return (
@@ -20,6 +21,7 @@ export function AppShell() {
       <Outlet />
       <PotemkinChat />
       <ExtractsUpdatedAnnouncement />
+      <YearGroupPrompt />
     </div>
   );
 }

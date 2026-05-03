@@ -21,6 +21,7 @@ import {
 import { SEOHead } from "@/components/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { YearGroupStatsPanel } from "@/components/YearGroupStatsPanel";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTeacherClasses } from "@/hooks/useTeacherData";
 
@@ -89,6 +90,9 @@ const TeacherDashboard = () => {
             doing.
           </p>
         </header>
+
+        {/* Year-group breakdown */}
+        <YearGroupStatsPanel />
 
         {/* Create class */}
         <section className="mb-6">
