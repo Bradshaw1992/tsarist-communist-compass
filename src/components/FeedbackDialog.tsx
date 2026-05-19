@@ -21,14 +21,15 @@ import { useAuth } from "@/contexts/AuthContext";
 
 interface FeedbackDialogProps {
   trigger: React.ReactNode;
+  defaultOpen?: boolean;
 }
 
 const COOLDOWN_KEY = "feedback_last_submitted_at";
 const COOLDOWN_MS = 60_000; // 1 per minute from same browser
 
-export function FeedbackDialog({ trigger }: FeedbackDialogProps) {
+export function FeedbackDialog({ trigger, defaultOpen = false }: FeedbackDialogProps) {
   const { user } = useAuth();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
   const [message, setMessage] = useState("");
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);

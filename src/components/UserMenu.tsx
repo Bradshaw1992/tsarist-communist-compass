@@ -1,5 +1,7 @@
+import { useEffect, useRef } from "react";
 import { Heart, LogOut, MessageSquare, Monitor, Moon, Sun, User as UserIcon, Users } from "lucide-react";
 import { toast } from "sonner";
+import { useSearchParams } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,6 +37,14 @@ export function UserMenu({ inline = false }: UserMenuProps) {
   const { user, profile, isTeacher, signOut } = useAuth();
   const { preference, setTheme } = useTheme();
   const supportVisibility = useShouldShowSupport();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const feedbackFromUrl = useRef(searchParams.get("feedback") === "true");
+  useEffect(() => {
+    if (feedbackFromUrl.current) {
+      searchParams.delete("feedback");
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, []);
   const tipUrl = import.meta.env.VITE_STRIPE_TIP_URL as string | undefined;
   const showSupportItem = !!tipUrl && supportVisibility === "show";
 
@@ -163,6 +173,7 @@ export function UserMenu({ inline = false }: UserMenuProps) {
 
           {/* Send feedback — opens FeedbackDialog */}
           <FeedbackDialog
+            defaultOpen={feedbackFromUrl.current}
             trigger={
               <DropdownMenuItem
                 className="cursor-pointer"
