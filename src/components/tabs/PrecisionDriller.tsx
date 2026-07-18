@@ -406,6 +406,7 @@ export function PrecisionDriller({
                 result={zhukResults[currentIndex]}
                 userAnswer={currentUserAnswer}
                 officialAnswer={question.correct_answer}
+                questionText={question.question_text}
                 canNext={currentIndex + 1 < questions.length}
                 onNext={() => navigateTo(currentIndex + 1)}
               />
@@ -588,8 +589,8 @@ const ZHUK_LEVEL_STYLES: Record<number, { ring: string; text: string; bg: string
   5: { ring: "border-rose-500/40", text: "text-rose-600 dark:text-rose-400", bg: "bg-rose-500/5" },
 };
 
-function ZhukovskyMark({ result, userAnswer, officialAnswer, canNext, onNext }: {
-  result: ZhukovskyResult; userAnswer: string; officialAnswer: string; canNext: boolean; onNext: () => void;
+function ZhukovskyMark({ result, userAnswer, officialAnswer, questionText, canNext, onNext }: {
+  result: ZhukovskyResult; userAnswer: string; officialAnswer: string; questionText: string; canNext: boolean; onNext: () => void;
 }) {
   const style = ZHUK_LEVEL_STYLES[result.level] ?? ZHUK_LEVEL_STYLES[3];
   const label = ZHUKOVSKY_BANDS[result.level] ?? "Marked";
@@ -629,15 +630,33 @@ function ZhukovskyMark({ result, userAnswer, officialAnswer, canNext, onNext }: 
           <p className="text-sm leading-relaxed text-foreground/80">{officialAnswer}</p>
         </div>
       )}
-      {canNext && (
-        <div className="pt-1">
+      <div className="flex flex-wrap items-center gap-2 pt-1">
+        <DiscussWithPotemkinButton questionText={questionText} userAnswer={userAnswer} feedback={result.feedback} />
+        {canNext && (
           <Button onClick={onNext} className="bg-primary text-primary-foreground hover:bg-primary/90">
             Next question
             <ChevronRight className="ml-1.5 h-4 w-4" />
           </Button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
+  );
+}
+
+// Hand off from Zhukovsky's mark straight into a Potemkin conversation, pre-seeded
+// with the question, the student's answer and the feedback they just received.
+function DiscussWithPotemkinButton({ questionText, userAnswer, feedback }: {
+  questionText: string; userAnswer: string; feedback: string;
+}) {
+  const discuss = () => {
+    const prefill = `I'm revising this question: "${questionText}"\n\nMy answer was: "${userAnswer}"\n\nThe feedback I got: "${feedback}"\n\nCan we talk it through? Start with the most important thing I should improve.`;
+    window.dispatchEvent(new CustomEvent("potemkin:open", { detail: { prefill } }));
+  };
+  return (
+    <Button onClick={discuss} variant="outline" size="sm" className="gap-1.5 border-primary/30 text-primary hover:bg-primary/5">
+      <Sparkles className="h-3.5 w-3.5" />
+      Discuss with Potemkin
+    </Button>
   );
 }
 

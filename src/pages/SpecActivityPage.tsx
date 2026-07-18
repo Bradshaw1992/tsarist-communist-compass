@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { BlankRecall } from "@/components/tabs/BlankRecall";
 import { ExamArchitect } from "@/components/tabs/ExamArchitect";
 import { PrecisionDriller } from "@/components/tabs/PrecisionDriller";
+import { PotemkinChat } from "@/components/PotemkinChat";
 import { SpecificKnowledge } from "@/components/tabs/SpecificKnowledge";
 import { useSpecPoint } from "@/hooks/useRevisionData";
 import { useHighScores } from "@/hooks/useHighScores";
@@ -132,6 +133,10 @@ const SpecActivityPage = () => {
           {activity === "essays" && <ExamArchitect specId={spec.id} />}
         </div>
       </div>
+
+      {/* Full-bleed activity pages sit outside AppShell, so mount Potemkin here
+          too — powers the "Discuss with Potemkin" / "Ask Potemkin" handoffs. */}
+      <PotemkinChat />
     </div>
   );
 };

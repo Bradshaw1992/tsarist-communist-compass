@@ -640,6 +640,18 @@ export function BlankRecall({
                     </ul>
                   </div>
                 )}
+                <Button
+                  onClick={() => {
+                    const prefill = `I just did a blank-recall on "${recall?.title ?? "this topic"}".\n\nWhat I wrote: "${userText}"\n\nZhukovsky's feedback: "${zhukResult.feedback}"\n\nCan we talk it through? Start with the most important gap to fix.`;
+                    window.dispatchEvent(new CustomEvent("potemkin:open", { detail: { prefill } }));
+                  }}
+                  variant="outline"
+                  size="sm"
+                  className="gap-1.5 border-primary/30 text-primary hover:bg-primary/5"
+                >
+                  <Sparkles className="h-3.5 w-3.5" />
+                  Discuss with Potemkin
+                </Button>
               </CardContent>
             </Card>
           )}
