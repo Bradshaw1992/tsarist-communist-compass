@@ -80,7 +80,7 @@ export function PrecisionDriller({
 
   // Marking mode: self-marking (default, sound retrieval-practice mechanic) or
   // Zhukovsky (AI marking + feedback). Toggled per session.
-  const [markMode, setMarkMode] = useState<"self" | "zhukovsky">("zhukovsky");
+  const [markMode, setMarkMode] = useState<"self" | "zhukovsky">("self");
   const [zhukResults, setZhukResults] = useState<Record<number, ZhukovskyResult>>({});
   const [zhukLoading, setZhukLoading] = useState(false);
   const [zhukError, setZhukError] = useState<string | null>(null);
