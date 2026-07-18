@@ -12,6 +12,8 @@ import {
 import { trackEvent } from "@/lib/analytics";
 import { ReportIssueDialog, ReportFlagButton } from "@/components/ReportIssueDialog";
 import { markWithZhukovsky, buildPotemkinHandoff, ZHUKOVSKY_BANDS, type ZhukovskyResult } from "@/lib/zhukovsky";
+import { useAuth } from "@/contexts/AuthContext";
+import { Link } from "react-router-dom";
 import type { QuizQuestion } from "@/types/revision";
 import type { DrillerSessionInput } from "@/hooks/useHighScores";
 import type { AssessmentInput } from "@/hooks/useWrongAnswers";
@@ -51,6 +53,8 @@ export function PrecisionDriller({
 }: PrecisionDrillerProps) {
   const allQuestions = useQuizQuestionsForSpec(specId);
   const topicName = useTopicNameForSpec(specId);
+  const { user } = useAuth();
+  const isAnon = !user; // AI marking requires sign-in
   const [reportOpen, setReportOpen] = useState(false);
   const [reportText, setReportText] = useState("");
 
@@ -429,6 +433,11 @@ export function PrecisionDriller({
                   <Eye className="mr-1.5 h-4 w-4" />
                   Reveal Answer
                 </Button>
+              ) : isAnon ? (
+                <div className="flex flex-col items-start gap-1.5 rounded-lg border border-primary/30 bg-primary/5 p-3">
+                  <span className="text-sm text-foreground">Sign in (free) to mark your answer with Zhukovsky.</span>
+                  <Link to="/login" className="text-sm font-medium text-primary hover:underline">Sign in →</Link>
+                </div>
               ) : (
                 <div className="flex flex-col gap-1.5">
                   <Button

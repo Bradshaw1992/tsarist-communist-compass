@@ -289,6 +289,11 @@ serve(async (req) => {
       }
     }
 
+    // AI marking requires sign-in: it makes the spend caps airtight (anonymous
+    // requests can't be counted per-user) and gives per-user accountability.
+    // Anonymous users keep self-marking and Local (keyword) marking.
+    if (!userId) return jsonError("Please sign in to use AI marking.", 401);
+
     const body = (await req.json()) as RequestBody;
     const { activity, specId, questionText, modelAnswer, studentAnswer, keyConcepts } = body;
 

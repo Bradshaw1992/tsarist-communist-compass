@@ -18,6 +18,8 @@ import { trackEvent } from "@/lib/analytics";
 import { SUPABASE_CONFIG } from "@/integrations/supabase/config";
 import { supabase } from "@/integrations/supabase/client";
 import { markWithZhukovsky, buildPotemkinHandoff, ZHUKOVSKY_BANDS, type ZhukovskyResult } from "@/lib/zhukovsky";
+import { useAuth } from "@/contexts/AuthContext";
+import { Link } from "react-router-dom";
 import type { KeyConcept, FactDrillerQuestion } from "@/types/revision";
 import type { BlankRecallInput, DrillerSessionInput } from "@/hooks/useHighScores";
 import type { AssessmentInput } from "@/hooks/useWrongAnswers";
@@ -95,6 +97,8 @@ export function BlankRecall({
   onAssessment,
 }: BlankRecallProps) {
   const recall = useRecallForSpec(specId);
+  const { user } = useAuth();
+  const isAnon = !user; // AI marking requires sign-in
   const factQuestions = useFactDrillerForSpec(specId);
   const storageKey = `blank-recall-${specId}`;
 
@@ -511,6 +515,12 @@ export function BlankRecall({
 
       <div className="flex flex-wrap items-center gap-3">
         {!revealed ? (
+          useAI && isAnon ? (
+            <div className="flex flex-col items-start gap-1.5 rounded-lg border border-primary/30 bg-primary/5 p-3">
+              <span className="text-sm text-foreground">Sign in (free) to mark your recall with Zhukovsky — or switch to Local to check it without signing in.</span>
+              <Link to="/login" className="text-sm font-medium text-primary hover:underline">Sign in →</Link>
+            </div>
+          ) : (
           <Button
             onClick={handleReveal}
             disabled={!userText.trim() || isListening || isAnalysing || isPolishing}
@@ -528,6 +538,7 @@ export function BlankRecall({
               </>
             )}
           </Button>
+          )
         ) : (
           <Button onClick={handleReset} variant="outline">
             <RotateCcw className="mr-2 h-4 w-4" />
