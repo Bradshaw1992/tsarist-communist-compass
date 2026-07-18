@@ -49,6 +49,18 @@ export const ZHUKOVSKY_BANDS: Record<number, string> = {
   5: "Keep building",
 };
 
+// Build a SHORT Potemkin handoff from a Zhukovsky mark. The feedback is written
+// to end with a retrieval question, so we seed the chat with just that question
+// plus the topic for grounding — not the whole answer + feedback (too long, and
+// it blew Potemkin's message cap). Falls back to a generic opener if no question.
+export function buildPotemkinHandoff(topic: string, feedback: string): string {
+  const questions = feedback.match(/[^.!?]*\?/g);
+  const q = questions && questions.length ? questions[questions.length - 1].trim() : "";
+  return q
+    ? `I'm revising "${topic}". Zhukovsky asked me: "${q}" Can you help me work through it?`
+    : `I'm revising "${topic}" and want to push my answer further. Can you help me work through it?`;
+}
+
 export async function markWithZhukovsky(
   input: ConceptMarkInput | RecallMarkInput,
 ): Promise<ZhukovskyResult> {

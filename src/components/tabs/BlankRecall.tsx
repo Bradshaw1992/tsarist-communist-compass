@@ -17,7 +17,7 @@ import { toast } from "sonner";
 import { trackEvent } from "@/lib/analytics";
 import { SUPABASE_CONFIG } from "@/integrations/supabase/config";
 import { supabase } from "@/integrations/supabase/client";
-import { markWithZhukovsky, ZHUKOVSKY_BANDS, type ZhukovskyResult } from "@/lib/zhukovsky";
+import { markWithZhukovsky, buildPotemkinHandoff, ZHUKOVSKY_BANDS, type ZhukovskyResult } from "@/lib/zhukovsky";
 import type { KeyConcept, FactDrillerQuestion } from "@/types/revision";
 import type { BlankRecallInput, DrillerSessionInput } from "@/hooks/useHighScores";
 import type { AssessmentInput } from "@/hooks/useWrongAnswers";
@@ -642,10 +642,7 @@ export function BlankRecall({
                 )}
                 <Button
                   onClick={() => {
-                    // Whole-spec recalls can be very long; cap the excerpt so the
-                    // handoff stays within Potemkin's message limit (feedback kept in full).
-                    const recallExcerpt = userText.length > 3500 ? userText.slice(0, 3500) + "…" : userText;
-                    const prefill = `I just did a blank-recall on "${recall?.title ?? "this topic"}".\n\nWhat I wrote: "${recallExcerpt}"\n\nZhukovsky's feedback: "${zhukResult.feedback}"\n\nCan we talk it through? Start with the most important gap to fix.`;
+                    const prefill = buildPotemkinHandoff(recall?.title ?? "this topic", zhukResult.feedback);
                     window.dispatchEvent(new CustomEvent("potemkin:open", { detail: { prefill } }));
                   }}
                   variant="outline"

@@ -189,10 +189,7 @@ serve(async (req) => {
   const message = (body.message ?? "").trim();
   const sessionId = body.session_id;
   if (!message) return jsonError("Empty message", 400);
-  // 8000 chars accommodates the "Discuss with Potemkin" handoff, which carries a
-  // whole-spec Blank Recall answer + Zhukovsky's feedback. Still bounded (auth +
-  // per-user daily cap + global spend cap gate abuse); ~2k tokens ≈ 0.15p input.
-  if (message.length > 8000) return jsonError("Message too long (max 8000 chars)", 400);
+  if (message.length > 2000) return jsonError("Message too long (max 2000 chars)", 400);
   if (!sessionId || !/^[0-9a-f-]{36}$/i.test(sessionId)) {
     return jsonError("Invalid session_id", 400);
   }

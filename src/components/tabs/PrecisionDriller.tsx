@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
 import { ReportIssueDialog, ReportFlagButton } from "@/components/ReportIssueDialog";
-import { markWithZhukovsky, ZHUKOVSKY_BANDS, type ZhukovskyResult } from "@/lib/zhukovsky";
+import { markWithZhukovsky, buildPotemkinHandoff, ZHUKOVSKY_BANDS, type ZhukovskyResult } from "@/lib/zhukovsky";
 import type { QuizQuestion } from "@/types/revision";
 import type { DrillerSessionInput } from "@/hooks/useHighScores";
 import type { AssessmentInput } from "@/hooks/useWrongAnswers";
@@ -631,7 +631,7 @@ function ZhukovskyMark({ result, userAnswer, officialAnswer, questionText, canNe
         </div>
       )}
       <div className="flex flex-wrap items-center gap-2 pt-1">
-        <DiscussWithPotemkinButton questionText={questionText} userAnswer={userAnswer} feedback={result.feedback} />
+        <DiscussWithPotemkinButton questionText={questionText} feedback={result.feedback} />
         {canNext && (
           <Button onClick={onNext} className="bg-primary text-primary-foreground hover:bg-primary/90">
             Next question
@@ -643,13 +643,13 @@ function ZhukovskyMark({ result, userAnswer, officialAnswer, questionText, canNe
   );
 }
 
-// Hand off from Zhukovsky's mark straight into a Potemkin conversation, pre-seeded
-// with the question, the student's answer and the feedback they just received.
-function DiscussWithPotemkinButton({ questionText, userAnswer, feedback }: {
-  questionText: string; userAnswer: string; feedback: string;
+// Hand off from Zhukovsky's mark into a Potemkin conversation, seeded with a short
+// message built from the topic + the retrieval question Zhukovsky ended on.
+function DiscussWithPotemkinButton({ questionText, feedback }: {
+  questionText: string; feedback: string;
 }) {
   const discuss = () => {
-    const prefill = `I'm revising this question: "${questionText}"\n\nMy answer was: "${userAnswer}"\n\nThe feedback I got: "${feedback}"\n\nCan we talk it through? Start with the most important thing I should improve.`;
+    const prefill = buildPotemkinHandoff(questionText, feedback);
     window.dispatchEvent(new CustomEvent("potemkin:open", { detail: { prefill } }));
   };
   return (
