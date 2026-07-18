@@ -160,12 +160,13 @@ async function buildExemplars(sb: ReturnType<typeof createClient>, specId: numbe
     .join("\n\n---\n\n");
 }
 
-const BANDS = `SCORE 1-5 the way the teacher (Tom) does:
-1 = Exceptional — you are confident the student can make the arguments AND back them with specific evidence. NOT that they said everything; several different answers can be a 1; short/note-form is fine.
-2 = Very good — most of the arguments are there, but missing a key point OR could use more specific evidence.
-3 = Good effort — some good ideas, but missing important points and/or specific evidence.
-4 = Needs work — only broad strokes, or just one of the major ideas, and lacking specific knowledge. Something positive, but clearly needs work.
-5 = Incorrect or a non-answer — generic knowledge anyone could guess, nothing specific, off-topic, or wrong.`;
+const BANDS = `SCORE 1-5 the way the teacher (Tom) does. Be ENCOURAGING — a student with a correct argument should never feel they "failed".
+1 = Exceptional — confident they can make the argument AND back it with specific evidence. NOT that they said everything; several different answers can be a 1; short/note-form is fine.
+2 = Very good — the argument is essentially right and has some real specific evidence, but misses a key point or could use more evidence.
+3 = Good effort — they have a CORRECT argument or the right central idea, EVEN IF it has little or no specific evidence. Having the right idea is enough for a 3; specific evidence is what lifts a 3 UP to a 2 or 1 — it is NOT what rescues an answer from a 4. This is the FLOOR for any genuine, correct attempt.
+4 = Needs work — only a SINGLE idea and missing most of the picture, or broad strokes that don't quite land a correct argument. Something is here, but it's thin on BOTH argument and knowledge.
+5 = Incorrect or a non-answer — nothing correct or specific in it: generic waffle anyone could guess, off-topic, factually wrong, or no real attempt.
+CRITICAL: never push a correct-but-unevidenced argument down to 4 or 5 — that is a 3. Reserve 4 for a genuinely single-idea/thin answer, and 5 only for answers with nothing correct in them at all.`;
 
 const ANTIHARSH = `HOW TO USE THE SOURCE MATERIAL: it shows the full range of what COULD be said, for your reference on scope and accuracy. It is NOT a checklist and the student does NOT need to cover it — you can ALWAYS find more in the sources than any student wrote, and that must NOT lower the score. Mark generously, like Tom, who does not require completeness. Judge ONLY: can this student argue the point and support it with specific evidence? Do not deduct for anything they left out relative to the sources. A minor factual slip does not lower the score. There may be several valid "perfect" answers using different evidence — credit a correct, well-evidenced argument even if it differs from the model answer. Stay strictly within what THIS course covers and emphasises.`;
 
