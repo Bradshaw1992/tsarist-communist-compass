@@ -391,9 +391,9 @@ export function BlankRecall({
           </p>
         </div>
 
-        {/* AI / Local toggle */}
+        {/* Local ⟷ Zhukovsky toggle */}
         <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/50 px-3 py-2">
-          <Cpu className="h-4 w-4 text-muted-foreground" />
+          <Cpu className={`h-4 w-4 ${useAI ? "text-muted-foreground" : "text-primary"}`} />
           <Label htmlFor="ai-toggle" className="cursor-pointer text-xs font-medium text-muted-foreground">
             Local
           </Label>
@@ -403,10 +403,10 @@ export function BlankRecall({
             onCheckedChange={setUseAI}
             disabled={revealed || isAnalysing}
           />
-          <Label htmlFor="ai-toggle" className="cursor-pointer text-xs font-medium text-primary">
-            AI
+          <Label htmlFor="ai-toggle" className={`cursor-pointer text-xs font-medium ${useAI ? "text-primary" : "text-muted-foreground"}`}>
+            Zhukovsky
           </Label>
-          <Sparkles className={`h-4 w-4 ${useAI ? "text-primary" : "text-muted-foreground"}`} />
+          <GraduationCap className={`h-4 w-4 ${useAI ? "text-primary" : "text-muted-foreground"}`} />
         </div>
       </div>
 
@@ -519,12 +519,12 @@ export function BlankRecall({
             {isAnalysing ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Analysing{useAI ? " with AI…" : "…"}
+                {useAI ? "Marking with Zhukovsky…" : "Analysing…"}
               </>
             ) : (
               <>
                 <Eye className="mr-2 h-4 w-4" />
-                Analyse{useAI ? " with AI" : ""}
+                {useAI ? "Mark with Zhukovsky" : "Analyse"}
               </>
             )}
           </Button>
@@ -608,7 +608,7 @@ export function BlankRecall({
               <span className="text-sm font-medium text-foreground">
                 You covered <strong>{analysis.mentioned.length}</strong> of <strong>{recall.key_concepts.length}</strong> key concepts.
               </span>
-              {analysis.missed.length > 0 && (
+              {!useAI && analysis.missed.length > 0 && (
                 <span className="text-sm text-muted-foreground">
                   — {analysis.missed.length} concept{analysis.missed.length !== 1 ? "s" : ""} missed below.
                 </span>
@@ -656,8 +656,9 @@ export function BlankRecall({
             </Card>
           )}
 
-          {/* Key Material Mentioned */}
-          {analysis.mentioned.length > 0 && (
+          {/* Key Material Mentioned — LOCAL mode only; in Zhukovsky mode the prose
+              feedback replaces the checklist (Tom: "Zhukovsky all the way"). */}
+          {!useAI && analysis.mentioned.length > 0 && (
             <Card className="border-success/30">
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2 font-serif text-lg text-success">
@@ -675,17 +676,17 @@ export function BlankRecall({
                   ))}
                 </ul>
                 <p className="mt-3 text-xs italic text-muted-foreground">
-                  {useAI
-                    ? "Marked by Zhukovsky — concepts matched semantically against your response."
-                    : "Note: This is based on keyword detection. Please verify your own explanations to ensure accuracy."}
+                  Note: This is based on keyword detection. Please verify your own explanations to ensure accuracy.
                 </p>
               </CardContent>
             </Card>
           )}
 
-          {/* Key Material Missed */}
+          {/* Key Material Missed — LOCAL mode shows the full checklist; the targeted
+              follow-up drill shows in both modes (it reads the missed concepts). */}
           {analysis.missed.length > 0 ? (
             <>
+              {!useAI && (
               <Card className="border-destructive/30">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 font-serif text-lg text-destructive">
@@ -707,6 +708,7 @@ export function BlankRecall({
                   </ul>
                 </CardContent>
               </Card>
+              )}
 
               {/* Phase 3: targeted follow-up driller */}
               {factQuestions.length > 0 && (
@@ -732,6 +734,7 @@ export function BlankRecall({
               )}
             </>
           ) : (
+            !useAI && (
             <Card className="border-success/30">
               <CardContent className="flex items-center gap-3 p-6">
                 <CheckCircle2 className="h-6 w-6 text-success" />
@@ -740,6 +743,7 @@ export function BlankRecall({
                 </p>
               </CardContent>
             </Card>
+            )
           )}
         </div>
       )}
