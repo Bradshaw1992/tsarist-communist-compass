@@ -10,13 +10,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { PenLine, Eye, RotateCcw, AlertTriangle, CheckCircle2, Mic, MicOff, Sparkles, Cpu, Loader2, Trash2, Camera, ExternalLink, Wand2 } from "lucide-react";
+import { PenLine, Eye, RotateCcw, AlertTriangle, CheckCircle2, Mic, MicOff, Sparkles, Cpu, Loader2, Trash2, Camera, ExternalLink, Wand2, GraduationCap } from "lucide-react";
 import { fuzzyKeywordInText } from "@/lib/fuzzyMatcher";
 
 import { toast } from "sonner";
 import { trackEvent } from "@/lib/analytics";
 import { SUPABASE_CONFIG } from "@/integrations/supabase/config";
 import { supabase } from "@/integrations/supabase/client";
+import { markWithZhukovsky, ZHUKOVSKY_BANDS, type ZhukovskyResult } from "@/lib/zhukovsky";
 import type { KeyConcept, FactDrillerQuestion } from "@/types/revision";
 import type { BlankRecallInput, DrillerSessionInput } from "@/hooks/useHighScores";
 import type { AssessmentInput } from "@/hooks/useWrongAnswers";
@@ -55,151 +56,6 @@ function analyseKeyConceptsLocal(userText: string, concepts: KeyConcept[]) {
       mentioned.push({ text: kc.concept, matchedKeywords: matched });
     } else {
       missed.push(kc.concept);
-    }
-  }
-
-  return { mentioned, missed };
-}
-
-// ─── AI-powered analysis via edge function ─────────────────────────────────
-
-interface AIResult {
-  concept: string;
-  status: "mentioned" | "missed";
-  matched_phrases: string[];
-}
-
-function classifyError(error: unknown): string {
-  const msg = error instanceof Error ? error.message : String(error);
-  const lower = msg.toLowerCase();
-
-  if (lower.includes("timeout") || lower.includes("timed out") || lower.includes("deadline") || lower.includes("aborted") || lower.includes("524") || lower.includes("504")) {
-    return "That was a long one! The AI timed out. Try breaking your answer into 1-minute chunks.";
-  }
-  if (lower.includes("too large") || lower.includes("payload") || lower.includes("413") || lower.includes("too long")) {
-    return "Recording is too large. Try speaking a bit more concisely.";
-  }
-  if (lower.includes("network") || lower.includes("fetch") || lower.includes("failed to fetch") || lower.includes("load failed") || lower.includes("networkerror") || lower.includes("offline")) {
-    return "Network error. Please check your Wi-Fi and try again.";
-  }
-  if (lower.includes("rate limit") || lower.includes("429")) {
-    return "Rate limit reached. Please wait a moment and try again.";
-  }
-  return "Claude is a bit busy! Please try again in 10 seconds or shorten your text.";
-}
-
-async function analyseKeyConceptsAI(
-  userText: string,
-  concepts: KeyConcept[],
-  onProgress?: (charCount: number) => void
-): Promise<{ mentioned: AnalysedConcept[]; missed: string[] }> {
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || SUPABASE_CONFIG.url;
-  const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || SUPABASE_CONFIG.anonKey;
-
-  const url = `${supabaseUrl}/functions/v1/analyse-recall`;
-
-  // Use the user's session JWT when signed in so the edge function can apply
-  // the per-user daily cap (UCS unlimited, non-UCS 20/day). Anonymous users
-  // fall back to the anon key and are gated only by the per-IP minute limit.
-  const { data: { session } } = await supabase.auth.getSession();
-  const bearer = session?.access_token ?? supabaseKey;
-
-  let response: Response;
-  try {
-    response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        apikey: supabaseKey,
-        Authorization: `Bearer ${bearer}`,
-      },
-      body: JSON.stringify({ userText, keyConcepts: concepts }),
-    });
-  } catch (fetchErr) {
-    console.error("[BlankRecall] Network/fetch error:", fetchErr);
-    throw new Error(classifyError(fetchErr));
-  }
-
-  if (!response.ok) {
-    let errMsg = `AI analysis failed (${response.status})`;
-    try {
-      const errBody = await response.json();
-      if (errBody?.error) errMsg = errBody.error;
-    } catch {
-      try {
-        const fallback = await response.text();
-        if (fallback) errMsg = fallback;
-      } catch {
-        // no-op
-      }
-    }
-    console.error("[BlankRecall] Edge function error:", errMsg);
-    throw new Error(classifyError(new Error(errMsg)));
-  }
-
-  // ── Read SSE stream ──────────────────────────────────────────────────
-  const reader = response.body?.getReader();
-  if (!reader) throw new Error("No response stream");
-
-  const decoder = new TextDecoder();
-  let buffer = "";
-  let resultData: any = null;
-  let streamError: string | null = null;
-
-  const processSseLine = (line: string) => {
-    if (!line.startsWith("data: ")) return;
-    const payload = line.slice(6).trim();
-    if (!payload || payload === "[DONE]") return;
-
-    try {
-      const event = JSON.parse(payload);
-      if (event.type === "progress" && onProgress) {
-        onProgress(event.length);
-      } else if (event.type === "result") {
-        resultData = event.data;
-      } else if (event.type === "error") {
-        streamError = event.error;
-      }
-    } catch (parseErr) {
-      console.error("[BlankRecall] SSE parse error:", parseErr, payload);
-    }
-  };
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-
-    buffer += decoder.decode(value, { stream: true });
-    const lines = buffer.split("\n");
-    buffer = lines.pop() || "";
-
-    for (const line of lines) {
-      processSseLine(line);
-    }
-  }
-
-  if (buffer.trim()) {
-    processSseLine(buffer.trim());
-  }
-
-  if (streamError) {
-    console.error("[BlankRecall] Stream error:", streamError);
-    throw new Error(classifyError(new Error(streamError)));
-  }
-
-  if (!resultData?.results) {
-    throw new Error("Claude is a bit busy! Please try again in 10 seconds or shorten your text.");
-  }
-
-  const results: AIResult[] = resultData.results;
-  const mentioned: AnalysedConcept[] = [];
-  const missed: string[] = [];
-
-  for (const r of results) {
-    if (r.status === "mentioned") {
-      mentioned.push({ text: r.concept, matchedKeywords: r.matched_phrases });
-    } else {
-      missed.push(r.concept);
     }
   }
 
@@ -254,6 +110,8 @@ export function BlankRecall({
   const [isAnalysing, setIsAnalysing] = useState(false);
   const [useAI, setUseAI] = useState(true);
   const [analysis, setAnalysis] = useState<{ mentioned: AnalysedConcept[]; missed: string[] } | null>(null);
+  // Zhukovsky's overall verdict for AI marking (level + feedback + flagged errors).
+  const [zhukResult, setZhukResult] = useState<ZhukovskyResult | null>(null);
   const [polishedText, setPolishedText] = useState<string | null>(null);
   const [isPolishing, setIsPolishing] = useState(false);
   const [analyseError, setAnalyseError] = useState<string | null>(null);
@@ -274,6 +132,7 @@ export function BlankRecall({
     } catch { setUserText(""); }
     setRevealed(false);
     setAnalysis(null);
+    setZhukResult(null);
     setPolishedText(null);
   }, [storageKey]);
 
@@ -341,8 +200,28 @@ export function BlankRecall({
     if (useAI) {
       setIsAnalysing(true);
       try {
-        const result = await analyseKeyConceptsAI(userText, recall.key_concepts);
+        const zhuk = await markWithZhukovsky({
+          activity: "recall",
+          specId,
+          studentAnswer: userText,
+          keyConcepts: recall.key_concepts.map((kc) => kc.concept),
+        });
+        // Zhukovsky reconciles coverage server-side and returns every canonical
+        // key concept (in Tom's wording) with a covered flag. Split into the
+        // existing mentioned/missed checklist. Fall back to local keyword
+        // matching only if coverage came back empty.
+        const coverage = zhuk.concepts ?? [];
+        let result: { mentioned: AnalysedConcept[]; missed: string[] };
+        if (coverage.length > 0) {
+          result = {
+            mentioned: coverage.filter((c) => c.covered).map((c) => ({ text: c.concept, matchedKeywords: [] })),
+            missed: coverage.filter((c) => !c.covered).map((c) => c.concept),
+          };
+        } else {
+          result = analyseKeyConceptsLocal(userText, recall.key_concepts);
+        }
         setAnalysis(result);
+        setZhukResult(zhuk);
         setRevealed(true);
         handleRecallResult(result.mentioned, result.missed);
       } catch (err) {
@@ -365,6 +244,7 @@ export function BlankRecall({
     setUserText("");
     setRevealed(false);
     setAnalysis(null);
+    setZhukResult(null);
     setPolishedText(null);
   };
 
@@ -372,6 +252,7 @@ export function BlankRecall({
     setUserText("");
     setRevealed(false);
     setAnalysis(null);
+    setZhukResult(null);
     setPolishedText(null);
     try { localStorage.removeItem(storageKey); } catch {}
   };
@@ -680,7 +561,7 @@ export function BlankRecall({
         </Button>
         {!revealed && (
           <span className="text-xs text-muted-foreground">
-            {useAI ? "Using Claude AI for semantic analysis" : "Using local keyword matching"}
+            {useAI ? "Marked by Zhukovsky" : "Using local keyword matching"}
           </span>
         )}
       </div>
@@ -735,6 +616,34 @@ export function BlankRecall({
             </CardContent>
           </Card>
 
+          {/* Zhukovsky's verdict — level + feedback + flagged errors (AI mode only) */}
+          {zhukResult && (
+            <Card className="border-primary/30">
+              <CardContent className="space-y-3 p-4 sm:p-5">
+                <div className="flex items-center gap-2">
+                  <GraduationCap className="h-4 w-4 text-primary" />
+                  <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Zhukovsky</span>
+                  <span className="ml-auto rounded-full border border-primary/40 px-2.5 py-0.5 text-xs font-bold text-primary">
+                    {zhukResult.level} · {ZHUKOVSKY_BANDS[zhukResult.level] ?? "Marked"}
+                  </span>
+                </div>
+                <p className="whitespace-pre-line text-sm leading-relaxed text-foreground/90">{zhukResult.feedback}</p>
+                {zhukResult.errors.length > 0 && (
+                  <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3">
+                    <h4 className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                      <AlertTriangle className="h-3.5 w-3.5" /> Worth checking
+                    </h4>
+                    <ul className="list-disc space-y-1 pl-5 text-sm text-foreground/80">
+                      {zhukResult.errors.map((e, i) => (
+                        <li key={i}>{e.correction}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
           {/* Key Material Mentioned */}
           {analysis.mentioned.length > 0 && (
             <Card className="border-success/30">
@@ -755,7 +664,7 @@ export function BlankRecall({
                 </ul>
                 <p className="mt-3 text-xs italic text-muted-foreground">
                   {useAI
-                    ? "Marked by the Potemkin AI — concepts matched semantically against your response."
+                    ? "Marked by Zhukovsky — concepts matched semantically against your response."
                     : "Note: This is based on keyword detection. Please verify your own explanations to ensure accuracy."}
                 </p>
               </CardContent>

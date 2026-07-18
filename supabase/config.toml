@@ -14,3 +14,6 @@ verify_jwt = false
 
 [functions.email-unsubscribe]
 verify_jwt = false
+
+[functions.zhukovsky]
+verify_jwt = false

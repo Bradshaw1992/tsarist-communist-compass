@@ -7,9 +7,11 @@ import { Badge } from "@/components/ui/badge";
 import {
   Eye, CheckCircle2, XCircle, RotateCcw, BookOpen,
   ChevronLeft, ChevronRight, Trophy, Star, Sparkles,
+  Loader2, AlertCircle, GraduationCap,
 } from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
 import { ReportIssueDialog, ReportFlagButton } from "@/components/ReportIssueDialog";
+import { markWithZhukovsky, ZHUKOVSKY_BANDS, type ZhukovskyResult } from "@/lib/zhukovsky";
 import type { QuizQuestion } from "@/types/revision";
 import type { DrillerSessionInput } from "@/hooks/useHighScores";
 import type { AssessmentInput } from "@/hooks/useWrongAnswers";
@@ -76,6 +78,13 @@ export function PrecisionDriller({
   const [userAnswers, setUserAnswers] = useState<Record<number, string>>({});
   const [sessionComplete, setSessionComplete] = useState(false);
 
+  // Marking mode: self-marking (default, sound retrieval-practice mechanic) or
+  // Zhukovsky (AI marking + feedback). Toggled per session.
+  const [markMode, setMarkMode] = useState<"self" | "zhukovsky">("self");
+  const [zhukResults, setZhukResults] = useState<Record<number, ZhukovskyResult>>({});
+  const [zhukLoading, setZhukLoading] = useState(false);
+  const [zhukError, setZhukError] = useState<string | null>(null);
+
   const question = questions[currentIndex];
   const currentUserAnswer = userAnswers[currentIndex] ?? "";
 
@@ -131,8 +140,10 @@ export function PrecisionDriller({
     }
   };
 
-  const handleSelfAssess = useCallback((knew: boolean) => {
-    trackEvent("driller_assess", { result: knew ? "got_it" : "missed_it", spec_id: specId, driller: "precision" });
+  // Record an assessment (stats, history, Wrong Answers queue). `advance` moves
+  // to the next question; Zhukovsky mode records without advancing so the student
+  // can read the feedback first. Shared by self-marking and AI marking.
+  const recordAssessment = useCallback((knew: boolean, advance: boolean) => {
     if (!knew) setFirstTryPerfect(false);
     setHistory((prev) => ({
       ...prev,
@@ -158,13 +169,45 @@ export function PrecisionDriller({
       });
     }
 
-    if (currentIndex + 1 < questions.length) {
+    if (advance && currentIndex + 1 < questions.length) {
       const nextIdx = currentIndex + 1;
       setCurrentIndex(nextIdx);
       const next = history[nextIdx];
       setRevealed(next?.revealed ?? false);
     }
   }, [currentIndex, questions, history, specId, specTitle, onAssessment]);
+
+  const handleSelfAssess = useCallback((knew: boolean) => {
+    trackEvent("driller_assess", { result: knew ? "got_it" : "missed_it", spec_id: specId, driller: "precision" });
+    recordAssessment(knew, true);
+  }, [recordAssessment, specId]);
+
+  // AI marking: send the typed answer to Zhukovsky, show the level + feedback,
+  // and record the result (levels 1-2 = "knew", 3-5 = "missed") without advancing.
+  const handleZhukovskyMark = useCallback(async () => {
+    const q = questions[currentIndex];
+    const answer = (userAnswers[currentIndex] ?? "").trim();
+    if (!q || !answer || zhukLoading) return;
+    setRevealed(true);
+    setZhukError(null);
+    setZhukLoading(true);
+    trackEvent("zhukovsky_mark", { spec_id: specId, driller: "precision" });
+    try {
+      const result = await markWithZhukovsky({
+        activity: "concept",
+        specId,
+        questionText: q.question_text,
+        modelAnswer: q.correct_answer,
+        studentAnswer: answer,
+      });
+      setZhukResults((prev) => ({ ...prev, [currentIndex]: result }));
+      recordAssessment(result.level <= 2, false);
+    } catch (err) {
+      setZhukError(err instanceof Error ? err.message : "Marking failed. Please try again.");
+    } finally {
+      setZhukLoading(false);
+    }
+  }, [currentIndex, questions, userAnswers, zhukLoading, specId, recordAssessment]);
 
   const navigateTo = useCallback((index: number) => {
     setCurrentIndex(index);
@@ -182,6 +225,9 @@ export function PrecisionDriller({
     setRetryMode(false);
     setRetryQuestions([]);
     setFirstTryPerfect(true);
+    setZhukResults({});
+    setZhukError(null);
+    setZhukLoading(false);
     setSessionSeed((s) => s + 1); // trigger new shuffle
   }, []);
 
@@ -316,6 +362,27 @@ export function PrecisionDriller({
             </div>
           </div>
 
+          {/* Marking mode: self-marking or AI marking with Zhukovsky */}
+          <div className="mt-4 flex items-center gap-2">
+            <span className="text-xs font-medium text-muted-foreground">Marking:</span>
+            <div className="inline-flex rounded-lg border border-border p-0.5">
+              <button
+                type="button"
+                onClick={() => setMarkMode("self")}
+                className={`rounded-md px-3 py-1 text-xs font-medium transition ${markMode === "self" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                Self-mark
+              </button>
+              <button
+                type="button"
+                onClick={() => setMarkMode("zhukovsky")}
+                className={`inline-flex items-center gap-1 rounded-md px-3 py-1 text-xs font-medium transition ${markMode === "zhukovsky" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                <GraduationCap className="h-3.5 w-3.5" /> Zhukovsky
+              </button>
+            </div>
+          </div>
+
           {/* Answer input before reveal */}
           {!alreadyAssessed && !revealed && (
             <div className="mt-4">
@@ -330,29 +397,55 @@ export function PrecisionDriller({
             </div>
           )}
 
-          {/* Already assessed */}
+          {/* Already assessed — show Zhukovsky's mark if this question was AI-marked */}
           {alreadyAssessed && (
-            <AssessedView
-              userAnswer={currentUserAnswer}
-              correctAnswer={question.correct_answer}
-              feedback={question.level_3_feedback}
-              assessment={prevEntry.assessment!}
-              questionText={question.question_text}
-            />
+            zhukResults[currentIndex] ? (
+              <ZhukovskyMark
+                result={zhukResults[currentIndex]}
+                userAnswer={currentUserAnswer}
+                officialAnswer={question.correct_answer}
+                canNext={currentIndex + 1 < questions.length}
+                onNext={() => navigateTo(currentIndex + 1)}
+              />
+            ) : (
+              <AssessedView
+                userAnswer={currentUserAnswer}
+                correctAnswer={question.correct_answer}
+                feedback={question.level_3_feedback}
+                assessment={prevEntry.assessment!}
+                questionText={question.question_text}
+              />
+            )
           )}
 
-          {/* Reveal button */}
+          {/* Reveal / Mark button */}
           {!alreadyAssessed && !revealed && (
             <div className="mt-4">
-              <Button onClick={handleReveal} className="bg-primary text-primary-foreground hover:bg-primary/90">
-                <Eye className="mr-1.5 h-4 w-4" />
-                Reveal Answer
-              </Button>
+              {markMode === "self" ? (
+                <Button onClick={handleReveal} className="bg-primary text-primary-foreground hover:bg-primary/90">
+                  <Eye className="mr-1.5 h-4 w-4" />
+                  Reveal Answer
+                </Button>
+              ) : (
+                <div className="flex flex-col gap-1.5">
+                  <Button
+                    onClick={handleZhukovskyMark}
+                    disabled={!currentUserAnswer.trim()}
+                    className="w-fit bg-primary text-primary-foreground hover:bg-primary/90"
+                  >
+                    <GraduationCap className="mr-1.5 h-4 w-4" />
+                    Mark with Zhukovsky
+                  </Button>
+                  {!currentUserAnswer.trim() && (
+                    <span className="text-xs text-muted-foreground">Type an answer above for Zhukovsky to mark.</span>
+                  )}
+                </div>
+              )}
             </div>
           )}
 
-          {/* Revealed, awaiting self-assessment */}
-          {!alreadyAssessed && revealed && (
+          {/* Revealed — self-mark assessment */}
+          {!alreadyAssessed && revealed && markMode === "self" && (
             <div className="mt-6 animate-flip-in space-y-4">
               {currentUserAnswer.trim() && (
                 <div className="rounded-lg border border-border bg-card p-4">
@@ -384,6 +477,27 @@ export function PrecisionDriller({
                 </Button>
                 <AskPotemkinButton question={question.question_text} answer={question.correct_answer} />
               </div>
+            </div>
+          )}
+
+          {/* Zhukovsky is marking / errored (the AI result renders above once ready) */}
+          {!alreadyAssessed && revealed && markMode === "zhukovsky" && (
+            <div className="mt-6 space-y-4">
+              {zhukLoading && (
+                <div className="flex items-center gap-2 rounded-lg border border-border bg-card p-4 text-sm text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                  Zhukovsky is marking your answer…
+                </div>
+              )}
+              {zhukError && !zhukLoading && (
+                <div className="space-y-2 rounded-lg border border-destructive/30 bg-destructive/5 p-4">
+                  <div className="flex items-start gap-2 text-sm text-destructive">
+                    <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                    <span>{zhukError}</span>
+                  </div>
+                  <Button onClick={handleZhukovskyMark} variant="outline" size="sm">Try again</Button>
+                </div>
+              )}
             </div>
           )}
 
@@ -461,6 +575,67 @@ function AskPotemkinButton({ question, answer }: { question: string; answer: str
       <Sparkles className="h-3.5 w-3.5" />
       Ask Potemkin to explain
     </Button>
+  );
+}
+
+const ZHUK_LEVEL_STYLES: Record<number, { ring: string; text: string; bg: string }> = {
+  1: { ring: "border-emerald-500/40", text: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-500/5" },
+  2: { ring: "border-teal-500/40", text: "text-teal-600 dark:text-teal-400", bg: "bg-teal-500/5" },
+  3: { ring: "border-amber-500/40", text: "text-amber-600 dark:text-amber-400", bg: "bg-amber-500/5" },
+  4: { ring: "border-orange-500/40", text: "text-orange-600 dark:text-orange-400", bg: "bg-orange-500/5" },
+  5: { ring: "border-rose-500/40", text: "text-rose-600 dark:text-rose-400", bg: "bg-rose-500/5" },
+};
+
+function ZhukovskyMark({ result, userAnswer, officialAnswer, canNext, onNext }: {
+  result: ZhukovskyResult; userAnswer: string; officialAnswer: string; canNext: boolean; onNext: () => void;
+}) {
+  const style = ZHUK_LEVEL_STYLES[result.level] ?? ZHUK_LEVEL_STYLES[3];
+  const label = ZHUKOVSKY_BANDS[result.level] ?? "Marked";
+  return (
+    <div className="mt-6 animate-flip-in space-y-4">
+      {userAnswer.trim() && (
+        <div className="rounded-lg border border-border bg-card p-4">
+          <h4 className="mb-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Your Answer</h4>
+          <p className="text-sm leading-relaxed text-foreground/80">{userAnswer}</p>
+        </div>
+      )}
+      <div className={`rounded-lg border-2 ${style.ring} ${style.bg} p-5`}>
+        <div className="mb-2 flex items-center gap-2">
+          <GraduationCap className={`h-4 w-4 ${style.text}`} />
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Zhukovsky</span>
+          <span className={`ml-auto rounded-full border ${style.ring} px-2.5 py-0.5 text-xs font-bold ${style.text}`}>
+            {result.level} · {label}
+          </span>
+        </div>
+        <p className="whitespace-pre-line text-sm leading-relaxed text-foreground">{result.feedback}</p>
+      </div>
+      {result.errors.length > 0 && (
+        <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-4">
+          <h4 className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+            <AlertCircle className="h-3.5 w-3.5" /> Worth checking
+          </h4>
+          <ul className="list-disc space-y-1 pl-5 text-sm text-foreground/80">
+            {result.errors.map((e, i) => (
+              <li key={i}>{e.correction}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {!result.servedModelAnswer && (
+        <div className="rounded-lg border border-border bg-muted/50 p-5">
+          <h4 className="mb-1 font-serif text-sm font-semibold text-primary">Model Answer</h4>
+          <p className="text-sm leading-relaxed text-foreground/80">{officialAnswer}</p>
+        </div>
+      )}
+      {canNext && (
+        <div className="pt-1">
+          <Button onClick={onNext} className="bg-primary text-primary-foreground hover:bg-primary/90">
+            Next question
+            <ChevronRight className="ml-1.5 h-4 w-4" />
+          </Button>
+        </div>
+      )}
+    </div>
   );
 }
 
