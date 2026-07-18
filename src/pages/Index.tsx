@@ -24,6 +24,7 @@ import { Link, useNavigate } from "react-router-dom";
 import {
   BookOpen,
   ChevronRight,
+  Clock,
   Compass,
   Crosshair,
   Dices,
@@ -66,7 +67,18 @@ const ACTIVITY_DISPLAY: Record<
   knowledge_driller: { label: "Knowledge", icon: Zap, color: "bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300" },
   concept_driller: { label: "Concept", icon: Crosshair, color: "bg-purple-100 text-purple-700 dark:bg-purple-950/50 dark:text-purple-300" },
   blank_recall: { label: "Blank Recall", icon: PenLine, color: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300" },
+  chronology_place: { label: "Chronology", icon: Clock, color: "bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300" },
+  chronology_identify: { label: "Chronology", icon: Clock, color: "bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300" },
+  chronology_sequence: { label: "Chronology", icon: Clock, color: "bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300" },
 };
+
+// Fallback for any activity_type not in the map above — a neutral "Activity"
+// so an unrecognised type never silently masquerades as another activity.
+const DEFAULT_ACTIVITY = {
+  label: "Activity",
+  icon: Sparkles,
+  color: "bg-slate-100 text-slate-700 dark:bg-slate-800/50 dark:text-slate-300",
+} as const;
 
 // =============================================================================
 // Component
@@ -679,7 +691,7 @@ function SessionRow({
   specPoints: SpecPoint[];
   navigate: (to: string) => void;
 }) {
-  const meta = ACTIVITY_DISPLAY[session.activityType] ?? ACTIVITY_DISPLAY.blank_recall;
+  const meta = ACTIVITY_DISPLAY[session.activityType] ?? DEFAULT_ACTIVITY;
   const Icon = meta.icon;
   const spec = specPoints.find((sp) => sp.id === session.specId);
   const scoreLine =

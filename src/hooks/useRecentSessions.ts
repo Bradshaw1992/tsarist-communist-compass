@@ -16,7 +16,10 @@ import { useAuth } from "@/contexts/AuthContext";
 export type SessionActivityType =
   | "knowledge_driller"
   | "concept_driller"
-  | "blank_recall";
+  | "blank_recall"
+  | "chronology_place"
+  | "chronology_identify"
+  | "chronology_sequence";
 
 export interface RecentSession {
   id: string;
