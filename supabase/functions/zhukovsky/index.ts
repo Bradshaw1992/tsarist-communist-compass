@@ -36,6 +36,10 @@ const MAX_ANSWER_LENGTH = 8_000;
 const MAX_CORPUS_CHARS = 55_000; // ~14k tokens; cached per-spec so reads are cheap
 const N_EXEMPLARS = 8;
 const MAX_TOKENS = 700;
+const GLOBAL_MARKING_CAP_PENCE = 500; // £5/day hard stop across ALL AI marking
+const COST_PER_MARK_PENCE = 0.6;      // conservative marker+checker estimate (both corpus-cached)
+const ALERT_EMAIL = "tom.bradshaw@ucs.org.uk";
+const ALERT_FROM = "Tom <tom@tsarist-communist-russia-1h.co.uk>";
 
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 function isRateLimited(ip: string): boolean {
@@ -76,6 +80,27 @@ function jsonError(message: string, status = 400): Response {
     status,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
+}
+
+// Emails Tom once/day, on the mark that tips global spend over the cap. Never
+// throws — an alert failure must not break marking.
+async function alertCapReached(spentPence: number): Promise<void> {
+  const key = Deno.env.get("RESEND_API_KEY");
+  if (!key) return;
+  try {
+    await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        from: ALERT_FROM,
+        to: ALERT_EMAIL,
+        subject: "⚠️ Zhukovsky marking hit today's £5 spend cap",
+        text: `AI marking has reached its daily spend cap of £${(GLOBAL_MARKING_CAP_PENCE / 100).toFixed(2)} (about £${(spentPence / 100).toFixed(2)} of estimated spend today). Marking is now paused for everyone until midnight. If this happens often, raise the cap in the zhukovsky function or check for unusual usage.`,
+      }),
+    });
+  } catch (_) {
+    // swallow — alerting is best-effort
+  }
 }
 
 // ---- corpus: spec-tagged chunks + cross-spec marking guidance, priority-ordered, capped ----
@@ -234,18 +259,33 @@ serve(async (req) => {
         const { data: profile } = await sb
           .from("user_profiles").select("school_urn").eq("id", userId).single();
         const isUcs = profile?.school_urn === UCS_SCHOOL_URN;
-        if (!isUcs) {
-          const { data: limits } = await sb.rpc("potemkin_check_limits", {
-            p_user_id: userId,
-            p_skill: "zhukovsky",
-            p_user_daily_limit: NON_UCS_DAILY_LIMIT,
-            p_global_cap_pence: 100000, // marking kept out of Potemkin's £5/day chat cap
-          });
-          if (limits && !limits.allowed) {
-            return jsonError(`You've used today's ${NON_UCS_DAILY_LIMIT} AI mark-ups. Resets at midnight.`, 429);
-          }
+
+        // Two caps, checked together via the shared usage table:
+        //  - per-user daily count (non-UCS only; UCS effectively unlimited)
+        //  - a GLOBAL £5/day marking spend cap that applies to everyone
+        // p_skill "mark-recall" is what increments mark_count / accrues cost.
+        const { data: limits } = await sb.rpc("potemkin_check_limits", {
+          p_user_id: userId,
+          p_skill: "mark-recall",
+          p_user_daily_limit: isUcs ? 1_000_000 : NON_UCS_DAILY_LIMIT,
+          p_global_cap_pence: GLOBAL_MARKING_CAP_PENCE,
+        });
+        if (limits && !limits.allowed) {
+          const capHit = Number(limits.global_spent_pence) >= Number(limits.global_cap_pence);
+          return jsonError(
+            capHit
+              ? "AI marking has reached today's spending limit — it'll be back tomorrow."
+              : `You've used today's ${NON_UCS_DAILY_LIMIT} AI mark-ups. Resets at midnight.`,
+            429,
+          );
         }
-        await sb.rpc("potemkin_record_usage", { p_user_id: userId, p_skill: "zhukovsky", p_cost_pence: 0 });
+        await sb.rpc("potemkin_record_usage", { p_user_id: userId, p_skill: "mark-recall", p_cost_pence: COST_PER_MARK_PENCE });
+
+        // Fire the alert exactly once — on the mark that tips spend over the cap.
+        const spentBefore = Number(limits?.global_spent_pence ?? 0);
+        if (spentBefore < GLOBAL_MARKING_CAP_PENCE && spentBefore + COST_PER_MARK_PENCE >= GLOBAL_MARKING_CAP_PENCE) {
+          await alertCapReached(spentBefore + COST_PER_MARK_PENCE);
+        }
       }
     }
 
