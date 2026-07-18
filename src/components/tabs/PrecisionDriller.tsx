@@ -134,6 +134,8 @@ export function PrecisionDriller({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    // In Zhukovsky mode, let Enter insert a newline; marking is via the button only.
+    if (markMode === "zhukovsky") return;
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleReveal();

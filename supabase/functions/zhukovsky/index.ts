@@ -146,10 +146,25 @@ const ANTIHARSH = `HOW TO USE THE SOURCE MATERIAL: it shows the full range of wh
 
 const FEEDBACK_STYLE = `FEEDBACK: warm and encouraging. Open by crediting the argument and evidence they got right. Then, drawing on the source material, name the specific course-relevant points or evidence that would strengthen the answer — framed as things to add, never as what was missing to pass. End with a question that makes them retrieve. Under ~120 words. Do NOT fact-check here (a separate check handles errors).`;
 
-const CHECKER = `You are a rigorous but fair fact-checker for AQA A-Level History 7042/1H (Tsarist and Communist Russia 1855-1964). You do NOT grade. Find only genuine problems in the student's answer:
-- a claim that is factually untrue or misattributed (wrong actor/cause, a wrong date on a load-bearing fact, an event credited with something it did not do, anachronism / wrong time period)
-- a KEY historical term or name mangled so badly it shows they cannot spell it (e.g. "ryiton playform" = Ryutin Platform)
-If the student's underlying argument is correct but a supporting detail is slightly off, still note it but set undermines_argument to false. NEVER flag ordinary typos or everyday misspellings. If there are no genuine issues, return an empty array.
+const CHECKER = `You fact-check a student's AQA A-Level History answer (Tsarist and Communist Russia 1855-1964). You do NOT grade and you do NOT coach. Your ONLY job is to catch a claim that is clearly, checkably FALSE and would mislead the student if left uncorrected.
+
+Flag ONLY:
+- a genuinely false factual claim — wrong actor or cause, an event credited with something it did not do, a wrong date on a load-bearing fact, or a clear anachronism (right thing, wrong era)
+- a key name or term mangled so badly it is plainly wrong (e.g. "ryiton playform" = Ryutin Platform)
+
+Do NOT flag — these are NOT errors, stay silent:
+- an overstatement, simplification or sweeping phrase ("all Russians", "the first ever") — that is nuance, not fact
+- an interpretation, judgement, or debated/historiographical point (whether a death was suicide, how significant something was, whether a term is "standard")
+- wording that is imprecise or non-standard but whose meaning is clear
+- an ambiguity you have to invent or assume in order to flag it — read the answer in its most sensible sense
+- anything that is merely LESS detailed or LESS precise than it could be
+- a claim, event, or phrase simply because it does NOT appear in the source material — absence from the material is NOT evidence it is false
+
+The SOURCE MATERIAL below is authoritative for THIS course: if the student's claim is consistent with it, DO NOT flag it, even if your own general knowledge disagrees. Use the material to AVOID contradicting the course, not as a checklist — only flag a claim the material (or plain historical fact) positively contradicts, never one it is merely silent about.
+
+HARD TEST before flagging: you must be able to state the specific correct fact that REPLACES the student's claim (their date/name/cause is X; it was actually Y). If your correction instead says the claim "isn't in the material", that they "may be conflating events", that a term is non-standard or made-up, or asks them to "clarify" — that is NOT an error. Say nothing.
+
+Silence is the normal, correct result — most good answers contain NO errors, so return an empty array. Only speak when you are highly confident a claim is factually wrong. If the argument is sound but one supporting detail is off, note it with undermines_argument:false; a claim that breaks the argument gets true.
 Respond ONLY with JSON: {"issues":[{"claim":"...","correction":"...","undermines_argument":true|false}]}`;
 
 async function callAnthropic(
@@ -272,9 +287,16 @@ serve(async (req) => {
       ? `QUESTION: (blank recall on this spec point)\n\nSTUDENT ANSWER: ${answer}`
       : `QUESTION: ${questionText ?? ""}\n\nSTUDENT ANSWER: ${answer}`;
 
+    // The checker gets the same per-spec corpus as the marker (its own cached block)
+    // so it grounds errors in THIS course's material rather than parametric guesses.
+    const checkerSystem = [
+      { type: "text" as const, text: CHECKER },
+      { type: "text" as const, text: `SOURCE MATERIAL (authoritative for this course — treat as ground truth):\n\n${corpus}`, cache_control: { type: "ephemeral" as const } },
+    ];
+
     const [marker, checker] = await Promise.all([
       callAnthropic(ANTHROPIC_API_KEY, markerSystem, userForMarker, activity === "recall" ? 1400 : MAX_TOKENS),
-      callAnthropic(ANTHROPIC_API_KEY, [{ type: "text", text: CHECKER }], userForChecker),
+      callAnthropic(ANTHROPIC_API_KEY, checkerSystem, userForChecker),
     ]);
 
     let level = Number(marker.level);
@@ -288,8 +310,12 @@ serve(async (req) => {
       servedModelAnswer = true;
     }
 
+    // Only surface errors that actually UNDERMINE the answer (Tom's call): the soft,
+    // non-argument-breaking notes are the noise students found unhelpful. The hard
+    // ones (wrong load-bearing fact) are what "Worth checking" is for.
     const errors = Array.isArray(checker.issues) ? checker.issues.filter(
-      (e: any) => e && typeof e.claim === "string" && typeof e.correction === "string",
+      (e: any) => e && typeof e.claim === "string" && typeof e.correction === "string"
+        && e.undermines_argument === true,
     ) : [];
 
     // Reconcile coverage server-side by INDEX, not by echoed string. The key
