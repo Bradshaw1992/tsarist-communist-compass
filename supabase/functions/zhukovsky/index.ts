@@ -144,7 +144,7 @@ const BANDS = `SCORE 1-5 the way the teacher (Tom) does:
 
 const ANTIHARSH = `HOW TO USE THE SOURCE MATERIAL: it shows the full range of what COULD be said, for your reference on scope and accuracy. It is NOT a checklist and the student does NOT need to cover it — you can ALWAYS find more in the sources than any student wrote, and that must NOT lower the score. Mark generously, like Tom, who does not require completeness. Judge ONLY: can this student argue the point and support it with specific evidence? Do not deduct for anything they left out relative to the sources. A minor factual slip does not lower the score. There may be several valid "perfect" answers using different evidence — credit a correct, well-evidenced argument even if it differs from the model answer. Stay strictly within what THIS course covers and emphasises.`;
 
-const FEEDBACK_STYLE = `FEEDBACK: warm and encouraging. Open by crediting the argument and evidence they got right. Then, drawing on the source material, name the specific course-relevant points or evidence that would strengthen the answer — framed as things to add, never as what was missing to pass. End with a question that makes them retrieve. Under ~120 words. Do NOT fact-check here (a separate check handles errors).`;
+const FEEDBACK_STYLE = `FEEDBACK: warm and encouraging. Open by crediting the argument and evidence they got right. Then, drawing on the source material, name the specific course-relevant points or evidence that would strengthen the answer — framed as things to add, never as what was missing to pass. End with a question that makes them retrieve. Do NOT fact-check here (a separate check handles errors).`;
 
 const CHECKER = `You fact-check a student's AQA A-Level History answer (Tsarist and Communist Russia 1855-1964). You do NOT grade and you do NOT coach. Your ONLY job is to catch a claim that is clearly, checkably FALSE and would mislead the student if left uncorrected.
 
@@ -269,13 +269,19 @@ serve(async (req) => {
       ? `This is a BLANK RECALL: the student wrote from memory everything they could about this spec point. The KEY CONCEPTS they were meant to cover are listed. Score the whole recall on the 1-5 ladder; in feedback name the most important concepts they missed; and for EACH listed key concept decide whether they covered it — count it covered if they mention it or clearly convey the idea, even in different words.`
       : `This is a short concept answer to the question below.`;
 
+    // A blank recall covers the WHOLE spec point, so the feedback should be fuller
+    // than for a single concept question — more ground to cover.
+    const feedbackLength = activity === "recall"
+      ? `LENGTH: this is a whole-spec recall, so write a fuller response — aim for ~250-350 words. Cover the most important gaps across the WHOLE spec point (group them sensibly: ideas, individuals/groups, the reaction, etc.), not just one, and still keep the warm, encouraging tone.`
+      : `LENGTH: keep it under ~120 words.`;
+
     const jsonInstruction = activity === "recall"
       ? `Respond ONLY with JSON: {"level":1|2|3|4|5,"feedback":"...","coverage":[{"n":1,"covered":true|false}, ...]} — "n" is the NUMBER of the key concept from the numbered list; include one entry for EVERY numbered key concept and do NOT repeat the concept text.`
       : `Respond ONLY with JSON: {"level":1|2|3|4|5,"feedback":"..."}`;
 
     const markerSystem = [
       { type: "text" as const, text:
-        `You are Zhukovsky, marking AQA A-Level History 7042/1H (Tsarist and Communist Russia 1855-1964) the way the teacher (Tom) does.\n\n${modeLine}\n\n${BANDS}\n\n${ANTIHARSH}\n\n${FEEDBACK_STYLE}\n\n${exemplars ? `HOW TOM SCORES — study these, especially what separates a 1 from a 2:\n\n${exemplars}\n\n` : ""}${jsonInstruction}` },
+        `You are Zhukovsky, marking AQA A-Level History 7042/1H (Tsarist and Communist Russia 1855-1964) the way the teacher (Tom) does.\n\n${modeLine}\n\n${BANDS}\n\n${ANTIHARSH}\n\n${FEEDBACK_STYLE}\n${feedbackLength}\n\n${exemplars ? `HOW TOM SCORES — study these, especially what separates a 1 from a 2:\n\n${exemplars}\n\n` : ""}${jsonInstruction}` },
       { type: "text" as const, text: `SOURCE MATERIAL (reference only, NOT a checklist):\n\n${corpus}`, cache_control: { type: "ephemeral" as const } },
     ];
 

@@ -642,7 +642,10 @@ export function BlankRecall({
                 )}
                 <Button
                   onClick={() => {
-                    const prefill = `I just did a blank-recall on "${recall?.title ?? "this topic"}".\n\nWhat I wrote: "${userText}"\n\nZhukovsky's feedback: "${zhukResult.feedback}"\n\nCan we talk it through? Start with the most important gap to fix.`;
+                    // Whole-spec recalls can be very long; cap the excerpt so the
+                    // handoff stays within Potemkin's message limit (feedback kept in full).
+                    const recallExcerpt = userText.length > 3500 ? userText.slice(0, 3500) + "…" : userText;
+                    const prefill = `I just did a blank-recall on "${recall?.title ?? "this topic"}".\n\nWhat I wrote: "${recallExcerpt}"\n\nZhukovsky's feedback: "${zhukResult.feedback}"\n\nCan we talk it through? Start with the most important gap to fix.`;
                     window.dispatchEvent(new CustomEvent("potemkin:open", { detail: { prefill } }));
                   }}
                   variant="outline"
