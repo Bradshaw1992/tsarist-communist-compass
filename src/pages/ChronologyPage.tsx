@@ -64,8 +64,8 @@ const ChronologyPage = () => {
   return (
     <div>
       <SEOHead
-        title="General & Chronology | AQA 1H Russia Compass"
-        description="Test your chronology across the whole AQA 1H course: 1855–1964. Place events in time, identify people and events, and sequence key moments in Tsarist and Communist Russia."
+        title="General & Chronology | Russia Revision"
+        description="Test your chronology across the whole course: 1855–1964. Place events in time, identify people and events, and sequence key moments in Tsarist and Communist Russia."
         canonicalPath="/general"
       />
 

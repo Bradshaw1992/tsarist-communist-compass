@@ -54,7 +54,7 @@ function buildSpecMetaDescription(
       ? `${first.slice(0, META_DESC_LIMIT - 1).trimEnd()}…`
       : first;
   }
-  return `${title} — a revision guide for AQA A-Level History 7042/1H (${section}). Blank Recall, Concept Driller, Knowledge Driller and Essay Bank.`;
+  return `${title} — a revision guide for A-Level History (${section}). Blank Recall, Concept Driller, Knowledge Driller and Essay Bank.`;
 }
 
 const SpecPage = () => {
@@ -177,7 +177,7 @@ const SpecPage = () => {
   return (
     <div>
       <SEOHead
-        title={`${spec.title} — AQA A-Level Russia Revision (7042/1H)`}
+        title={`${spec.title} — A-Level Russia Revision`}
         description={buildSpecMetaDescription(spec.title, spec.section, recall)}
         canonicalPath={`/spec/${spec.id}`}
         jsonLd={{
@@ -190,11 +190,11 @@ const SpecPage = () => {
           inLanguage: "en-GB",
           about: {
             "@type": "Course",
-            name: "AQA A-Level History 7042/1H: Tsarist and Communist Russia, 1855–1964",
+            name: "A-Level History: Tsarist and Communist Russia, 1855–1964",
             provider: {
               "@type": "Organization",
-              name: "AQA",
-              url: "https://www.aqa.org.uk/",
+              name: "Russia Revision",
+              url: "https://tsarist-communist-russia-1h.co.uk/",
             },
           },
         }}

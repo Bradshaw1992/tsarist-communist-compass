@@ -157,7 +157,7 @@ const RandomPage = () => {
   return (
     <div>
       <SEOHead
-        title="Random practice | AQA 1H Russia Compass"
+        title="Random practice | Russia Revision"
         description="A random spec point and activity, or a mixed practice session within a time period."
         canonicalPath="/random"
       />

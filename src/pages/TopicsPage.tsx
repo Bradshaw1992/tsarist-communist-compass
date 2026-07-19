@@ -109,8 +109,8 @@ const TopicsPage = () => {
   return (
     <div>
       <SEOHead
-        title="Topics | AQA 1H Russia Compass"
-        description="Browse all 24 spec points for AQA 7042/1H: Tsarist and Communist Russia 1855–1964, grouped by Part."
+        title="Topics | Russia Revision"
+        description="Browse all 24 spec points for Tsarist and Communist Russia 1855–1964, grouped by Part."
         canonicalPath="/topics"
       />
 

@@ -345,7 +345,7 @@ function ActivitiesWelcomeCard() {
     <div className="mb-6 rounded-xl bg-primary/5 p-5 ring-1 ring-primary/10 sm:p-6">
       <div className="mb-3 flex items-start justify-between">
         <h2 className="font-serif text-lg font-bold text-primary">
-          Welcome to Russia Compass
+          Welcome to Russia Revision
         </h2>
         <button
           onClick={dismiss}

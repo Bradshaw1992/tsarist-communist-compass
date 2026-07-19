@@ -72,7 +72,7 @@ const TeacherDashboard = () => {
   return (
     <div>
       <SEOHead
-        title="Teacher Dashboard | AQA 1H Russia Compass"
+        title="Teacher Dashboard | Russia Revision"
         description="Manage your classes and monitor student progress."
         canonicalPath="/teacher"
       />

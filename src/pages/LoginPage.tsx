@@ -116,8 +116,8 @@ const LoginPage = () => {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
       <SEOHead
-        title="Sign in | AQA 1H Russia Compass"
-        description="Sign in to track your progress revising AQA 7042/1H: Tsarist and Communist Russia 1855-1964."
+        title="Sign in | Russia Revision"
+        description="Sign in to track your progress revising Tsarist and Communist Russia 1855-1964."
         canonicalPath="/login"
       />
 

@@ -74,7 +74,7 @@ const ReviewPage = () => {
   const pageShell = (body: React.ReactNode) => (
     <div className="min-h-screen bg-background pb-16">
       <SEOHead
-        title="Review Queue | AQA 1H Russia Compass"
+        title="Review Queue | Russia Revision"
         description="Persistent wrong-answers queue. Every missed Knowledge or Concept Driller question, grouped by spec point, so you can close the loop."
         canonicalPath="/review"
       />

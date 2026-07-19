@@ -52,8 +52,8 @@ const ChronologyModePage = () => {
   return (
     <div className="min-h-screen bg-background pb-16">
       <SEOHead
-        title={`${label} — Chronology | AQA 1H Russia Compass`}
-        description={`${label} practice across the whole AQA 7042/1H course: 1855–1964.`}
+        title={`${label} — Chronology | Russia Revision`}
+        description={`${label} practice across the whole course: 1855–1964.`}
         canonicalPath={`/chronology/${mode}`}
       />
 

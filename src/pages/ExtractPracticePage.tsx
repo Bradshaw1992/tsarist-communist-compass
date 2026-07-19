@@ -43,8 +43,8 @@ const ExtractPracticePage = () => {
   return (
     <div>
       <SEOHead
-        title="Extract Practice | AQA 1H Russia Compass"
-        description="Practise AQA Section A extract questions for Tsarist and Communist Russia 1855–1964. Read historian extracts, identify arguments, and self-mark against indicative content."
+        title="Extract Practice | Russia Revision"
+        description="Practise Section A extract questions for Tsarist and Communist Russia 1855–1964. Read historian extracts, identify arguments, and self-mark against indicative content."
         canonicalPath="/extracts"
       />
 

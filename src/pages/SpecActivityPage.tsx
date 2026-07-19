@@ -71,8 +71,8 @@ const SpecActivityPage = () => {
   return (
     <div className="min-h-screen bg-background pb-16">
       <SEOHead
-        title={`${label} — ${spec.title} | AQA 1H Russia Compass`}
-        description={`${label} practice for ${spec.title}. AQA 7042/1H: Tsarist and Communist Russia 1855–1964.`}
+        title={`${label} — ${spec.title} | Russia Revision`}
+        description={`${label} practice for ${spec.title}. Tsarist and Communist Russia 1855–1964.`}
         canonicalPath={`/spec/${spec.id}/${activity}`}
       />
 

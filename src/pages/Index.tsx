@@ -236,8 +236,8 @@ const Index = () => {
     return (
       <div>
         <SEOHead
-          title="AQA 1H Russia Compass | Tsarist & Communist Russia Revision"
-          description="A-Level History revision for AQA 7042/1H: Tsarist and Communist Russia 1855–1964."
+          title="Russia Revision | Tsarist & Communist Russia, 1855–1964"
+          description="A-Level History revision: Tsarist and Communist Russia 1855–1964."
           canonicalPath="/"
         />
         <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 sm:py-14">
@@ -331,8 +331,8 @@ const Index = () => {
   return (
     <div>
       <SEOHead
-        title="Dashboard | AQA 1H Russia Compass"
-        description="Your personal revision dashboard for AQA 7042/1H."
+        title="Dashboard | Russia Revision"
+        description="Your personal revision dashboard for Tsarist and Communist Russia, 1855–1964."
         canonicalPath="/"
       />
 

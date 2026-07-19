@@ -81,7 +81,7 @@ const TeacherQuestionsPage = () => {
   return (
     <div>
       <SEOHead
-        title="Question Review | Teacher | AQA 1H Russia Compass"
+        title="Question Review | Teacher | Russia Revision"
         description="Review, approve, and add questions."
         canonicalPath="/teacher/questions"
       />

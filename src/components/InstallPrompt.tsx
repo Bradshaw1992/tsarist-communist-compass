@@ -67,7 +67,7 @@ export const InstallPrompt = () => {
           <Download className="h-5 w-5" />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-foreground">Install 1H Russia Compass</p>
+          <p className="text-sm font-semibold text-foreground">Install Russia Revision</p>
           {isIOS ? (
             <p className="mt-0.5 text-xs text-muted-foreground">
               Tap the <strong>Share</strong> button, then <strong>"Add to Home Screen"</strong> for instant access.

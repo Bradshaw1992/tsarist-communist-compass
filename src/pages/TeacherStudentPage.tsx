@@ -163,7 +163,7 @@ const TeacherStudentPage = () => {
   return (
     <div>
       <SEOHead
-        title={`${displayName} | Teacher | AQA 1H Russia Compass`}
+        title={`${displayName} | Teacher | Russia Revision`}
         description="Individual student performance overview."
         canonicalPath={`/teacher/class/${classId}/student/${studentId}`}
       />

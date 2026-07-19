@@ -44,9 +44,9 @@ export default defineConfig(({ mode }) => ({
         ],
       },
       manifest: {
-        name: "1H Russia Compass — AQA A-Level History Revision",
-        short_name: "1H Russia Compass",
-        description: "AI-powered A-Level History revision for AQA 7042/1H: Tsarist and Communist Russia 1855–1964.",
+        name: "Russia Revision — A-Level History Revision",
+        short_name: "Russia Revision",
+        description: "AI-powered A-Level History revision: Tsarist and Communist Russia 1855–1964.",
         theme_color: "#0a1e3d",
         background_color: "#f3f4f7",
         display: "standalone",
