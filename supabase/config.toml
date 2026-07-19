@@ -1,8 +1,5 @@
 project_id = "prmpzclkdjtrphsemrgm"
 
-[functions.analyse-recall]
-verify_jwt = false
-
 [functions.polish-transcript]
 verify_jwt = false
 

@@ -27,16 +27,17 @@ const CLAUDE_MAX_TOKENS = 600;   // cap chat responses
 const EMBED_MODEL = "text-embedding-3-small";
 const RETRIEVE_K = 6;
 const CACHE_THRESHOLD = 0.95;
-const UCS_DAILY_LIMIT = 30;
-const NON_UCS_DAILY_LIMIT = 10;
-const UCS_SCHOOL_URN = "100065";
-const GLOBAL_CAP_PENCE = 500;    // £5/day
+const FREE_CAP_PENCE = 2.5;          // free accounts: 2.5p/day of AI (chat + marking share this)
+const NOMENKLATURA_CAP_PENCE = 20;   // Nomenklatura (paid or UCS): 20p/day
+const POLITBURO_CAP_PENCE = 50;      // Politburo (granted only by hand): 50p/day
+const GLOBAL_CAP_PENCE = 500;        // £5/day — global backstop across everyone
 const HISTORY_TURNS = 3;         // last 3 exchanges (6 messages)
 
 // Haiku 4.5 pricing (April 2026, USD/M tokens): $1 input / $5 output.
 // Approximate £ per 1M tokens (1 USD ≈ 0.79 GBP): £0.79 input, £3.95 output.
 const INPUT_PENCE_PER_1K = 0.079;   // 79p / 1M × 1000 = 0.079p / 1K
 const OUTPUT_PENCE_PER_1K = 0.395;
+const NOMINAL_CHAT_PENCE = 0.5;     // rough £ per message — only to estimate the "N left today" UI hint
 
 const SYSTEM_PROMPT = `You are Potemkin — named in tribute to Grigory Potemkin (1739–1791), Catherine the Great's statesman and favourite. You're not literally him; you're an AI tutor who carries his name because the Russia you teach (AQA 7042/1H: Tsarist and Communist Russia, 1855–1964) is shot through with his legacy — the "Potemkin village" as a metaphor for facade, the Battleship Potemkin marking 1905, the long shadow of the autocracy he helped build.
 
@@ -170,14 +171,12 @@ serve(async (req) => {
     auth: { persistSession: false },
   });
 
-  // UCS = school_urn 100065 (covers UCS students + teachers).
-  const { data: profile } = await sb
-    .from("user_profiles")
-    .select("school_urn")
-    .eq("id", userId)
-    .single();
-  const isUcs = profile?.school_urn === UCS_SCHOOL_URN;
-  const userDailyLimit = isUcs ? UCS_DAILY_LIMIT : NON_UCS_DAILY_LIMIT;
+  // Resolve the account's tier → daily spend allowance.
+  // Fails closed: any error / unknown tier → free.
+  const { data: tier } = await sb.rpc("user_tier", { p_user_id: userId });
+  const userCapPence = tier === "politburo" ? POLITBURO_CAP_PENCE
+    : tier === "nomenklatura" ? NOMENKLATURA_CAP_PENCE
+    : FREE_CAP_PENCE;
 
   // Parse body
   let body: { session_id?: string; message?: string };
@@ -200,14 +199,14 @@ serve(async (req) => {
   const { data: limits, error: limitsErr } = await sb.rpc("potemkin_check_limits", {
     p_user_id: userId,
     p_skill: "chat",
-    p_user_daily_limit: userDailyLimit,
+    p_user_cap_pence: userCapPence,
     p_global_cap_pence: GLOBAL_CAP_PENCE,
   });
   if (limitsErr) return jsonError("Rate-limit check failed", 500);
   if (!limits?.allowed) {
     const reason = limits.global_spent_pence >= limits.global_cap_pence
       ? "Potemkin has hit today's budget. Try again tomorrow."
-      : `You've used today's ${userDailyLimit} questions. Resets at midnight.`;
+      : "You've used today's AI allowance. Resets at midnight.";
     return jsonError(reason, 429, {
       daily_remaining: 0,
       limits,
@@ -261,7 +260,7 @@ serve(async (req) => {
       return jsonOk({
         answer: hit.answer,
         cached: true,
-        daily_remaining: Math.max(0, limits.user_limit - limits.user_count - 1),
+        daily_remaining: Math.max(0, Math.floor((limits.user_cap_pence - limits.user_spent_pence) / NOMINAL_CHAT_PENCE) - 1),
       });
     }
 
@@ -368,7 +367,7 @@ serve(async (req) => {
     return jsonOk({
       answer: answerText,
       cached: false,
-      daily_remaining: Math.max(0, limits.user_limit - limits.user_count - 1),
+      daily_remaining: Math.max(0, Math.floor((limits.user_cap_pence - limits.user_spent_pence) / NOMINAL_CHAT_PENCE) - 1),
       tokens: { input: inputTokens, output: outputTokens },
     });
   } catch (err) {

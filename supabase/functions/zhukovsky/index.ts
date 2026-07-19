@@ -30,8 +30,9 @@ const PRIMARY_MODEL = "claude-haiku-4-5-20251001";
 const FALLBACK_MODELS = ["claude-sonnet-4-5-20250929", "claude-sonnet-4-20250514"];
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX = 15;
-const NON_UCS_DAILY_LIMIT = 40;
-const UCS_SCHOOL_URN = "100065";
+const FREE_CAP_PENCE = 2.5;         // free accounts: 2.5p/day of AI (chat + marking share this)
+const NOMENKLATURA_CAP_PENCE = 20;  // Nomenklatura (paid or UCS): 20p/day
+const POLITBURO_CAP_PENCE = 50;     // Politburo (granted only by hand): 50p/day
 const MAX_ANSWER_LENGTH = 8_000;
 const MAX_CORPUS_CHARS = 55_000; // ~14k tokens; cached per-spec so reads are cheap
 const N_EXEMPLARS = 8;
@@ -257,18 +258,21 @@ serve(async (req) => {
       const { data: userData } = await sbUserClient.auth.getUser();
       if (userData?.user) {
         userId = userData.user.id;
-        const { data: profile } = await sb
-          .from("user_profiles").select("school_urn").eq("id", userId).single();
-        const isUcs = profile?.school_urn === UCS_SCHOOL_URN;
+        // Resolve the account's tier → daily spend allowance.
+        // Fails closed: any error / unknown tier → free.
+        const { data: tier } = await sb.rpc("user_tier", { p_user_id: userId });
+        const userCapPence = tier === "politburo" ? POLITBURO_CAP_PENCE
+          : tier === "nomenklatura" ? NOMENKLATURA_CAP_PENCE
+          : FREE_CAP_PENCE;
 
         // Two caps, checked together via the shared usage table:
-        //  - per-user daily count (non-UCS only; UCS effectively unlimited)
+        //  - the per-user daily SPEND allowance (5p free / 50p premium)
         //  - a GLOBAL £5/day marking spend cap that applies to everyone
         // p_skill "mark-recall" is what increments mark_count / accrues cost.
         const { data: limits } = await sb.rpc("potemkin_check_limits", {
           p_user_id: userId,
           p_skill: "mark-recall",
-          p_user_daily_limit: isUcs ? 1_000_000 : NON_UCS_DAILY_LIMIT,
+          p_user_cap_pence: userCapPence,
           p_global_cap_pence: GLOBAL_MARKING_CAP_PENCE,
         });
         if (limits && !limits.allowed) {
@@ -276,7 +280,7 @@ serve(async (req) => {
           return jsonError(
             capHit
               ? "AI marking has reached today's spending limit — it'll be back tomorrow."
-              : `You've used today's ${NON_UCS_DAILY_LIMIT} AI mark-ups. Resets at midnight.`,
+              : "You've used today's AI allowance. Resets at midnight.",
             429,
           );
         }
