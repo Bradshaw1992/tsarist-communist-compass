@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { Heart, LogOut, MessageSquare, Monitor, Moon, Sun, User as UserIcon, Users } from "lucide-react";
+import { LogOut, MessageSquare, Monitor, Moon, Sparkles, Sun, User as UserIcon, Users } from "lucide-react";
 import { toast } from "sonner";
 import { useSearchParams } from "react-router-dom";
 import {
@@ -13,7 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/hooks/useTheme";
-import { useShouldShowSupport } from "@/hooks/useShouldShowSupport";
+import { useUserTier } from "@/hooks/useUserTier";
 import { JoinClassDialog } from "@/components/JoinClassDialog";
 import { FeedbackDialog } from "@/components/FeedbackDialog";
 
@@ -36,7 +36,7 @@ interface UserMenuProps {
 export function UserMenu({ inline = false }: UserMenuProps) {
   const { user, profile, isTeacher, signOut } = useAuth();
   const { preference, setTheme } = useTheme();
-  const supportVisibility = useShouldShowSupport();
+  const { tier } = useUserTier();
   const [searchParams, setSearchParams] = useSearchParams();
   const feedbackFromUrl = useRef(searchParams.get("feedback") === "true");
   useEffect(() => {
@@ -45,8 +45,11 @@ export function UserMenu({ inline = false }: UserMenuProps) {
       setSearchParams(searchParams, { replace: true });
     }
   }, []);
-  const tipUrl = import.meta.env.VITE_STRIPE_TIP_URL as string | undefined;
-  const showSupportItem = !!tipUrl && supportVisibility === "show";
+  const membershipUrl = import.meta.env.VITE_STRIPE_MEMBERSHIP_URL as
+    | string
+    | undefined;
+  // Only free members see the upgrade item; hidden for Nomenklatura/Politburo/UCS.
+  const showUpgrade = !!membershipUrl && tier === "free";
 
   // Signed-out users get a prominent "Sign in" button when inline, so the
   // top bar still has something on the right.
@@ -185,12 +188,19 @@ export function UserMenu({ inline = false }: UserMenuProps) {
             }
           />
 
-          {/* Support the project — tip jar; hidden for UCS students */}
-          {showSupportItem && (
+          {/* Upgrade to Nomenklatura — free members only; hidden once a member. */}
+          {showUpgrade && (
             <DropdownMenuItem asChild className="cursor-pointer">
-              <a href={tipUrl} target="_blank" rel="noopener noreferrer">
-                <Heart className="mr-2 h-4 w-4 text-rose-600 dark:text-rose-400" />
-                Support the project
+              <a
+                href={
+                  `${membershipUrl}?client_reference_id=${encodeURIComponent(user.id)}` +
+                  (user.email ? `&prefilled_email=${encodeURIComponent(user.email)}` : "")
+                }
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Sparkles className="mr-2 h-4 w-4 text-amber-600 dark:text-amber-400" />
+                Upgrade to Nomenklatura
               </a>
             </DropdownMenuItem>
           )}

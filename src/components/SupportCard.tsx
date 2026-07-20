@@ -1,22 +1,26 @@
 // =============================================================================
-// SupportCard — voluntary "chip in" tip jar for non-UCS users
+// SupportCard — "Upgrade to Nomenklatura" prompt for free signed-in students
 // =============================================================================
-// Shown to anonymous visitors and external (non-UCS) signed-in students.
-// Never shown to UCS students. Links to a Stripe Payment Link configured via
-// the VITE_STRIPE_TIP_URL environment variable; if the env var isn't set,
-// the card silently doesn't render (so nothing breaks during Stripe setup).
+// Replaces the old voluntary tip-jar. Shown ONLY to signed-in users whose tier
+// is 'free' (hidden for Nomenklatura / Politburo / UCS members, and for
+// anonymous visitors who have no account to attribute a purchase to).
 //
-// Dismiss behaviour: closing the card writes a timestamp to localStorage;
-// the card reappears 7 days later so it's gently present rather than a
-// one-time ask.
+// Opens the Stripe Payment Link (VITE_STRIPE_MEMBERSHIP_URL) with the user's id
+// as client_reference_id so the stripe-webhook grants membership to the right
+// account. If the env var isn't set, the card silently doesn't render (so
+// nothing breaks before Stripe go-live).
+//
+// Dismiss: closing writes a timestamp to localStorage; the card reappears 7 days
+// later so it's gently present rather than a one-time ask.
 // =============================================================================
 
 import { useState } from "react";
-import { ExternalLink, Heart, X } from "lucide-react";
+import { ExternalLink, Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useShouldShowSupport } from "@/hooks/useShouldShowSupport";
+import { useAuth } from "@/contexts/AuthContext";
+import { useUserTier } from "@/hooks/useUserTier";
 
-const DISMISS_KEY = "russia-support-card-dismissed-at";
+const DISMISS_KEY = "russia-upgrade-card-dismissed-at";
 const REAPPEAR_AFTER_DAYS = 7;
 
 function readDismissedAt(): number | null {
@@ -47,19 +51,25 @@ function isDismissedAndStillFresh(): boolean {
 }
 
 export function SupportCard() {
-  const tipUrl = import.meta.env.VITE_STRIPE_TIP_URL as string | undefined;
-  const visibility = useShouldShowSupport();
+  const { user } = useAuth();
+  const { tier, loading } = useUserTier();
+  const membershipUrl = import.meta.env.VITE_STRIPE_MEMBERSHIP_URL as
+    | string
+    | undefined;
   const [dismissed, setDismissed] = useState<boolean>(() =>
     isDismissedAndStillFresh(),
   );
 
   // Don't render:
-  //   - if Stripe isn't set up yet (no env var)
-  //   - if user is a confirmed in-school student
-  //   - if they've dismissed within the last 7 days
-  //   - while membership lookup is pending (avoid flicker)
-  if (!tipUrl) return null;
-  if (visibility !== "show") return null;
+  //   - if Stripe isn't wired yet (no env var)
+  //   - for anonymous visitors (no account to attribute a purchase to)
+  //   - while the tier is loading (avoid flicker)
+  //   - for anyone who already has membership (Nomenklatura / Politburo / UCS)
+  //   - if dismissed within the last 7 days
+  if (!membershipUrl) return null;
+  if (!user) return null;
+  if (loading) return null;
+  if (tier !== "free") return null;
   if (dismissed) return null;
 
   const dismiss = () => {
@@ -67,13 +77,17 @@ export function SupportCard() {
     setDismissed(true);
   };
 
+  const upgradeUrl =
+    `${membershipUrl}?client_reference_id=${encodeURIComponent(user.id)}` +
+    (user.email ? `&prefilled_email=${encodeURIComponent(user.email)}` : "");
+
   return (
-    <div className="mb-4 rounded-xl bg-rose-50/60 p-5 ring-1 ring-rose-200/60 dark:bg-rose-950/20 dark:ring-rose-800/40 sm:p-6">
+    <div className="mb-4 rounded-xl bg-amber-50/70 p-5 ring-1 ring-amber-200/70 dark:bg-amber-950/20 dark:ring-amber-800/40 sm:p-6">
       <div className="mb-3 flex items-start justify-between gap-3">
         <div className="flex items-center gap-2">
-          <Heart className="h-4 w-4 text-rose-600 dark:text-rose-400" />
+          <Sparkles className="h-4 w-4 text-amber-600 dark:text-amber-400" />
           <h2 className="font-serif text-base font-bold text-primary sm:text-lg">
-            This app costs real money to run
+            Keep the AI features running
           </h2>
         </div>
         <button
@@ -87,16 +101,20 @@ export function SupportCard() {
 
       <div className="space-y-3 text-sm leading-relaxed text-foreground/90">
         <p>
-          I'm a History teacher. I built this on weekends because nothing out
-          there quite fit how I teach AQA 7042, and I've been thrilled by the
-          uptake — students from beyond my own school are signing up every
-          day.
+          I'm a History teacher, and I built this on weekends to help my
+          students. The whole app stays free — the questions, recall, chronology
+          and extracts always will.
         </p>
         <p>
-          But with more users, hosting and especially the AI features are
-          starting to cost me a meaningful amount each day. If the app's been
-          useful, you can chip in toward the running costs below. Completely
-          voluntary — everything stays free either way.
+          But Potemkin and Zhukovsky use AI that costs me real money every time
+          they run. I lost money on the app last year, and these features cost
+          more. I'm not trying to make a profit — I just don't want to lose
+          money keeping them available.
+        </p>
+        <p>
+          If they're helping you, <strong>Nomenklatura membership</strong> gives
+          you a year of much higher daily AI limits for a one-off{" "}
+          <strong>£5</strong>. It keeps the lights on.
         </p>
       </div>
 
@@ -104,10 +122,10 @@ export function SupportCard() {
         <Button
           asChild
           size="sm"
-          className="gap-2 bg-rose-600 text-white hover:bg-rose-700"
+          className="gap-2 bg-amber-600 text-white hover:bg-amber-700"
         >
-          <a href={tipUrl} target="_blank" rel="noopener noreferrer">
-            Chip in
+          <a href={upgradeUrl} target="_blank" rel="noopener noreferrer">
+            Get Nomenklatura — £5
             <ExternalLink className="h-3.5 w-3.5" />
           </a>
         </Button>

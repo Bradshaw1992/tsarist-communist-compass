@@ -14,3 +14,9 @@ verify_jwt = false
 
 [functions.zhukovsky]
 verify_jwt = false
+
+[functions.factcheck]
+verify_jwt = false
+
+[functions.stripe-webhook]
+verify_jwt = false
