@@ -213,7 +213,7 @@ serve(async (req) => {
       { type: "text" as const, text: CHECKER },
       {
         type: "text" as const,
-        text: `SOURCE MATERIAL (authoritative for this course — treat as ground truth):\n\n${corpus}`,
+        text: `COURSE MATERIAL (shows the SCOPE and EMPHASIS of this course ONLY — it contains teaching notes and student-written answers and is NOT a fact or spelling authority):\n\n${corpus}`,
         cache_control: { type: "ephemeral" as const },
       },
     ];
