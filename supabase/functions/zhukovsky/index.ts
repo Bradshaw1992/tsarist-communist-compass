@@ -104,10 +104,23 @@ async function alertCapReached(spentPence: number): Promise<void> {
   }
 }
 
-// ---- corpus: spec-tagged chunks + cross-spec marking guidance, priority-ordered, capped ----
+// ---- corpus: spec-tagged chunks + cross-spec marking guidance, balanced by source ----
+// SOURCE_PRIORITY controls ORDER WITHIN a bucket. The three buckets each get a
+// guaranteed share of the budget so no category can starve the others: a plain
+// priority-fill loaded ~84-90% mark_scheme and 0% textbook readings for many specs
+// (measured 2026-07-22), so the marker never saw the actual history or Tom's own
+// material. Shares chosen with Tom: AQA emphasis 40 / textbook history 30 / Tom's
+// teaching material 30. Verified level-stable on his 15-answer set.
 const SOURCE_PRIORITY: Record<string, number> = {
   mark_scheme: 0, tbb_guide: 1, spec: 2, organiser: 3, exam: 4, workpack: 5, reading: 6,
 };
+type Bucket = "aqa" | "reading" | "tom";
+const CORPUS_BUCKET: Record<string, Bucket> = {
+  mark_scheme: "aqa", reading: "reading",
+  tbb_guide: "tom", organiser: "tom", workpack: "tom", spec: "tom", exam: "tom",
+};
+const BUCKET_SHARE: Record<Bucket, number> = { aqa: 0.40, reading: 0.30, tom: 0.30 };
+
 async function buildCorpus(sb: ReturnType<typeof createClient>, specId: number): Promise<string> {
   // spec-tagged material for this spec point...
   const { data: specChunks } = await sb
@@ -125,13 +138,31 @@ async function buildCorpus(sb: ReturnType<typeof createClient>, specId: number):
   const all = [...(specChunks ?? []), ...(guidance ?? [])];
   all.sort((a, b) => (SOURCE_PRIORITY[a.source_type] ?? 9) - (SOURCE_PRIORITY[b.source_type] ?? 9));
 
+  const cap: Record<Bucket, number> = {
+    aqa: Math.floor(MAX_CORPUS_CHARS * BUCKET_SHARE.aqa),
+    reading: Math.floor(MAX_CORPUS_CHARS * BUCKET_SHARE.reading),
+    tom: Math.floor(MAX_CORPUS_CHARS * BUCKET_SHARE.tom),
+  };
+  const used: Record<Bucket, number> = { aqa: 0, reading: 0, tom: 0 };
   const parts: string[] = [];
-  let chars = 0;
+  const taken = new Set<unknown>();
+  let total = 0;
+  const block = (c: { source_type: string; source: string; content: string }) =>
+    `--- [${c.source_type}] ${c.source} ---\n${c.content}`;
+
+  // pass 1: fill each bucket to its guaranteed share (priority order within bucket)
   for (const c of all) {
-    const block = `--- [${c.source_type}] ${c.source} ---\n${c.content}`;
-    if (chars + block.length > MAX_CORPUS_CHARS) continue; // skip, keep filling from lower priority
-    parts.push(block);
-    chars += block.length;
+    const bk = CORPUS_BUCKET[c.source_type] ?? "tom";
+    const b = block(c);
+    if (used[bk] + b.length <= cap[bk]) {
+      parts.push(b); used[bk] += b.length; total += b.length; taken.add(c);
+    }
+  }
+  // pass 2: no wasted budget — spend any remainder on leftover chunks, priority order
+  for (const c of all) {
+    if (taken.has(c)) continue;
+    const b = block(c);
+    if (total + b.length <= MAX_CORPUS_CHARS) { parts.push(b); total += b.length; taken.add(c); }
   }
   return parts.join("\n\n");
 }
