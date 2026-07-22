@@ -193,6 +193,7 @@ Do NOT flag — these are NOT errors, stay silent:
 - an ambiguity you have to invent or assume in order to flag it — read the answer in its most sensible sense
 - anything that is merely LESS detailed or LESS precise than it could be
 - a claim, event, or phrase simply because it does NOT appear in the source material — absence from the material is NOT evidence it is false
+- a pre-1918 Russian date that is right in EITHER calendar. Russia used the Julian ("Old Style") calendar until February 1918 — 12 days behind the Western calendar in the 19th century, 13 in the 20th — so most events before then have two correct dates: Bloody Sunday 9 Jan (OS) / 22 Jan (NS) 1905, the February Revolution 23 Feb (OS) / 8 March (NS) 1917, the October Revolution 25 Oct (OS) / 7 Nov (NS) 1917. If the student's date is correct in one style it is CORRECT: say nothing, and never "correct" one style into the other.
 
 The SOURCE MATERIAL below shows what THIS course covers: if the student's claim is consistent with it, DO NOT flag it. Use the material to AVOID contradicting the course, not as a checklist — never flag a claim it is merely silent about.
 
@@ -358,7 +359,9 @@ serve(async (req) => {
     // so it grounds errors in THIS course's material rather than parametric guesses.
     const checkerSystem = [
       { type: "text" as const, text: CHECKER },
-      { type: "text" as const, text: `SOURCE MATERIAL (authoritative for this course — treat as ground truth):\n\n${corpus}`, cache_control: { type: "ephemeral" as const } },
+      // NOT "ground truth" — that header contradicted CHECKER's own rule above and
+      // is what let a student's misspelling inside an exemplar outrank real history.
+      { type: "text" as const, text: `SOURCE MATERIAL (shows the SCOPE and EMPHASIS of this course ONLY — it contains teaching notes and student-written answers and is NOT a fact or spelling authority):\n\n${corpus}`, cache_control: { type: "ephemeral" as const } },
     ];
 
     const [marker, checker] = await Promise.all([

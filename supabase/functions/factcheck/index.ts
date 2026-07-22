@@ -32,7 +32,8 @@ const MIN_PARAGRAPH_CHARS = 40;      // skip headings / one-liners when retrievi
 const MAX_PARAGRAPHS_EMBED = 15;     // cap OpenAI calls per essay
 const RETRIEVE_K = 4;                // chunks per paragraph
 const MAX_CORPUS_CHARS = 25_000;     // deduped retrieval budget (~6k tokens)
-const MAX_TOKENS = 1_500;            // room for several issues
+const MAX_TOKENS = 2_500;            // ~15 issues; truncation loses the WHOLE reply
+                                     // (unparseable JSON), so leave real headroom
 const CONFIDENCE_FLOOR = 0.7;        // drop anything the model is unsure about
 
 // Spend cap. This path has no per-user identity (shared-secret teacher tool), so it
@@ -77,6 +78,7 @@ Do NOT flag — these are NOT errors, stay silent:
 - an ambiguity you have to invent or assume in order to flag it — read the essay in its most sensible sense
 - anything that is merely LESS detailed or LESS precise than it could be
 - a claim simply because it does NOT appear in the source material — absence from the material is NOT evidence it is false
+- a pre-1918 Russian date that is right in EITHER calendar. Russia used the Julian ("Old Style") calendar until February 1918 — 12 days behind the Western calendar in the 19th century, 13 in the 20th — so most events before then have two correct dates: Bloody Sunday 9 Jan (OS) / 22 Jan (NS) 1905, the February Revolution 23 Feb (OS) / 8 March (NS) 1917, the October Revolution 25 Oct (OS) / 7 Nov (NS) 1917. If the student's date is correct in one style it is CORRECT: say nothing, and never "correct" one style into the other.
 
 The SOURCE MATERIAL below shows what THIS course covers: if a claim is consistent with it, DO NOT flag it. Use the material to AVOID contradicting the course, not as a checklist — never flag a claim the material is merely silent about.
 
@@ -85,6 +87,8 @@ CRITICAL — THE SOURCE MATERIAL IS NOT A SPELLING OR FACT AUTHORITY. It include
 HARD TEST before flagging: you must be able to state the specific correct fact that REPLACES the student's claim (their date/name/cause is X; it was actually Y). If your correction instead says the claim "isn't in the material", that they "may be conflating events", that a term is non-standard or made-up, or asks them to "clarify" — that is NOT an error. Say nothing.
 
 Silence is the normal, correct result — most good writing contains NO errors. Only speak when you are highly confident a claim is factually wrong.
+
+COVER THE WHOLE ESSAY. Read from the first paragraph to the last and apply the tests above to every claim in every paragraph, including the final one. There is no quota and no maximum: report EVERY claim that passes the HARD TEST, however many that turns out to be, and never stop looking because you have already found one or two. The bar for each error is exactly the same whether it is the first you have found or the tenth.
 
 For EACH real error, return an object with:
 - "quote": the exact text from the essay that contains the error, copied CHARACTER FOR CHARACTER — same spelling, punctuation and capitalisation, including any of the student's own mistakes. Choose the SHORTEST span that still contains the error. Do NOT paraphrase, correct, or normalise it — it must be findable verbatim in the document.
@@ -96,6 +100,23 @@ For EACH real error, return an object with:
 
 Respond ONLY with JSON: {"issues":[{"quote":"...","anchor":"...","correction":"...","replacement":"...","why":"...","confidence":0.0}]}
 If there are no clear factual errors, return {"issues":[]}.`;
+
+// Find `span` in the essay and return the essay's OWN characters for it.
+// The model reliably copies wording but not whitespace: a quote that straddles a
+// line break comes back with the break flattened to a space, so a plain
+// includes() test silently binned real errors. Match whitespace-insensitively
+// and hand back the verbatim text, which is what the Doc client needs to locate.
+function locate(essay: string, span: string): string | null {
+  const s = (span ?? "").trim();
+  if (!s) return null;
+  if (essay.includes(s)) return s;
+  const pattern = s
+    .split(/\s+/)
+    .map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+    .join("\\s+");
+  const m = essay.match(new RegExp(pattern));
+  return m ? m[0] : null;
+}
 
 async function callAnthropic(
   apiKey: string,
@@ -223,18 +244,26 @@ serve(async (req) => {
     const raw = Array.isArray(result.issues) ? result.issues : [];
     const issues = raw
       .filter((i: any) => i && typeof i.quote === "string" && typeof i.correction === "string")
-      .map((i: any) => ({
-        quote: String(i.quote),
-        anchor: typeof i.anchor === "string" ? i.anchor : String(i.quote),
-        correction: String(i.correction),
-        replacement: typeof i.replacement === "string" ? i.replacement : "",
-        why: typeof i.why === "string" ? i.why : "",
-        confidence: Number(i.confidence),
-      }))
+      .map((i: any) => {
+        const quote = locate(essay, i.quote);
+        const anchor = locate(essay, typeof i.anchor === "string" ? i.anchor : i.quote);
+        return {
+          quote: quote ?? "",
+          anchor: anchor ?? quote ?? "",
+          correction: String(i.correction),
+          // `replacement` is a drop-in for the model's OWN quote. If we had to
+          // recover a differently-spaced span it is no longer a safe swap, so
+          // drop it — the client falls back to highlight + correction note.
+          replacement:
+            typeof i.replacement === "string" && quote === i.quote ? i.replacement : "",
+          why: typeof i.why === "string" ? i.why : "",
+          confidence: Number(i.confidence),
+        };
+      })
       .filter((i: any) => Number.isFinite(i.confidence) && i.confidence >= CONFIDENCE_FLOOR)
-      // the model must have copied a real substring; if neither quote nor anchor is
-      // present in the essay it invented the span — drop it rather than mis-highlight.
-      .filter((i: any) => essay.includes(i.quote) || essay.includes(i.anchor));
+      // the model must have copied a real span; if neither quote nor anchor can be
+      // found in the essay it invented it — drop rather than mis-highlight.
+      .filter((i: any) => i.quote || i.anchor);
 
     return new Response(
       JSON.stringify({ issues, checked_paragraphs: embedTargets.length }),
