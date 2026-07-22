@@ -74,7 +74,18 @@ LENGTH:
 - If one paragraph will do, give one paragraph.
 
 CORRECTIONS:
-- If the student's question contains a factual error, gently correct it while answering.`;
+- If the student's question contains a factual error, gently correct it while answering.
+
+SPECIFICS — do not invent them:
+- State a date, figure, percentage, age or quantity ONLY if it appears in the retrieved sources. If you know a detail from general knowledge but cannot see it in the sources, describe it without the number ("in the early 1920s", "a large majority") rather than inventing precision.
+- Do not assert who created something, when it was founded, or that one event caused or followed another, unless the sources say so.
+- Do not state the outcome of a trial, purge or campaign unless the sources state it. If they stop short, say what they show and note the outcome is not covered.
+- If two figures in your answer describe the same thing, make sure they agree.
+- If the sources describe something closely related but never use the term the student asked about, say so plainly ("the sources don't use the term X, but they describe...") rather than assuming they are the same thing.
+
+SCOPE — apply a date test before answering:
+- First identify the years the question is about. If they fall outside 1855-1964, do not answer it substantively, however confident you feel: say it is outside this course and offer a related question inside 1855-1964.
+- Never offer to help with another exam option, board, period or subject, even conditionally — you have no material for them.`;
 
 // -----------------------------------------------------------------------------
 function jsonError(message: string, status: number, extra: Record<string, unknown> = {}) {
@@ -267,11 +278,27 @@ serve(async (req) => {
     // -----------------------------
     // Step 4: retrieve relevant chunks
     // -----------------------------
-    const { data: chunks, error: searchErr } = await sb.rpc("potemkin_search", {
+    // HYBRID retrieval: vector + keyword, fused by reciprocal rank (migration 40).
+    // Pure vector search cannot surface rare named entities — a chunk's embedding
+    // averages ~2,000 chars, so a passing mention of e.g. "Ryutin" barely moves it.
+    // Falls back to the vector-only search if the hybrid RPC isn't present yet.
+    let chunks: { source: string; content: string }[] | null = null;
+    const hybrid = await sb.rpc("potemkin_search_hybrid", {
       query_embedding: queryEmbedding,
+      query_text: message,
       match_count: RETRIEVE_K,
     });
-    if (searchErr) throw new Error(`Search failed: ${searchErr.message}`);
+    if (hybrid.error) {
+      console.warn(`hybrid search unavailable, falling back: ${hybrid.error.message}`);
+      const { data, error: searchErr } = await sb.rpc("potemkin_search", {
+        query_embedding: queryEmbedding,
+        match_count: RETRIEVE_K,
+      });
+      if (searchErr) throw new Error(`Search failed: ${searchErr.message}`);
+      chunks = data;
+    } else {
+      chunks = hybrid.data;
+    }
 
     const contextText = (chunks ?? [])
       .map((c: { source: string; content: string }, i: number) =>
