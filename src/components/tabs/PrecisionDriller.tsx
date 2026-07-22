@@ -635,7 +635,7 @@ function ZhukovskyMark({ result, userAnswer, officialAnswer, questionText, canNe
       )}
       {!result.servedModelAnswer && (
         <div className="rounded-lg border border-border bg-muted/50 p-5">
-          <h4 className="mb-1 font-serif text-sm font-semibold text-primary">Model Answer</h4>
+          <h4 className="mb-1 font-serif text-sm font-semibold text-primary">Example Answer</h4>
           <p className="text-sm leading-relaxed text-foreground/80">{officialAnswer}</p>
         </div>
       )}
@@ -681,7 +681,7 @@ function AssessedView({ userAnswer, correctAnswer, feedback, assessment, questio
         </div>
       )}
       <div className="rounded-lg border border-border bg-muted/50 p-5">
-        <h4 className="mb-1 font-serif text-sm font-semibold text-primary">Model Answer</h4>
+        <h4 className="mb-1 font-serif text-sm font-semibold text-primary">Example Answer</h4>
         <p className="text-sm leading-relaxed text-foreground/80">{correctAnswer}</p>
       </div>
       <div className="rounded-lg border border-border bg-card p-4">

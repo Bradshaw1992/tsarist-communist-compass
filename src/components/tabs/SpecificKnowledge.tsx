@@ -366,7 +366,7 @@ export function SpecificKnowledge({
                 </div>
               )}
               <div className="rounded-lg border border-border bg-muted/50 p-5">
-                <h4 className="mb-1 font-serif text-sm font-semibold text-primary">Model Answer</h4>
+                <h4 className="mb-1 font-serif text-sm font-semibold text-primary">Example Answer</h4>
                 <p className="text-sm leading-relaxed text-foreground/80">{question.answer}</p>
               </div>
               <div className="flex items-center gap-2 text-sm font-medium">
