@@ -189,6 +189,7 @@ Flag ONLY:
 Do NOT flag — these are NOT errors, stay silent:
 - an overstatement, simplification or sweeping phrase ("all Russians", "the first ever") — that is nuance, not fact
 - an interpretation, judgement, or debated/historiographical point (whether a death was suicide, how significant something was, whether a term is "standard")
+- who said a famous quotation, or whether a quotation is authentic. Attribution debates are historiography, not fact. If your correction would say a quote is "disputed", "commonly attributed", "apocryphal", "not authentically documented", or should be used "with qualification" — that is NOT an error. Say nothing.
 - wording that is imprecise or non-standard but whose meaning is clear
 - an ambiguity you have to invent or assume in order to flag it — read the answer in its most sensible sense
 - anything that is merely LESS detailed or LESS precise than it could be
@@ -202,7 +203,9 @@ CRITICAL — THE SOURCE MATERIAL IS NOT A SPELLING OR FACT AUTHORITY. It include
 HARD TEST before flagging: you must be able to state the specific correct fact that REPLACES the student's claim (their date/name/cause is X; it was actually Y). If your correction instead says the claim "isn't in the material", that they "may be conflating events", that a term is non-standard or made-up, or asks them to "clarify" — that is NOT an error. Say nothing.
 
 Silence is the normal, correct result — most good answers contain NO errors, so return an empty array. Only speak when you are highly confident a claim is factually wrong. If the argument is sound but one supporting detail is off, note it with undermines_argument:false; a claim that breaks the argument gets true.
-Respond ONLY with JSON: {"issues":[{"claim":"...","correction":"...","undermines_argument":true|false}]}`;
+
+Also set "checkable": true ONLY when the error is a wrong DATE, NAME, NUMBER or event attribution with ONE specific correct replacement you have stated. If the correction is a matter of degree, emphasis, attribution of a quotation, or anything a historian could reasonably dispute, set it false.
+Respond ONLY with JSON: {"issues":[{"claim":"...","correction":"...","undermines_argument":true|false,"checkable":true|false}]}`;
 
 async function callAnthropic(
   apiKey: string,
@@ -380,12 +383,18 @@ serve(async (req) => {
       servedModelAnswer = true;
     }
 
-    // Only surface errors that actually UNDERMINE the answer (Tom's call): the soft,
-    // non-argument-breaking notes are the noise students found unhelpful. The hard
-    // ones (wrong load-bearing fact) are what "Worth checking" is for.
+    // Which errors reach the student. Tom's marking model: a wrong SUPPORTING detail
+    // never moves the level, but the student still gets the correction — so hiding
+    // every non-argument-breaking error (the old rule) lost half of them. Measured:
+    // 6 injected false dates, all detected, only 3 shown.
+    // But the original filter existed for a reason — the noise students disliked was
+    // soft, arguable notes. So the gate is now the KIND of error, not its severity:
+    // a wrong date/name/number always shows; anything a historian could dispute
+    // (attribution of a quotation, matters of degree) stays hidden unless it breaks
+    // the argument outright.
     const errors = Array.isArray(checker.issues) ? checker.issues.filter(
       (e: any) => e && typeof e.claim === "string" && typeof e.correction === "string"
-        && e.undermines_argument === true,
+        && (e.undermines_argument === true || e.checkable === true),
     ) : [];
 
     // Reconcile coverage server-side by INDEX, not by echoed string. The key
