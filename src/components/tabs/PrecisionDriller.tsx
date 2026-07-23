@@ -18,7 +18,7 @@ import type { QuizQuestion } from "@/types/revision";
 import type { DrillerSessionInput } from "@/hooks/useHighScores";
 import type { AssessmentInput } from "@/hooks/useWrongAnswers";
 import type { PerQuestionEntry } from "@/types/supabase-helpers";
-import { SessionLengthChooser } from "@/components/tabs/SpecificKnowledge";
+import { SessionLengthControl } from "@/components/tabs/SpecificKnowledge";
 
 interface PrecisionDrillerProps {
   specId: number;
@@ -334,24 +334,23 @@ export function PrecisionDriller({
     );
   }
 
-  const showChooser =
+  const canChooseLength =
     !retryMode && currentIndex === 0 && !revealed && !prevEntry?.assessment && allQuestions.length > 0;
 
   return (
     <div className="space-y-6">
       <Header questionsCount={questions.length} allCount={allQuestions.length} stats={stats} retryMode={retryMode} />
 
-      {showChooser && (
-        <SessionLengthChooser
-          value={sessionSize}
-          onChange={setSessionSize}
-          maxCount={allQuestions.length}
-        />
-      )}
-
-      <div className="text-center text-xs text-muted-foreground">
+      <div className="flex items-center justify-center gap-1 text-center text-xs text-muted-foreground">
         {retryMode && <span className="text-destructive font-medium mr-1">Retry ·</span>}
-        Question {currentIndex + 1} of {questions.length}
+        <span>Question {currentIndex + 1} of</span>
+        <SessionLengthControl
+          editable={canChooseLength}
+          value={sessionSize}
+          count={questions.length}
+          maxCount={allQuestions.length}
+          onChange={setSessionSize}
+        />
       </div>
 
       <Card className="mx-auto max-w-2xl border-2 shadow-lg">

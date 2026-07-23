@@ -6,8 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   CheckCircle2, XCircle, RotateCcw, Zap, Eye, Trophy, Star,
-  BookOpen, ChevronLeft, ChevronRight,
+  BookOpen, ChevronLeft, ChevronRight, ChevronDown,
 } from "lucide-react";
+import {
+  DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 import { trackEvent } from "@/lib/analytics";
 import { ReportIssueDialog, ReportFlagButton } from "@/components/ReportIssueDialog";
 import type { FactDrillerQuestion } from "@/types/revision";
@@ -33,7 +36,7 @@ interface SpecificKnowledgeProps {
   onExit?: () => void;
 }
 
-const DEFAULT_SESSION_SIZE = 20;
+const DEFAULT_SESSION_SIZE = 10;
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -307,27 +310,26 @@ export function SpecificKnowledge({
   // --- QUIZ PHASE ---
   if (!question) return null;
 
-  // Show the session-length chooser only before the student has locked in by
+  // The session length can only be changed before the student locks in by
   // revealing or assessing anything on Q1, and never during retry runs or when
   // the question set is pre-built by a follow-up flow.
-  const showChooser =
+  const canChooseLength =
     !retryMode && !isOverride && currentIndex === 0 && !revealed && !prevEntry?.assessment && allQuestions.length > 0;
 
   return (
     <div className="space-y-6">
       <Header questionsCount={questions.length} allCount={allQuestions.length} stats={stats} retryMode={retryMode} />
 
-      {showChooser && (
-        <SessionLengthChooser
-          value={sessionSize}
-          onChange={setSessionSize}
-          maxCount={allQuestions.length}
-        />
-      )}
-
-      <div className="text-center text-xs text-muted-foreground">
+      <div className="flex items-center justify-center gap-1 text-center text-xs text-muted-foreground">
         {retryMode && <span className="text-destructive font-medium mr-1">Retry ·</span>}
-        Question {currentIndex + 1} of {questions.length}
+        <span>Question {currentIndex + 1} of</span>
+        <SessionLengthControl
+          editable={canChooseLength}
+          value={sessionSize}
+          count={questions.length}
+          maxCount={allQuestions.length}
+          onChange={setSessionSize}
+        />
       </div>
 
       <Card className="mx-auto max-w-2xl border-2 shadow-lg">
@@ -480,54 +482,55 @@ function Header({ questionsCount, allCount, stats, retryMode, label }: {
   );
 }
 
-export function SessionLengthChooser({ value, onChange, maxCount }: {
+// Compact inline session-length affordance that lives on the "Question X of N"
+// counter line and is SHARED by both drillers (Knowledge here, Concept via
+// import in PrecisionDriller). Pre-start it renders the count as a small
+// tappable "N ▾" control offering 5 / 10 / All (N); once the session has begun
+// (`editable=false`) it renders as plain text, so length stays locked before Q1.
+export function SessionLengthControl({ editable, value, count, maxCount, onChange }: {
+  editable: boolean;
   value: number;
-  onChange: (n: number) => void;
+  count: number;
   maxCount: number;
+  onChange: (n: number) => void;
 }) {
-  // Offer 10 / 20 / 30 as presets where the pool is large enough, then always
-  // an "All" option at the tail. "All" collapses into 30 (etc.) automatically
-  // if the pool is exactly that size.
+  // 5 / 10 as presets where the pool is large enough, then an "All" option at
+  // the tail. "All" collapses into a preset automatically if the pool is that
+  // exact size (e.g. a 10-question pool shows only 5 / All (10)).
   const options = useMemo(() => {
-    const presets = [10, 20, 30].filter((n) => n < maxCount);
-    const all = maxCount;
-    const final = [...presets, all];
-    return final.map((n) => ({
-      value: n,
-      label: n === all ? `All (${n})` : String(n),
-    }));
+    const presets = [5, 10].filter((n) => n < maxCount);
+    return [...presets, maxCount];
   }, [maxCount]);
 
-  // Clamp the active value to the largest available option so a stale 20 on a
-  // small pool still shows a reasonable selection.
   const effective = Math.min(value, maxCount);
 
-  if (options.length <= 1) return null;
+  // Not pre-start, or only one possible length: just show the number as text.
+  if (!editable || options.length <= 1) {
+    return <span>{count}</span>;
+  }
 
   return (
-    <div className="mx-auto flex max-w-2xl flex-col items-center gap-2 rounded-lg border border-border bg-card/50 px-4 py-3 text-center sm:flex-row sm:justify-center sm:gap-4">
-      <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-        Session length
-      </span>
-      <div className="flex flex-wrap items-center justify-center gap-1.5">
-        {options.map((opt) => {
-          const active = opt.value === effective;
-          return (
-            <button
-              key={opt.value}
-              type="button"
-              onClick={() => onChange(opt.value)}
-              className={
-                active
-                  ? "rounded-md bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground shadow-sm"
-                  : "rounded-md border border-border bg-background px-3 py-1 text-xs font-medium text-foreground/70 hover:border-primary/40 hover:text-foreground"
-              }
-            >
-              {opt.label}
-            </button>
-          );
-        })}
-      </div>
-    </div>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          type="button"
+          className="inline-flex items-center gap-0.5 rounded-md border border-border bg-background px-2 py-0.5 font-semibold text-foreground/80 hover:border-primary/40 hover:text-foreground"
+        >
+          {count}
+          <ChevronDown className="h-3 w-3" />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="center" className="min-w-[6rem]">
+        {options.map((n) => (
+          <DropdownMenuItem
+            key={n}
+            onSelect={() => onChange(n)}
+            className={n === effective ? "font-semibold text-primary" : ""}
+          >
+            {n >= maxCount ? `All (${maxCount})` : String(n)}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
