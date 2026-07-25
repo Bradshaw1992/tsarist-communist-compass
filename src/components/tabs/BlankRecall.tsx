@@ -118,7 +118,6 @@ export function BlankRecall({
   const [zhukResult, setZhukResult] = useState<ZhukovskyResult | null>(null);
   const [polishedText, setPolishedText] = useState<string | null>(null);
   const [isPolishing, setIsPolishing] = useState(false);
-  const [analyseError, setAnalyseError] = useState<string | null>(null);
   const [polishError, setPolishError] = useState<string | null>(null);
   const [streamingPolish, setStreamingPolish] = useState("");
   const prefixRef = useRef("");
@@ -199,7 +198,6 @@ export function BlankRecall({
   const handleReveal = async () => {
     if (!recall?.key_concepts) return;
     trackEvent("analyse_recall", { mode: useAI ? "ai" : "local", spec_id: specId });
-    setAnalyseError(null);
 
     if (useAI) {
       setIsAnalysing(true);
@@ -229,10 +227,23 @@ export function BlankRecall({
         setRevealed(true);
         handleRecallResult(result.mentioned, result.missed);
       } catch (err) {
+        // Graceful degradation: an AI-marking outage must never dead-end the
+        // student. Fall back to the local keyword matcher (the same check anon
+        // users get) AND switch the view to Local mode, so the full Mentioned/
+        // Missed breakdown and the "keyword detection" disclaimer actually render
+        // (they're gated on !useAI). Surface the server's real reason — a daily-cap
+        // message resets at midnight, not "in a moment", so don't hard-code that.
         console.error("AI analysis error:", err);
-        const msg = err instanceof Error ? err.message : "Claude is a bit busy! Please try again in 10 seconds or shorten your text.";
-        setAnalyseError(msg);
-        toast.error(msg, { duration: 6000 });
+        const result = analyseKeyConceptsLocal(userText, recall.key_concepts);
+        setUseAI(false);
+        setZhukResult(null);
+        setAnalysis(result);
+        setRevealed(true);
+        handleRecallResult(result.mentioned, result.missed);
+        const reason = err instanceof Error && err.message
+          ? err.message
+          : "Zhukovsky's AI marking is unavailable right now.";
+        toast.info(`${reason} Showing a keyword check instead.`, { duration: 7000 });
       } finally {
         setIsAnalysing(false);
       }
@@ -588,22 +599,6 @@ export function BlankRecall({
                 Streaming response — this won't time out.
               </p>
             </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Retry button after analyse error */}
-      {analyseError && !revealed && !isAnalysing && (
-        <Card className="border-destructive/30 bg-destructive/5">
-          <CardContent className="flex items-center justify-between gap-3 p-4">
-            <div className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 shrink-0 text-destructive" />
-              <p className="text-sm text-foreground">{analyseError}</p>
-            </div>
-            <Button onClick={handleReveal} size="sm" variant="outline" className="shrink-0">
-              <RotateCcw className="mr-1.5 h-3.5 w-3.5" />
-              Retry
-            </Button>
           </CardContent>
         </Card>
       )}
