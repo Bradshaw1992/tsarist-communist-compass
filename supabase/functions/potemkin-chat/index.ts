@@ -125,7 +125,7 @@ interface ClaudeResponse {
 
 async function callClaude(
   anthropicKey: string,
-  systemBlocks: Array<{ type: "text"; text: string; cache_control?: { type: "ephemeral" } }>,
+  systemBlocks: Array<{ type: "text"; text: string }>,
   messages: Array<{ role: "user" | "assistant"; content: string }>
 ): Promise<ClaudeResponse> {
   const r = await fetch("https://api.anthropic.com/v1/messages", {
@@ -147,6 +147,10 @@ async function callClaude(
 }
 
 // -----------------------------------------------------------------------------
+// Per-user in-flight guard (per instance): closes the concurrent-burst race on
+// the shared spend cap. Cleared in the finally at the end of the handler.
+const inFlight = new Set<string>();
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -204,27 +208,34 @@ serve(async (req) => {
     return jsonError("Invalid session_id", 400);
   }
 
-  // -----------------------------
-  // Step 1: rate limit + spend cap
-  // -----------------------------
-  const { data: limits, error: limitsErr } = await sb.rpc("potemkin_check_limits", {
-    p_user_id: userId,
-    p_skill: "chat",
-    p_user_cap_pence: userCapPence,
-    p_global_cap_pence: GLOBAL_CAP_PENCE,
-  });
-  if (limitsErr) return jsonError("Rate-limit check failed", 500);
-  if (!limits?.allowed) {
-    const reason = limits.global_spent_pence >= limits.global_cap_pence
-      ? "Potemkin has hit today's budget. Try again tomorrow."
-      : "You've used today's AI allowance. Resets at midnight.";
-    return jsonError(reason, 429, {
-      daily_remaining: 0,
-      limits,
-    });
+  // Serialize per user (per instance): one in-flight chat at a time, so a
+  // concurrent burst can't all pass the pre-spend check before any of them
+  // records — a TOCTOU race on the shared cap. The finally below always clears.
+  if (inFlight.has(userId)) {
+    return jsonError("You already have a message being answered — give it a second.", 429);
   }
+  inFlight.add(userId);
 
   try {
+    // -----------------------------
+    // Step 1: rate limit + spend cap
+    // -----------------------------
+    const { data: limits, error: limitsErr } = await sb.rpc("potemkin_check_limits", {
+      p_user_id: userId,
+      p_skill: "chat",
+      p_user_cap_pence: userCapPence,
+      p_global_cap_pence: GLOBAL_CAP_PENCE,
+    });
+    if (limitsErr) return jsonError("Rate-limit check failed", 500);
+    if (!limits?.allowed) {
+      const reason = limits.global_spent_pence >= limits.global_cap_pence
+        ? "Potemkin has hit today's budget. Try again tomorrow."
+        : "You've used today's AI allowance. Resets at midnight.";
+      return jsonError(reason, 429, {
+        daily_remaining: 0,
+        limits,
+      });
+    }
     // -----------------------------
     // Step 2: embed the question
     // -----------------------------
@@ -323,11 +334,10 @@ serve(async (req) => {
     // Step 6: call Claude
     // -----------------------------
     const systemBlocks = [
-      // Persistent rules — cached across calls
+      // Persistent rules — NOT cached: ~1k tokens, below Haiku's 4096-token prefix minimum
       {
         type: "text" as const,
         text: SYSTEM_PROMPT,
-        cache_control: { type: "ephemeral" as const },
       },
       // Retrieved context — changes per query, not cached
       {
@@ -401,5 +411,7 @@ serve(async (req) => {
     console.error("potemkin-chat error:", err);
     const message = err instanceof Error ? err.message : "Unknown error";
     return jsonError(`Potemkin hit a snag: ${message}`, 500);
+  } finally {
+    inFlight.delete(userId);
   }
 });

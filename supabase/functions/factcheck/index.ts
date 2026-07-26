@@ -128,7 +128,7 @@ function locate(essay: string, span: string): string | null {
 
 async function callAnthropic(
   apiKey: string,
-  system: { type: "text"; text: string; cache_control?: { type: "ephemeral" } }[],
+  system: { type: "text"; text: string; cache_control?: { type: "ephemeral"; ttl?: "1h" } }[],
   userContent: string,
 ): Promise<any> {
   let lastErr = "";
@@ -178,22 +178,28 @@ serve(async (req) => {
     }
     const sb = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false } });
 
-    // ---- RING-FENCED spend cap (migration 41) ----
-    // Fact-checking has its OWN daily budget, deliberately separate from the
-    // students' £5/day. Teacher/Docs usage must never be able to starve pupils.
-    // factcheck_spend records this call and returns the spend BEFORE it.
-    const { data: spentBefore, error: spendErr } = await sb.rpc("factcheck_spend", {
-      p_cost_pence: COST_PER_ESSAY_PENCE,
-    });
-    if (!spendErr && Number(spentBefore) >= FACTCHECK_CAP_PENCE) {
-      return jsonError("Fact-checking has reached today's limit — it'll be back tomorrow.", 429);
-    }
-
+    // Validate the request BEFORE metering, so a bad/empty/oversized request
+    // can't burn budget (factcheck_spend records COST_PER_ESSAY_PENCE per call).
     const body = (await req.json()) as { text?: string };
     const essay = (body.text ?? "").replace(/\r\n/g, "\n").trim();
     if (!essay) return jsonError("Missing essay text", 400);
     if (essay.length > MAX_ESSAY_CHARS) {
       return jsonError(`Essay too long (${essay.length} chars, max ${MAX_ESSAY_CHARS}). Fact-check a section at a time.`, 400);
+    }
+
+    // ---- RING-FENCED spend cap (migration 41) ----
+    // Fact-checking has its OWN daily budget, deliberately separate from the
+    // students' £5/day. Teacher/Docs usage must never be able to starve pupils.
+    // factcheck_spend records this call and returns the spend BEFORE it.
+    // Fail CLOSED: if metering errors, refuse rather than run uncapped.
+    const { data: spentBefore, error: spendErr } = await sb.rpc("factcheck_spend", {
+      p_cost_pence: COST_PER_ESSAY_PENCE,
+    });
+    if (spendErr) {
+      return jsonError("Fact-checking is temporarily unavailable — please try again shortly.", 503);
+    }
+    if (Number(spentBefore) >= FACTCHECK_CAP_PENCE) {
+      return jsonError("Fact-checking has reached today's limit — it'll be back tomorrow.", 429);
     }
 
     // ---- retrieval: embed each substantial paragraph, gather relevant chunks ----
@@ -243,7 +249,7 @@ serve(async (req) => {
       {
         type: "text" as const,
         text: `COURSE MATERIAL (shows the SCOPE and EMPHASIS of this course ONLY — it contains teaching notes and student-written answers and is NOT a fact or spelling authority):\n\n${corpus}`,
-        cache_control: { type: "ephemeral" as const },
+        cache_control: { type: "ephemeral" as const, ttl: "1h" as const },
       },
     ];
     const result = await callAnthropic(ANTHROPIC_API_KEY, system, `STUDENT ESSAY:\n\n${essay}`);

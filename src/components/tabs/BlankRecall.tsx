@@ -10,12 +10,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { PenLine, Eye, RotateCcw, AlertTriangle, CheckCircle2, Mic, MicOff, Sparkles, Cpu, Loader2, Trash2, Camera, ExternalLink, Wand2, GraduationCap } from "lucide-react";
+import { PenLine, Eye, RotateCcw, AlertTriangle, CheckCircle2, Mic, MicOff, Sparkles, Cpu, Loader2, Trash2, Camera, ExternalLink, GraduationCap } from "lucide-react";
 import { fuzzyKeywordInText } from "@/lib/fuzzyMatcher";
 
 import { toast } from "sonner";
 import { trackEvent } from "@/lib/analytics";
-import { SUPABASE_CONFIG } from "@/integrations/supabase/config";
 import { supabase } from "@/integrations/supabase/client";
 import { markWithZhukovsky, buildPotemkinHandoff, ZHUKOVSKY_BANDS, type ZhukovskyResult } from "@/lib/zhukovsky";
 import { useAuth } from "@/contexts/AuthContext";
@@ -116,10 +115,6 @@ export function BlankRecall({
   const [analysis, setAnalysis] = useState<{ mentioned: AnalysedConcept[]; missed: string[] } | null>(null);
   // Zhukovsky's overall verdict for AI marking (level + feedback + flagged errors).
   const [zhukResult, setZhukResult] = useState<ZhukovskyResult | null>(null);
-  const [polishedText, setPolishedText] = useState<string | null>(null);
-  const [isPolishing, setIsPolishing] = useState(false);
-  const [polishError, setPolishError] = useState<string | null>(null);
-  const [streamingPolish, setStreamingPolish] = useState("");
   const prefixRef = useRef("");
 
   // Persist text to localStorage
@@ -136,7 +131,6 @@ export function BlankRecall({
     setRevealed(false);
     setAnalysis(null);
     setZhukResult(null);
-    setPolishedText(null);
   }, [storageKey]);
 
   const handleTranscript = useCallback((text: string) => {
@@ -260,7 +254,6 @@ export function BlankRecall({
     setRevealed(false);
     setAnalysis(null);
     setZhukResult(null);
-    setPolishedText(null);
   };
 
   const handleClearAndNew = () => {
@@ -268,86 +261,7 @@ export function BlankRecall({
     setRevealed(false);
     setAnalysis(null);
     setZhukResult(null);
-    setPolishedText(null);
     try { localStorage.removeItem(storageKey); } catch {}
-  };
-
-  const handlePolish = async () => {
-    if (!userText.trim()) {
-      toast.error("Write or record your recall first before polishing.");
-      return;
-    }
-    setIsPolishing(true);
-    setPolishedText(null);
-    setStreamingPolish("");
-    setPolishError(null);
-    trackEvent("polish_transcript", { spec_id: specId });
-
-    try {
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || SUPABASE_CONFIG.url;
-      const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || SUPABASE_CONFIG.anonKey;
-      const url = `${supabaseUrl}/functions/v1/polish-transcript`;
-
-      const response = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          apikey: supabaseKey,
-          Authorization: `Bearer ${supabaseKey}`,
-        },
-        body: JSON.stringify({ transcript: userText }),
-      });
-
-      if (!response.ok) {
-        let errMsg = `Polish failed (${response.status})`;
-        try { const b = await response.json(); if (b?.error) errMsg = b.error; } catch {}
-        throw new Error(errMsg);
-      }
-
-      const reader = response.body?.getReader();
-      if (!reader) throw new Error("No response stream");
-
-      const decoder = new TextDecoder();
-      let buffer = "";
-      let fullText = "";
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop() || "";
-
-        for (const line of lines) {
-          if (!line.startsWith("data: ")) continue;
-          const payload = line.slice(6).trim();
-          if (payload === "[DONE]") continue;
-
-          try {
-            const event = JSON.parse(payload);
-            if (event.type === "delta" && event.text) {
-              fullText += event.text;
-              setStreamingPolish(fullText);
-            } else if (event.type === "error") {
-              throw new Error(event.error);
-            }
-          } catch (parseErr) {
-            if (parseErr instanceof Error && parseErr.message !== "Unexpected end of JSON input") throw parseErr;
-          }
-        }
-      }
-
-      setPolishedText(fullText);
-      setStreamingPolish("");
-    } catch (err) {
-      console.error("[BlankRecall] Polish error:", err);
-      const msg = err instanceof Error ? err.message : "Failed to polish transcript. Please try again.";
-      setPolishError(msg);
-      toast.error(msg, { duration: 5000 });
-    } finally {
-      setIsPolishing(false);
-    }
   };
 
   // Build the follow-up question set from the current missed concepts.
@@ -534,7 +448,7 @@ export function BlankRecall({
           ) : (
           <Button
             onClick={handleReveal}
-            disabled={!userText.trim() || isListening || isAnalysing || isPolishing}
+            disabled={!userText.trim() || isListening || isAnalysing}
             className="bg-primary text-primary-foreground hover:bg-primary/90"
           >
             {isAnalysing ? (
@@ -556,26 +470,6 @@ export function BlankRecall({
             Try Again
           </Button>
         )}
-
-        {/* AI Polish button */}
-        <Button
-          onClick={handlePolish}
-          disabled={!userText.trim() || isPolishing || isAnalysing || isListening}
-          variant="outline"
-          className="gap-2 border-accent/50 hover:bg-accent/10"
-        >
-          {isPolishing ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Claude is thinking…
-            </>
-          ) : (
-            <>
-              <Wand2 className="h-4 w-4" />
-              ✨ Clean with Claude
-            </>
-          )}
-        </Button>
 
         <Button onClick={handleClearAndNew} variant="ghost" size="sm" className="text-destructive hover:text-destructive hover:bg-destructive/10">
           <Trash2 className="mr-1.5 h-3.5 w-3.5" />
@@ -754,87 +648,6 @@ export function BlankRecall({
         </div>
       )}
 
-      {/* Polishing feedback */}
-      {isPolishing && (
-        <Card className="border-accent/30 bg-accent/5">
-          <CardContent className="flex items-center gap-3 p-4">
-            <Loader2 className="h-5 w-5 shrink-0 animate-spin text-accent" />
-            <div className="space-y-0.5">
-              <p className="text-sm font-medium text-foreground">Scribe is cross-referencing your transcript with the AQA 1H spec…</p>
-              <p className="text-xs text-muted-foreground">
-                Cleaning transcript, correcting names, and organising into sections.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Streaming polish preview */}
-      {isPolishing && streamingPolish && (
-        <Card className="relative overflow-hidden border-2 border-amber-600/30 bg-amber-50/80 shadow-md dark:border-amber-500/20 dark:bg-amber-950/20">
-          <CardContent className="p-4">
-            <div
-              className="prose prose-sm max-w-none font-serif leading-relaxed text-amber-950 dark:text-amber-100 opacity-70"
-              dangerouslySetInnerHTML={{
-                __html: streamingPolish
-                  .replace(/^## (.+)$/gm, '<h2 class="text-base font-bold mt-4 mb-2">$1</h2>')
-                  .replace(/^- (.+)$/gm, '<li>$1</li>')
-                  .replace(/(<li>.*<\/li>\n?)+/gs, (match) => `<ul class="list-disc pl-5 space-y-1">${match}</ul>`)
-                  .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-                  .replace(/\n{2,}/g, '<br/><br/>')
-                  .replace(/\n/g, '<br/>')
-              }}
-            />
-            <span className="inline-block h-4 w-1 animate-pulse bg-amber-600 dark:bg-amber-400 ml-0.5" />
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Polish retry on error */}
-      {polishError && !isPolishing && (
-        <Card className="border-destructive/30 bg-destructive/5">
-          <CardContent className="flex items-center justify-between gap-3 p-4">
-            <div className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 shrink-0 text-destructive" />
-              <p className="text-sm text-foreground">{polishError}</p>
-            </div>
-            <Button onClick={handlePolish} size="sm" variant="outline" className="shrink-0">
-              <RotateCcw className="mr-1.5 h-3.5 w-3.5" />
-              Retry
-            </Button>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Polished output — parchment style */}
-      {polishedText && (
-        <Card className="relative overflow-hidden border-2 border-amber-600/30 bg-amber-50/80 shadow-md dark:border-amber-500/20 dark:bg-amber-950/20">
-          <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIj48ZmlsdGVyIGlkPSJhIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgbnVtT2N0YXZlcz0iNCIgc3RpdGNoVGlsZXM9InN0aXRjaCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWx0ZXI9InVybCgjYSkiIG9wYWNpdHk9Ii40Ii8+PC9zdmc+')]" />
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 font-serif text-lg text-amber-800 dark:text-amber-200">
-              <Wand2 className="h-5 w-5" />
-              Polished Transcript
-            </CardTitle>
-            <p className="text-xs text-amber-700/70 dark:text-amber-300/50">
-              Cleaned by Claude 3.5 Haiku — filler removed, names corrected, structured into sections.
-            </p>
-          </CardHeader>
-          <CardContent>
-            <div
-              className="prose prose-sm max-w-none font-serif leading-relaxed text-amber-950 dark:text-amber-100 prose-headings:font-serif prose-headings:text-amber-800 dark:prose-headings:text-amber-200 prose-strong:text-amber-900 dark:prose-strong:text-amber-100 prose-li:marker:text-amber-600"
-              dangerouslySetInnerHTML={{
-                __html: polishedText
-                  .replace(/^## (.+)$/gm, '<h2 class="text-base font-bold mt-4 mb-2">$1</h2>')
-                  .replace(/^- (.+)$/gm, '<li>$1</li>')
-                  .replace(/(<li>.*<\/li>\n?)+/gs, (match) => `<ul class="list-disc pl-5 space-y-1">${match}</ul>`)
-                  .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-                  .replace(/\n{2,}/g, '<br/><br/>')
-                  .replace(/\n/g, '<br/>')
-              }}
-            />
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 }

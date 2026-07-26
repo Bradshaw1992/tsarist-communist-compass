@@ -77,9 +77,10 @@ export function SupportCard() {
     setDismissed(true);
   };
 
-  const upgradeUrl =
-    `${membershipUrl}?client_reference_id=${encodeURIComponent(user.id)}` +
-    (user.email ? `&prefilled_email=${encodeURIComponent(user.email)}` : "");
+  // No prefilled_email: Stripe collects the email at checkout, so keeping it out
+  // of the URL avoids leaking a student's email to GA outbound-click / referrer
+  // tracking. client_reference_id (an opaque uuid) is needed for attribution.
+  const upgradeUrl = `${membershipUrl}?client_reference_id=${encodeURIComponent(user.id)}`;
 
   return (
     <div className="mb-4 rounded-xl bg-amber-50/70 p-5 ring-1 ring-amber-200/70 dark:bg-amber-950/20 dark:ring-amber-800/40 sm:p-6">

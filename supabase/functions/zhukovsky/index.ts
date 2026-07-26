@@ -352,13 +352,19 @@ serve(async (req) => {
         //  - the per-user daily SPEND allowance (5p free / 50p premium)
         //  - a GLOBAL £5/day marking spend cap that applies to everyone
         // p_skill "mark-recall" is what increments mark_count / accrues cost.
-        const { data: limits } = await sb.rpc("potemkin_check_limits", {
+        const { data: limits, error: limitsErr } = await sb.rpc("potemkin_check_limits", {
           p_user_id: userId,
           p_skill: "mark-recall",
           p_user_cap_pence: userCapPence,
           p_global_cap_pence: GLOBAL_MARKING_CAP_PENCE,
         });
-        if (limits && !limits.allowed) {
+        // Fail CLOSED: if the cap check errors or returns nothing, refuse rather
+        // than mark for free — a silent skip here bypasses BOTH the per-user and
+        // the global £5/day cap (potemkin-chat already fails closed the same way).
+        if (limitsErr || !limits) {
+          return jsonError("AI marking is temporarily unavailable — please try again in a moment.", 503);
+        }
+        if (!limits.allowed) {
           const capHit = Number(limits.global_spent_pence) >= Number(limits.global_cap_pence);
           return jsonError(
             capHit

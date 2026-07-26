@@ -158,6 +158,7 @@ export default function Privacy() {
             <li><strong>Google</strong> — sign-in (if you choose it), and cloud speech recognition on some Android devices.</li>
             <li><strong>Microsoft</strong> — sign-in, if you choose it.</li>
             <li><strong>Resend</strong> — sends occasional service emails.</li>
+            <li><strong>Stripe</strong> — processes membership payments (takes your name and email at checkout).</li>
             <li><strong>Google Analytics &amp; Netlify</strong> — website analytics and website hosting (website only).</li>
             <li><strong>Apple / Google</strong> — distribute the app through their stores.</li>
           </ul>

@@ -67,12 +67,12 @@ Deno.serve(async (req) => {
     // We key the grant off client_reference_id (the signed-in user's id, set by
     // the Upgrade button). If it's missing — e.g. the raw link was opened
     // without it — we can't safely attribute the payment, so we log and let it
-    // pass (200 so Stripe doesn't retry forever); Tom reconciles by email.
+    // pass (200 so Stripe doesn't retry forever); Tom reconciles in Stripe by
+    // session id. We deliberately do NOT log the payer's email — keeps PII out
+    // of the function logs.
     if (!userId) {
       console.warn(
-        "checkout.session.completed with no client_reference_id — email:",
-        session.customer_details?.email ?? session.customer_email,
-        "session:",
+        "checkout.session.completed with no client_reference_id — session:",
         session.id,
       );
       return new Response(JSON.stringify({ received: true, skipped: "no client_reference_id" }), {

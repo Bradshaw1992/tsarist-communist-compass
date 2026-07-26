@@ -1,8 +1,5 @@
 project_id = "prmpzclkdjtrphsemrgm"
 
-[functions.polish-transcript]
-verify_jwt = false
-
 [functions.potemkin-chat]
 verify_jwt = false
 

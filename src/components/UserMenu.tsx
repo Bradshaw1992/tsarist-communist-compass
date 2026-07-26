@@ -192,10 +192,11 @@ export function UserMenu({ inline = false }: UserMenuProps) {
           {showUpgrade && (
             <DropdownMenuItem asChild className="cursor-pointer">
               <a
-                href={
-                  `${membershipUrl}?client_reference_id=${encodeURIComponent(user.id)}` +
-                  (user.email ? `&prefilled_email=${encodeURIComponent(user.email)}` : "")
-                }
+                // No prefilled_email: Stripe collects the email at checkout, so
+                // keeping it out of the URL avoids leaking a student's email to
+                // GA outbound-click / referrer tracking. client_reference_id
+                // (an opaque uuid) is needed for webhook attribution.
+                href={`${membershipUrl}?client_reference_id=${encodeURIComponent(user.id)}`}
                 target="_blank"
                 rel="noopener noreferrer"
               >
