@@ -25,6 +25,7 @@ import TeacherQuestionsPage from "./pages/TeacherQuestionsPage.tsx";
 import TeacherFeedbackPage from "./pages/TeacherFeedbackPage.tsx";
 import AdminSchoolsPage from "./pages/AdminSchoolsPage.tsx";
 import Privacy from "./pages/Privacy.tsx";
+import DeleteAccount from "./pages/DeleteAccount.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -91,6 +92,9 @@ const App = () => (
             {/* Public privacy policy — required at this exact URL by both app
                 stores and hardcoded in the native app (settings.tsx). */}
             <Route path="/privacy" element={<Privacy />} />
+            {/* Public account-deletion page — required by Google Play so users
+                can request deletion without opening the app. */}
+            <Route path="/delete-account" element={<DeleteAccount />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
