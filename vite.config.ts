@@ -41,6 +41,30 @@ export default defineConfig(({ mode }) => ({
               cacheableResponse: { statuses: [0, 200] },
             },
           },
+          {
+            // Revision CONTENT only — the same rows for every student, so a shared
+            // school machine caching them is harmless. Serves instantly from cache
+            // and revalidates in the background, which also means content still
+            // renders for a returning student when Supabase is unreachable.
+            //
+            // The table list is an ALLOW-LIST and must stay one. Workbox matches on
+            // URL and ignores the Authorization header, so a cached response from
+            // one session can be served to another: anything per-user cached here
+            // would leak between students sharing an IT-room browser. Deliberately
+            // excluded: every user_* table, question_review_queue, classes,
+            // class_members, schools (a search endpoint, not content), and
+            // exam_guides (paywalled — entitlement is checked per request).
+            urlPattern:
+              /^https:\/\/[a-z0-9]+\.supabase\.co\/rest\/v1\/(spec_points|recall_content|fact_questions|concept_questions|chronology_questions|exam_questions|extracts|extract_sets)\?/i,
+            handler: "StaleWhileRevalidate",
+            options: {
+              cacheName: "supabase-content-cache",
+              expiration: { maxEntries: 150, maxAgeSeconds: 60 * 60 * 24 * 7 },
+              // NOT [0, 200]: status 0 is an opaque response, and caching one would
+              // persist a failed cross-origin fetch as if it were content.
+              cacheableResponse: { statuses: [200] },
+            },
+          },
         ],
       },
       manifest: {
