@@ -103,6 +103,63 @@ function jsonOk(payload: Record<string, unknown>) {
 }
 
 // -----------------------------------------------------------------------------
+// ---- bounded alert delivery -------------------------------------------------
+// ONLY alerting uses this. Resend is called from the outer catch of an already
+// failing request, so it must not be able to hang; it never reads the response
+// body, so a header-only timeout is sufficient here.
+//
+// The AI calls deliberately have NO timeout. A pre-ship review (2026-11-08)
+// found that this helper disarms its own abort before the caller reads the
+// body, that 40s aborts a normal full-length fact-check, and that aborting a
+// model call leaves spend unmetered. On Pro the worker wall clock is 400s, so
+// the pressure for timeouts is absent. See _build/supabase_cost_exit_plan.md.
+async function fetchWithTimeout(
+  url: string,
+  init: RequestInit,
+  ms: number,
+): Promise<Response> {
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), ms);
+  try {
+    return await fetch(url, { ...init, signal: ctl.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+const ALERT_EMAIL = "tom.bradshaw@ucs.org.uk";
+const ALERT_FROM = "Tom <tom@tsarist-communist-russia-1h.co.uk>";
+const ERROR_ALERT_COOLDOWN_MS = 15 * 60_000;
+const ALERT_TIMEOUT_MS = 10_000;
+
+// Emails Tom when potemkin-chat throws an UNEXPECTED error (the outer 500 path).
+// Mirrors zhukovsky's alertMarkingError. Best-effort, never throws, and rate
+// limited so a burst cannot flood the inbox. This function previously alerted
+// on nothing: a failure was visible only in the logs, which are kept 7 days on
+// Pro and 1 day on Free.
+let lastErrorAlertAt = 0;
+async function alertError(detail: string): Promise<void> {
+  const key = Deno.env.get("RESEND_API_KEY");
+  if (!key) return;
+  const now = Date.now();
+  if (now - lastErrorAlertAt < ERROR_ALERT_COOLDOWN_MS) return;
+  lastErrorAlertAt = now;
+  try {
+    await fetchWithTimeout("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        from: ALERT_FROM,
+        to: ALERT_EMAIL,
+        subject: "🔴 Potemkin chat is erroring",
+        text: `Potemkin threw and returned a 500 to a student.\n\n${detail}\n\nLogs:\nhttps://supabase.com/dashboard/project/prmpzclkdjtrphsemrgm/functions/potemkin-chat/logs\n\n(Further alerts muted for ${ERROR_ALERT_COOLDOWN_MS / 60_000} minutes.)`,
+      }),
+    }, ALERT_TIMEOUT_MS);
+  } catch (_) {
+    // swallow — alerting must not break an already-failing request
+  }
+}
+
 async function embed(text: string, openaiKey: string): Promise<number[]> {
   const r = await fetch("https://api.openai.com/v1/embeddings", {
     method: "POST",
@@ -410,6 +467,7 @@ serve(async (req) => {
   } catch (err) {
     console.error("potemkin-chat error:", err);
     const message = err instanceof Error ? err.message : "Unknown error";
+    await alertError(message);
     return jsonError(`Potemkin hit a snag: ${message}`, 500);
   } finally {
     inFlight.delete(userId);
