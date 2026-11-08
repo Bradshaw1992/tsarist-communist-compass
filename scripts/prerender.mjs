@@ -122,6 +122,20 @@ async function main() {
 }
 
 main().catch((err) => {
+  // Non-fatal by design. Prerendering only produces SEO snapshots of /spec/:id;
+  // the SPA still serves those routes client-side without them. Failing the
+  // build here would mean a Supabase outage also blocks deploying the fix for
+  // it — the one time you most need to ship. Any routes written before the
+  // failure are kept.
   console.error("[prerender] failed:", err);
-  process.exit(1);
+  console.error(
+    "\n" +
+      "!".repeat(70) +
+      "\n[prerender] SKIPPED — this deploy has NO /spec/:id SEO snapshots." +
+      "\n[prerender] The site works; search engines see the SPA shell only." +
+      "\n[prerender] Re-deploy once the cause is fixed.\n" +
+      "!".repeat(70) +
+      "\n",
+  );
+  process.exit(0);
 });
